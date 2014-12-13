@@ -1,10 +1,16 @@
-from pytz import reference
-
 __author__ = 'achoudhary'
 
 #http://www.laurentluce.com/posts/twitter-sentiment-analysis-using-python-and-nltk/
 
+# data exploration in python shell
+# http://ampcamp.berkeley.edu/big-data-mini-course/data-exploration-using-spark.html
+
+from pyspark import SparkContext
+
+
 import pprint
+import sys
+sys.path.append('/usr/local/lib/python2.7/site-packages/')
 import pandas as pd
 import nltk
 import time
@@ -14,6 +20,13 @@ import csv
 class DataSampling(object):
     def loadcsv(self, filename):
         df = pd.read_csv(filename)
+        print "=====> ",df.describe()
+        return df
+
+
+    def createDataframe(self,input):
+        df = pd.DataFrame(input[1:],columns=['x'])
+        print df.head()
         return df
 
     def cleanDataFrame(selfself, dataframe):
@@ -48,10 +61,16 @@ class Frequency(object):
         return all_words
 
 
+sc = SparkContext("yarn-client", "Data Sampling")
+contentFile = "hdfs:///stats/foo5.csv"
+logData = sc.textFile(contentFile).cache()
+# print "LOGDTATATATATAT ",logData.collect()
 sampling = DataSampling()
-df = sampling.loadcsv("D:/Work/Python/DataMining/git/classification/foo5.csv")
+df = sampling.createDataframe(logData.take(logData.count()))
+# df = sampling.loadcsv("/Users/abhishekchoudhary/Work/python/evolveML/foo5.csv")
+
 df = sampling.cleanDataFrame(df)
-print df.head()
+# print df.head()
 
 frequence = Frequency()
 all_words = frequence.extractAllWords(df)
