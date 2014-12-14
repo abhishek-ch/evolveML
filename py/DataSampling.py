@@ -7,7 +7,7 @@ __author__ = 'achoudhary'
 # http://ampcamp.berkeley.edu/big-data-mini-course/data-exploration-using-spark.html
 
 from pyspark import SparkContext
-
+import os
 import pprint
 import sys
 
@@ -36,12 +36,20 @@ class DataSampling(object):
         dataframe = dataframe.replace("http\\w+", "", regex=True)
         dataframe = dataframe.replace("U+[a-zA-Z0-9]{0,10}", "", regex=True)
         dataframe = dataframe.replace("[^(a-zA-Z0-9!@#$%&*(_) ]+", "", regex=True)
-        #string is more than 4 characters
+        # string is more than 4 characters
         # dataframe = dataframe[dataframe.x.str.len() > 4]
-        #replace all punctuation and ideally we will be expecting the hashtag is almost all the rows
+        # replace all punctuation and ideally we will be expecting the hashtag is almost all the rows
         dataframe = dataframe.replace('[^\w\s]', "", regex=True)
         #convert all string to lower case
         dataframe.x = [x.lower().strip() for x in dataframe.x]
+
+        f = open('stop-words.txt', 'r')
+        stop_words = f.readlines()
+
+        #if I don't believe in bigrams , I can use stop words to filter out values
+        for index, row in dataframe.iterrows():
+            if row in stop_words:
+                dataframe.loc[index]
 
         #need to work on stop words if any only if using unigram
         return dataframe
@@ -57,34 +65,60 @@ class Frequency(object):
     def extractAllWords(self, df):
         all_words = []
         for index, row in df.iterrows():
-            #split all the value to each specific words
+            # split all the value to each specific words
             all_words.extend((''.join(row)).split())
             # print df.x
         return all_words
 
 
+feature_list = []
+
+
 class FeatureWork(object):
 
+    def readUnigrams(self):
+        file = "/Users/abhishekchoudhary/Work/python/evolveML/py/post_neg.txt"
+        # bigramData = sc.textFile(contentFile).cache()
+        return pd.read_csv(file, names=['term', 'sentimentScore', 'numPositive', 'numNegative'], sep='\t',
+                           header=None)
+
+    def extractSentimentDataset(self, tweets):
+        unidf = self.readUnigrams()
+        print unidf.head()
+        unidf = unidf.replace("@", "", regex=True)
+        unidf = unidf.replace("#", "", regex=True)
+        unidf = unidf.replace("http\\w+", "", regex=True)
+        feature_list = unidf.terms.tolist()
+        feature = []
+        positive = []
+        negative = []
+        for index, row in unidf.iterrows():
+            try:
+                val = row['term']
+                pos = row['numPositive']
+                neg = row['numNegative']
+                if val.startswith("http\\w+"):
+                    unidf.drop(index)
+                else:
+                    if pos > neg:
+                        positive.append(val)
+                    else:
+                        negative.append(val)
+
+                feature.append((positive, 'positive'))
+                feature.append((negative, 'negative'))
+
+            except AttributeError:
+                unidf.drop(index)
+
+        return feature
 
 
-
-    def extract_features(self, tweets):
-        featurelist_df = self.readbigrams()
+    def extract_features(sampledata):
+        document_words = set(document)
         features = {}
-        i = 0
-
-
-        for word in featurelist_df.term.tolist():
-            word = word.decode('utf-8')
-            if any(word in s for s in tweets):
-                features['typeof(%s)' % word] = ("Positive"
-                if featurelist_df['numPositive'][i] > featurelist_df['numNegative'][i] else "Negative")
-            else:
-                features['typeof(%s)' % word] = ("NoResult")
-
-            i += 1
-
-        print features
+        for word in feature_list:
+            features['contains(%s)' % word] = (word in document_words)
         return features
 
     def readbigrams(self):
@@ -94,11 +128,12 @@ class FeatureWork(object):
                            header=None)
 
 
-    def perform(self,tweet_df):
+    def perform(self, tweet_df):
         # Extract feature vector for all tweets in one shote
         training_set = nltk.classify.util.apply_features(self.extract_features, tweet_df.x.tolist())
         print training_set
         return training_set
+
 
 sc = SparkContext("yarn-client", "Data Sampling")
 contentFile = "hdfs:///stats/foo5.csv"
@@ -110,7 +145,7 @@ df = sampling.createDataframe(logData.take(logData.count()))
 df = sampling.cleanDataFrame(df)
 # print df.head()
 
-#required to make word cloud
+# required to make word cloud
 # frequence = Frequency()
 # all_words = frequence.extractAllWords(df)
 # frequence.findWordFrequency(all_words)
