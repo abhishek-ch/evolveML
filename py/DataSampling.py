@@ -29,7 +29,7 @@ class DataSampling(object):
         print df.head()
         return df
 
-    def cleanDataFrame(selfself, dataframe):
+    def cleanDataFrame(self, dataframe):
         # remove retweets
         dataframe = dataframe.replace("(RT|via)((?:\\b\\W*@\\w+)+)", "", regex=True)
         dataframe = dataframe.replace("@\\w+", "", regex=True)

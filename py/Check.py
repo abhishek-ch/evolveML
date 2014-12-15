@@ -85,7 +85,7 @@ extract_features(tweets)
 #     print val
 
 def readUnigrams():
-    file = "/Users/abhishekchoudhary/Work/python/evolveML/py/post_neg.txt"
+    file = "post_neg.txt"
     # bigramData = sc.textFile(contentFile).cache()
     return pd.read_csv(file, names=['term', 'sentimentScore', 'numPositive', 'numNegative'], sep='\t',
                        header=None)
@@ -119,7 +119,7 @@ for index, row in unidf.iterrows():
             unidf.drop(index)
     # print "valvalvalvalvalvalvalval",val
 
-# print feature
+print feature
 
 
 

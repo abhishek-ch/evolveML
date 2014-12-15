@@ -5332,7 +5332,6 @@ kick-ass	2.086	23	3
 @lorimoreno	2.086	23	3
 bahahah	2.086	23	3
 @matt_369	2.086	46	6
-'"	2.086	23	3
 congratz	2.08	61	8
 http://twitpic.com/6q1om	2.077	76	10
 sweeeeet	2.077	38	5
@@ -12421,7 +12420,6 @@ zee	1.238	46	14
 producer	1.238	69	21
 pastor	1.235	131	40
 avid	1.234	36	11
-""	1.234	36	11
 cuties	1.234	36	11
 curious	1.234	448	137
 lovee	1.233	219	67
@@ -23067,7 +23065,6 @@ grabbing	0.604	61	35
 jc	0.604	54	31
 helen	0.604	61	35
 furry	0.603	47	27
-"	0.603	42374	24354
 stalkers	0.603	47	27
 barney	0.602	40	23
 purchases	0.602	40	23
@@ -40455,7 +40452,6 @@ jg	-0.104	36	42
 guerilla	-0.104	6	7
 ch�	-0.104	6	7
 annabelle	-0.104	6	7
--_-"	-0.104	6	7
 @mintran	-0.104	6	7
 @vbsetup	-0.104	6	7
 karting	-0.104	6	7
@@ -45285,7 +45281,6 @@ grizzly	-0.356	20	30
 medina	-0.356	6	9
 remedial	-0.356	8	12
 dickinson	-0.356	4	6
---"	-0.356	6	9
 @jayelectronica	-0.356	4	6
 adsl	-0.356	10	15
 @xlucyloox	-0.356	6	9
@@ -47332,7 +47327,6 @@ stephenson	-0.461	3	5
 #work	-0.461	3	5
 @therealboyzone	-0.461	3	5
 ills	-0.461	3	5
-"""	-0.461	3	5
 ontime	-0.461	3	5
 criminology	-0.461	3	5
 duffel	-0.461	3	5
@@ -48006,7 +48000,7 @@ lohan	-0.461	12	20
 persistant	-0.461	3	5
 dieeee	-0.461	3	5
 @nanaraine	-0.461	3	5
-krogers	-0.461	3	5
+krogers	-0.461	3	halbpro
 spinoff	-0.461	3	5
 kop	-0.461	3	5
 kernel	-0.461	12	20
@@ -48981,7 +48975,6 @@ ne	-0.537	203	365
 ndp	-0.538	5	9
 whinge	-0.538	5	9
 rolando	-0.538	5	9
-"'	-0.538	10	18
 beaumont	-0.538	5	9
 @elvensapphire	-0.538	5	9
 lisp	-0.538	5	9
@@ -60574,7 +60567,6 @@ faltered	-4.999	0	5
 @ashleybankz	-4.999	0	6
 scabs	-4.999	0	7
 @ana_valdez	-4.999	0	5
-:"(	-4.999	0	5
 scolding	-4.999	0	11
 @bryanarmada	-4.999	0	5
 @ash_riot	-4.999	0	5
