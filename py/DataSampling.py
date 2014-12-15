@@ -10,6 +10,7 @@ from pyspark import SparkContext
 import os
 import pprint
 import sys
+import random
 
 sys.path.append('/usr/local/lib/python2.7/site-packages/')
 import pandas as pd
@@ -40,18 +41,18 @@ class DataSampling(object):
         # dataframe = dataframe[dataframe.x.str.len() > 4]
         # replace all punctuation and ideally we will be expecting the hashtag is almost all the rows
         dataframe = dataframe.replace('[^\w\s]', "", regex=True)
-        #convert all string to lower case
+        # convert all string to lower case
         dataframe.x = [x.lower().strip() for x in dataframe.x]
 
-        f = open('stop-words.txt', 'r')
-        stop_words = f.readlines()
+        # f = open('stop-words.txt', 'r')
+        # stop_words = f.readlines()
 
-        #if I don't believe in bigrams , I can use stop words to filter out values
-        for index, row in dataframe.iterrows():
-            if row in stop_words:
-                dataframe.loc[index]
+        # if I don't believe in bigrams , I can use stop words to filter out values
+        # for index, row in dataframe.iterrows():
+        #     if row in stop_words:
+        #         dataframe.loc[index]
 
-        #need to work on stop words if any only if using unigram
+        # need to work on stop words if any only if using unigram
         return dataframe
 
 
@@ -74,17 +75,53 @@ class Frequency(object):
 feature_list = []
 
 
-class FeatureWork(object):
 
+class FeatureWork(object):
+    all_words = []
     def readUnigrams(self):
         file = "/Users/abhishekchoudhary/Work/python/evolveML/py/post_neg.txt"
         # bigramData = sc.textFile(contentFile).cache()
         return pd.read_csv(file, names=['term', 'sentimentScore', 'numPositive', 'numNegative'], sep='\t',
                            header=None)
 
+
+    def getFeaturedWords(self):
+        unidf = self.readUnigrams()
+         # create random index
+        unidf = unidf.ix[random.sample(unidf.index, 100)]
+        unidf = unidf.replace("@", "", regex=True)
+        unidf = unidf.replace("#", "", regex=True)
+        unidf = unidf.replace("http\\w+", "", regex=True)
+        feature = []
+        positive = []
+        negative = []
+        print "length f UDFFDFDFDFD ",len(unidf)
+        self.all_words = unidf.term.tolist()
+        for index, row in unidf.iterrows():
+            try:
+                val = row['term']
+                pos = row['numPositive']
+                neg = row['numNegative']
+                if val.startswith("http\\w+"):
+                    unidf.drop(index)
+                else:
+                    if pos >= neg:
+                        positive.append(val)
+                    else:
+                        negative.append(val)
+
+                feature.append([positive, 'positive'])
+                feature.append([negative, 'negative'])
+                # all_words = list(set(all_words))
+
+            except AttributeError:
+                unidf.drop(index)
+        return feature
+
     def extractSentimentDataset(self, tweets):
         unidf = self.readUnigrams()
         print unidf.head()
+
         unidf = unidf.replace("@", "", regex=True)
         unidf = unidf.replace("#", "", regex=True)
         unidf = unidf.replace("http\\w+", "", regex=True)
@@ -114,8 +151,8 @@ class FeatureWork(object):
         return feature
 
 
-    def extract_features(sampledata):
-        document_words = set(document)
+    def extract_features(self, sampledata):
+        document_words = set(sampledata)
         features = {}
         for word in feature_list:
             features['contains(%s)' % word] = (word in document_words)
@@ -135,14 +172,26 @@ class FeatureWork(object):
         return training_set
 
 
-sc = SparkContext("yarn-client", "Data Sampling")
-contentFile = "hdfs:///stats/foo5.csv"
-logData = sc.textFile(contentFile).cache()
-sampling = DataSampling()
-df = sampling.createDataframe(logData.take(logData.count()))
-# df = sampling.loadcsv("/Users/abhishekchoudhary/Work/python/evolveML/foo5.csv")
+    def document_features(self, document):
+        document_words = set(document)
+        # print "document_words ", len(self.all_words)
+        features = {}
+        for word in self.all_words:
+            features['contains(%s)' % word] = (word in document_words)
+        return features
 
-df = sampling.cleanDataFrame(df)
+
+sc = SparkContext("yarn-client", "Data Sampling")
+# contentFile = "hdfs:///stats/foo5.csv"
+# logData = sc.textFile(contentFile).cache()
+# sampling = DataSampling()
+# df = sampling.createDataframe(logData.take(logData.count()))
+# # df = sampling.loadcsv("/Users/abhishekchoudhary/Work/python/evolveML/foo5.csv")
+#
+# df = sampling.cleanDataFrame(df)
+
+
+
 # print df.head()
 
 # required to make word cloud
@@ -151,5 +200,15 @@ df = sampling.cleanDataFrame(df)
 # frequence.findWordFrequency(all_words)
 
 feature = FeatureWork()
-feature.perform(df)
+feature_value = feature.getFeaturedWords()
 
+print "LENGTHH ==========::::%s ----- %s "%(len(feature_value),len(feature.all_words))
+# Extract feature vector for all tweets in one shot
+training_set = nltk.classify.util.apply_features(feature.document_features, feature_value)
+
+# featuresets = [(feature.document_features(d), c) for (d, c) in feature_value]
+print "training_settraining_settraining_set ",len(training_set)
+print "TRAINING SETETETE ",training_set[20:]
+# Train the classifier
+NBClassifier = nltk.NaiveBayesClassifier.train(training_set)
+print "MOST ONE ",NBClassifier.show_most_informative_features(32)

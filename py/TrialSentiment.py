@@ -1,10 +1,13 @@
 __author__ = 'achoudhary'
 #http://www.nltk.org/book/ch06.html
+#http://www.tweenator.com/index.php?page_id=13
+#http://help.sentiment140.com/for-students/
 
-
+# import sys
+# sys.path.append('/usr/local/lib/python2.7/site-packages/')
 import pandas as pd
 import nltk
-
+import random
 
 
 df = pd.read_csv("test.csv",header=0)
@@ -40,7 +43,7 @@ def cleanDataFrame(dataframe):
 df = cleanDataFrame(df)
 
 def readUnigrams():
-    file = "post_neg.txt"
+    file = "/Users/abhishekchoudhary/Work/python/evolveML/py/post_neg2.txt"
     # bigramData = sc.textFile(contentFile).cache()
     return pd.read_csv(file, names=['term', 'sentimentScore', 'numPositive', 'numNegative'], sep='\t',
                        header=None)
@@ -48,6 +51,8 @@ def readUnigrams():
 
 unidf = readUnigrams()
 print unidf.head()
+# create random index
+unidf = unidf.ix[random.sample(unidf.index, 2000)]
 unidf = unidf.replace("@", "", regex=True)
 unidf = unidf.replace("#", "", regex=True)
 unidf = unidf.replace("http\\w+", "", regex=True)
@@ -81,14 +86,21 @@ for index, row in unidf.iterrows():
 
 def document_features(document):
     document_words = set(document)
-    print "document_words ",len(all_words)
+    # print "document_words ",len(all_words)
     features = {}
     for word in all_words:
         features['contains(%s)' % word] = (word in document_words)
     return features
 
-featuresets = [(document_features(d), c) for (d,c) in feature]
-print featuresets[1:2]
+training_set = nltk.classify.util.apply_features(document_features, feature)
+# featuresets = [(document_features(d), c) for (d,c) in feature]
+# train_set, test_set = training_set[50:], training_set[51:100]
+# print test_set
+classifier = nltk.NaiveBayesClassifier.train(training_set)
+# print("=======>>> ",nltk.classify.accuracy(classifier, test_set))
+
+testTweet = 'I feel bad for whoever has to clean up that mess'
+print "YAHAHHAHAH ",classifier.classify(document_features(testTweet.split()))
 
 def extract_features(document):
     features = {}
