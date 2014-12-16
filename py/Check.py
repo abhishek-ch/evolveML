@@ -87,8 +87,8 @@ extract_features(tweets)
 def readUnigrams():
     file = "post_neg.txt"
     # bigramData = sc.textFile(contentFile).cache()
-    return pd.read_csv(file, names=['term', 'sentimentScore', 'numPositive', 'numNegative'], sep='\t',
-                       header=None)
+    return pd.read_csv(file, names=['tweets'],
+                       header=0)
 
 
 unidf = readUnigrams()
