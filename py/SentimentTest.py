@@ -1,5 +1,6 @@
 from itertools import starmap
 
+#Source - training.1600000.processed.noemoticon.csv
 __author__ = 'achoudhary'
 # http://cs.brown.edu/courses/csci1951-a/assignments/assignment3/
 # http://www.slideshare.net/benhealey/ben-healey-kiwipycon2011pressotexttospeech
@@ -23,12 +24,15 @@ from sklearn.multiclass import OneVsRestClassifier
 
 import re
 
-fulldataframe = pd.DataFrame(columns=('emo', 'tweets'))
+# fulldataframe = pd.DataFrame(columns=('emo', 'tweets'))
 tweets = []
 all_words = []
 word_features = []
 BASE_DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data'))
-emotions = ['Happy', 'Disgusting', 'Trust', 'Angry']
+emotions = ['Happy', 'Sad','Angry','Trust']
+
+keys = []
+values = []
 
 class DataExtractor(object):
     def readFile(self, filepath, header="tweets"):
@@ -43,11 +47,11 @@ class DataExtractor(object):
 
     def extractDataSetForNewModel(self):
         stopwords = self.readFile("/stop-words.txt", "stop")
-        # regex delcaration to remove stop words
+        # regex declaration to remove stop words
         big_regex = re.compile(r'\b%s\b' % r'\b|\b'.join(map(re.escape, stopwords)), re.IGNORECASE)
 
         dataset = []
-        datafiles = [{'emo': "Happy", 'name': "/positive.csv"}, {'emo': 'Disgusting', 'name': "/negative.csv"},
+        datafiles = [{'emo': "Happy", 'name': "/positive.csv"}, {'emo': 'Sad', 'name': "/negative.csv"},
                      {'emo': 'Angry', 'name': "/anger.csv"}, {'emo': 'Trust', 'name': "/trust.csv"}]
 
         for value in datafiles:
@@ -58,7 +62,7 @@ class DataExtractor(object):
             read['emo'] = emo
             dataset.append(read)
 
-        i = 0
+        # i = 0
         for val in dataset:
             for index, row in val.iterrows():
                 statement = row['tweets'].strip()
@@ -69,10 +73,14 @@ class DataExtractor(object):
                 ##remove unnecessary white-space in-between string
                 statement = " ".join(statement.split())
                 tweets.append((statement, row['emo']))
-                fulldataframe.loc[i] = [row['emo'], statement]
-                i += 1
+                # fulldataframe.loc[i] = [row['emo'], statement]
+                # keys.append(statement)
+                # values.append(row['emo'])
+                # i += 1
 
         return tweets
+
+    def extractLargeExcelValues(self):
 
     def extractFeatures(self):
         stopwords = self.readFile(os.getcwd() + "/stop-words.txt", "stop")
@@ -149,7 +157,6 @@ Following piece of code is meant for extracting data into 2
 categories ie Test and Train which is very important
 
 Add more emotions once you do and simply use the same
-'''
 
 
 train_key = []
@@ -175,15 +182,26 @@ for emo in emotions:
 
     for value in test.emo.tolist():
         test_value.append(value)
+'''
 
 
-X_train = np.array(train_key)
-y_train = np.array(train_value)
+np.random.shuffle(tweets)
 
-X_test = np.array(test_key)
-y_test = np.array(test_value)
+
+for key, value in tweets:
+    keys.append(key)
+    values.append(value)
+
+size = len(keys)*2/3
+
+X_train = np.array(keys[0:size])
+y_train = np.array(values[0:size])
+
+X_test = np.array(keys[size+1: len(keys)])
+y_test = np.array(values[size+1: len(keys)])
 
 print  "CXONTRIBUTION trainX %s trainY %s testX %s testY %s " % (len(X_train), len(y_train), len(X_test), len(y_test))
+
 
 ##read more about pipeline
 #http://scikit-learn.org/stable/modules/pipeline.html
@@ -200,6 +218,7 @@ classifier = Pipeline([
 # classifier = MultinomialNB()
 
 
+
 classifier = classifier.fit(X_train, y_train)
 print "Scores ", classifier.score(X_test, y_test)
 
@@ -208,8 +227,11 @@ TEST DATA ACCURACY
 http://scikit-learn.org/stable/tutorial/statistical_inference/model_selection.html
 '''
 
-X_folds = np.array_split(fulldataframe['tweets'].tolist(), 3)
-y_folds = np.array_split(fulldataframe['emo'].tolist(), 3)
+# X_folds = np.array_split(fulldataframe['tweets'].tolist(), 3)
+# y_folds = np.array_split(fulldataframe['emo'].tolist(), 3)
+
+X_folds = np.array_split(keys, 3)
+y_folds = np.array_split(values, 3)
 
 scores = list()
 svc = svm.SVC(C=1, kernel='linear')
@@ -221,7 +243,14 @@ for k in range(3):
     y_test = y_train.pop(k)
     y_train = np.concatenate(y_train)
 
-    scores.append(classifier.fit(X_train, y_train).score(X_test, y_test))
+    clsf = classifier.fit(X_train, y_train)
+
+    scores.append(clsf.score(X_test, y_test))
+
+
+    # predicted = clsf.predict(X_test1)
+    # for item, labels in zip(X_test1, predicted):
+    #     print '%s => %s =K= %s' % (item, labels,k)
 
 print(scores)
 
