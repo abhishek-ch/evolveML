@@ -23,9 +23,8 @@ df = pd.DataFrame(input[1:], columns=['x'])
 f = open('stop-words.txt', 'r')
 stop_words = f.readlines()
 
-
-for index,row in df.iterrows():
-    print "ABHISHKE",df.loc[index,'x']
+for index, row in df.iterrows():
+    print "ABHISHKE", df.loc[index, 'x']
 # df = df[df.x.str.len() > 4]
 # print df
 
@@ -40,9 +39,9 @@ features = {}
 for word in football.term.tolist():
     if any(word in s for s in input):
         features['typeof(%s)' % word] = ("Positive"
-                if football['numPositive'][i] > football['numNegative'][i] else "Negative")
+                                         if football['numPositive'][i] > football['numNegative'][i] else "Negative")
     else:
-        features['typeof(%s)' % word]=("NoResponse")
+        features['typeof(%s)' % word] = ("NoResponse")
     i += 1
 
 # print  features
@@ -54,30 +53,29 @@ pos_tweets = [('I love this car', 'positive'),
               ('I am so excited about the concert', 'positive'),
               ('He is my best friend', 'positive')]
 
-
 neg_tweets = [('I do not like this car', 'negative'),
               ('This view is horrible', 'negative'),
               ('I feel tired this morning', 'negative'),
               ('I am not looking forward to the concert', 'negative'),
               ('He is my enemy', 'negative')]
 
-
 tweets = []
 for (words, sentiment) in pos_tweets + neg_tweets:
     words_filtered = [e.lower() for e in words.split() if len(e) >= 3]
     tweets.append((words_filtered, sentiment))
 
-print "TWTWTWTWT ",tweets
+print "TWTWTWTWT ", tweets
 
 
-#start extract_features
+# start extract_features
 def extract_features(tweet):
     tweet_words = set(tweet)
-    print "---------",tweet_words
+    print "---------", tweet_words
     features = {}
     for word in featureList:
         features['contains(%s)' % word] = (word in tweet_words)
     return features
+
 
 extract_features(tweets)
 
@@ -112,12 +110,12 @@ for index, row in unidf.iterrows():
             else:
                 negative.append(val)
 
-        feature.append((positive,'positive'))
-        feature.append((negative,'negative'))
+        feature.append((positive, 'positive'))
+        feature.append((negative, 'negative'))
 
     except AttributeError:
-            unidf.drop(index)
-    # print "valvalvalvalvalvalvalval",val
+        unidf.drop(index)
+        # print "valvalvalvalvalvalvalval",val
 
 print feature
 

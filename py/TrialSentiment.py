@@ -1,5 +1,5 @@
 __author__ = 'achoudhary'
-#http://www.nltk.org/book/ch06.html
+# http://www.nltk.org/book/ch06.html
 #http://www.tweenator.com/index.php?page_id=13
 #http://help.sentiment140.com/for-students/
 
@@ -10,37 +10,38 @@ import nltk
 import random
 
 
-df = pd.read_csv("test.csv",header=0)
+df = pd.read_csv("test.csv", header=0)
 print df
 
 
-
 def cleanDataFrame(dataframe):
-        # remove retweets
-        dataframe = dataframe.replace("(RT|via)((?:\\b\\W*@\\w+)+)", "", regex=True)
-        # dataframe = dataframe.replace("@\\w+", "", regex=True)
-        # dataframe = dataframe.replace("http\\w+", "", regex=True)
-        dataframe = dataframe.replace("U+[a-zA-Z0-9]{0,10}", "", regex=True)
-        dataframe = dataframe.replace("[^(a-zA-Z0-9!@#$%&*(_) ]+", "", regex=True)
-        # string is more than 4 characters
-        # dataframe = dataframe[dataframe.x.str.len() > 4]
-        # replace all punctuation and ideally we will be expecting the hashtag is almost all the rows
-        dataframe = dataframe.replace('[^\w\s]', "", regex=True)
-        #convert all string to lower case
-        dataframe.bond = [x.lower().strip() for x in dataframe.bond]
+    # remove retweets
+    dataframe = dataframe.replace("(RT|via)((?:\\b\\W*@\\w+)+)", "", regex=True)
+    # dataframe = dataframe.replace("@\\w+", "", regex=True)
+    # dataframe = dataframe.replace("http\\w+", "", regex=True)
+    dataframe = dataframe.replace("U+[a-zA-Z0-9]{0,10}", "", regex=True)
+    dataframe = dataframe.replace("[^(a-zA-Z0-9!@#$%&*(_) ]+", "", regex=True)
+    # string is more than 4 characters
+    # dataframe = dataframe[dataframe.x.str.len() > 4]
+    # replace all punctuation and ideally we will be expecting the hashtag is almost all the rows
+    dataframe = dataframe.replace('[^\w\s]', "", regex=True)
+    #convert all string to lower case
+    dataframe.bond = [x.lower().strip() for x in dataframe.bond]
 
-        f = open('stop-words.txt', 'r')
-        stop_words = f.readlines()
+    f = open('stop-words.txt', 'r')
+    stop_words = f.readlines()
 
-        #if I don't believe in bigrams , I can use stop words to filter out values
-        # for index, row in dataframe.iterrows():
-        #     if row in stop_words:
-        #         dataframe.loc[index]
+    #if I don't believe in bigrams , I can use stop words to filter out values
+    # for index, row in dataframe.iterrows():
+    #     if row in stop_words:
+    #         dataframe.loc[index]
 
-        #need to work on stop words if any only if using unigram
-        return dataframe
+    #need to work on stop words if any only if using unigram
+    return dataframe
+
 
 df = cleanDataFrame(df)
+
 
 def readUnigrams():
     file = "/Users/abhishekchoudhary/Work/python/evolveML/py/post_neg2.txt"
@@ -74,14 +75,13 @@ for index, row in unidf.iterrows():
             else:
                 negative.append(val)
 
-
-        feature.append([positive,'positive'])
-        feature.append([negative,'negative'])
+        feature.append([positive, 'positive'])
+        feature.append([negative, 'negative'])
         # all_words = list(set(all_words))
 
     except AttributeError:
-            unidf.drop(index)
-    # print "valvalvalvalvalvalvalval",val
+        unidf.drop(index)
+        # print "valvalvalvalvalvalvalval",val
 # print "------------------->> ",feature
 
 def document_features(document):
@@ -92,6 +92,7 @@ def document_features(document):
         features['contains(%s)' % word] = (word in document_words)
     return features
 
+
 training_set = nltk.classify.util.apply_features(document_features, feature)
 # featuresets = [(document_features(d), c) for (d,c) in feature]
 # train_set, test_set = training_set[50:], training_set[51:100]
@@ -100,7 +101,8 @@ classifier = nltk.NaiveBayesClassifier.train(training_set)
 # print("=======>>> ",nltk.classify.accuracy(classifier, test_set))
 
 testTweet = 'I feel bad for whoever has to clean up that mess'
-print "YAHAHHAHAH ",classifier.classify(document_features(testTweet.split()))
+print "YAHAHHAHAH ", classifier.classify(document_features(testTweet.split()))
+
 
 def extract_features(document):
     features = {}
@@ -120,9 +122,9 @@ for line in df.bond.tolist():
     tweets.append(value)
 
 
-# Extract feature vector for all tweets in one shote
-#training_set = nltk.classify.util.apply_features(extract_features, tweets)
+    # Extract feature vector for all tweets in one shote
+    #training_set = nltk.classify.util.apply_features(extract_features, tweets)
 
-# NBClassifier = nltk.NaiveBayesClassifier.train(feature)
-# # print informative features about the classifier
-# print NBClassifier.show_most_informative_features(10)
+    # NBClassifier = nltk.NaiveBayesClassifier.train(feature)
+    # # print informative features about the classifier
+    # print NBClassifier.show_most_informative_features(10)

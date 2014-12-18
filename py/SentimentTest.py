@@ -1,10 +1,25 @@
-from itertools import starmap
-
-#Source - training.1600000.processed.noemoticon.csv
+# Source - training.1600000.processed.noemoticon.csv
 __author__ = 'achoudhary'
+####
+#natural Language Processing
+#http://www.nltk.org/book_1ed/
+###
+
 # http://cs.brown.edu/courses/csci1951-a/assignments/assignment3/
 # http://www.slideshare.net/benhealey/ben-healey-kiwipycon2011pressotexttospeech
 # http://stevenloria.com/how-to-build-a-text-classification-system-with-python-and-textblob/
+
+##Follow up Code
+#http://stackoverflow.com/questions/21107075/classification-using-movie-review-corpus-in-nltk-python
+#
+#
+#Data Processing or Natural Language Processing
+#http://www.cs.duke.edu/courses/spring14/compsci290/assignments/lab02.html
+
+##Mix and Match nltk and skicit learn
+#http://www.cs.duke.edu/courses/spring14/compsci290/assignments/lab02.html
+###
+
 import pandas as pd
 import os
 import nltk
@@ -21,7 +36,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.svm import LinearSVC
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.multiclass import OneVsRestClassifier
-
+import csv
 import re
 
 # fulldataframe = pd.DataFrame(columns=('emo', 'tweets'))
@@ -29,12 +44,21 @@ tweets = []
 all_words = []
 word_features = []
 BASE_DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data'))
-emotions = ['Happy', 'Sad','Angry','Trust']
+emotions = ['Happy', 'Sad', 'Angry', 'Trust']
 
 keys = []
 values = []
 
+
 class DataExtractor(object):
+    big_regex = []
+
+    def __init__(self):
+        stopwords = self.readFile("/stop-words.txt", "stop")
+        # regex declaration to remove stop words
+        self.big_regex = re.compile(r'\b%s\b' % r'\b|\b'.join(map(re.escape, stopwords)), re.IGNORECASE)
+
+
     def readFile(self, filepath, header="tweets"):
         # bigramData = sc.textFile(contentFile).cache()
         return pd.read_csv(BASE_DATA_PATH + filepath, names=[header],
@@ -46,10 +70,6 @@ class DataExtractor(object):
 
 
     def extractDataSetForNewModel(self):
-        stopwords = self.readFile("/stop-words.txt", "stop")
-        # regex declaration to remove stop words
-        big_regex = re.compile(r'\b%s\b' % r'\b|\b'.join(map(re.escape, stopwords)), re.IGNORECASE)
-
         dataset = []
         datafiles = [{'emo': "Happy", 'name': "/positive.csv"}, {'emo': 'Sad', 'name': "/negative.csv"},
                      {'emo': 'Angry', 'name': "/anger.csv"}, {'emo': 'Trust', 'name': "/trust.csv"}]
@@ -69,7 +89,7 @@ class DataExtractor(object):
                 statement = unicode(statement, errors='replace')
                 statement = statement.lower()
                 #removed all the stop_words from the statement
-                statement = big_regex.sub("", statement)
+                statement = self.big_regex.sub("", statement)
                 ##remove unnecessary white-space in-between string
                 statement = " ".join(statement.split())
                 tweets.append((statement, row['emo']))
@@ -81,6 +101,20 @@ class DataExtractor(object):
         return tweets
 
     def extractLargeExcelValues(self):
+        with open('D:/Work/Python/training.1600000.processed.noemoticon.csv') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            for row in reader:
+                statement = unicode(row[5], errors='replace')
+                statement = statement.lower()
+                # statement = statement.replace("!@#$%^&*()[]{};:,./<>?\|`~-=_+", " ")
+                statement = re.sub(r"@/?\w+", "", statement)
+                statement = re.sub('[^A-Za-z0-9]+', ' ', statement)
+                statement = self.big_regex.sub("", statement)
+                ##remove unnecessary white-space in-between string
+                statement = " ".join(statement.split())
+                tweets.append((statement, 'Happy' if row[0] == '0' else 'Sad'))
+                # print "row %s " %(statement)
+        return tweets
 
     def extractFeatures(self):
         stopwords = self.readFile(os.getcwd() + "/stop-words.txt", "stop")
@@ -136,6 +170,7 @@ class FeatureModel(object):
 #
 dataExtractor = DataExtractor()
 dataExtractor.extractDataSetForNewModel()
+# dataExtractor.extractLargeExcelValues()
 
 X_test1 = np.array([
     'A justice system that protects serial murderers, rapists & gangsters & punishes innocents is condemned to spiral into chaos',
@@ -146,65 +181,35 @@ X_test1 = np.array([
     'it rains a lot in london',
     'I am happy to be with you',
     'what is going on here',
+    'Ohh My God , that was a bad day',
     'I am going to kill you',
     'probably what youre not doing right',
     'I am not good to be back',
+    "My dad says this product is terrible, but I disagree",
     'my life is miserable',
     'Unfortunately the code isn\'t open source'])
 
-'''
-Following piece of code is meant for extracting data into 2
-categories ie Test and Train which is very important
-
-Add more emotions once you do and simply use the same
-
-
-train_key = []
-train_value = []
-
-test_key = []
-test_value = []
-for emo in emotions:
-    df = fulldataframe[fulldataframe['emo'].str.contains(emo)]
-    msk = np.random.rand(len(df)) < 0.6
-    train = df[msk]
-    test = df[~msk]
-
-    #iterate through each values to append the same in keys
-    for value in train.tweets.tolist():
-        train_key.append(value)
-
-    for value in train.emo.tolist():
-        train_value.append(value)
-
-    for value in test.tweets.tolist():
-        test_key.append(value)
-
-    for value in test.emo.tolist():
-        test_value.append(value)
-'''
-
-
 np.random.shuffle(tweets)
-
 
 for key, value in tweets:
     keys.append(key)
     values.append(value)
 
-size = len(keys)*2/3
+size = len(keys) * 1 / 2
 
 X_train = np.array(keys[0:size])
 y_train = np.array(values[0:size])
 
-X_test = np.array(keys[size+1: len(keys)])
-y_test = np.array(values[size+1: len(keys)])
+X_test = np.array(keys[size + 1: len(keys)])
+y_test = np.array(values[size + 1: len(keys)])
 
 print  "CXONTRIBUTION trainX %s trainY %s testX %s testY %s " % (len(X_train), len(y_train), len(X_test), len(y_test))
 
 
 ##read more about pipeline
 #http://scikit-learn.org/stable/modules/pipeline.html
+#More about OneVsRestCl..
+#http://scikit-learn.org/stable/modules/multiclass.html
 classifier = Pipeline([
     ('vectorizer', CountVectorizer()),
     ('tfidf', TfidfTransformer()),
@@ -212,16 +217,15 @@ classifier = Pipeline([
     )])
 
 #For my data set Bernoulli stood the poorest but anyway all of them are not worth
-#OneVsRestClassifier(LinearSVC()) - gives 99%
+#OneVsRestClassifier(LinearSVC()) - gives 93%
 #MultinomialNB(alpha=1.0,class_prior=None,fit_prior=True) - gives 79%
-#BernoulliNB(binarize=None)
-# classifier = MultinomialNB()
+#BernoulliNB(binarize=None) => 44% (unexpected bad)
+# classifier = MultinomialNB() => 70%
 
 
 
 classifier = classifier.fit(X_train, y_train)
 print "Scores ", classifier.score(X_test, y_test)
-
 '''
 TEST DATA ACCURACY
 http://scikit-learn.org/stable/tutorial/statistical_inference/model_selection.html
@@ -230,11 +234,10 @@ http://scikit-learn.org/stable/tutorial/statistical_inference/model_selection.ht
 # X_folds = np.array_split(fulldataframe['tweets'].tolist(), 3)
 # y_folds = np.array_split(fulldataframe['emo'].tolist(), 3)
 
-X_folds = np.array_split(keys, 3)
-y_folds = np.array_split(values, 3)
+X_folds = np.array_split(X_test, 3)
+y_folds = np.array_split(y_test, 3)
 
 scores = list()
-svc = svm.SVC(C=1, kernel='linear')
 for k in range(3):
     X_train = list(X_folds)
     X_test = X_train.pop(k)
@@ -242,7 +245,6 @@ for k in range(3):
     y_train = list(y_folds)
     y_test = y_train.pop(k)
     y_train = np.concatenate(y_train)
-
     clsf = classifier.fit(X_train, y_train)
 
     scores.append(clsf.score(X_test, y_test))
@@ -270,28 +272,3 @@ for item, labels in zip(X_test1, predicted):
     print '%s => %s' % (item, labels)
 
 
-# print("PREDICTED",predicted)
-# print "Score Test ",cl.score(trainpos[30:35],trainneg[40:45])
-
-
-'''
-
-featureModel = FeatureModel()
-word_features = featureModel.getAllWords()
-
-print "ALL LENGTH ",len(all_words)
-print " word_features ",len(word_features)
-print "All Tweets ",len(tweets)
-
-feature_set = nltk.classify.util.apply_features(featureModel.document_features, tweets)
-print "Classifier ",len(feature_set)
-
-cutoff = len(feature_set)*2/3
-train = feature_set[:cutoff]
-test = feature_set[cutoff:]
-
-
-classifier = nltk.NaiveBayesClassifier.train(train)
-print "Accuracy Dude ",(nltk.classify.accuracy(classifier,test))
-print "Most Informative Features ",classifier.show_most_informative_features(10)
-'''

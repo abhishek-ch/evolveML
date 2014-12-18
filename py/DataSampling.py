@@ -49,7 +49,7 @@ class DataSampling(object):
 
         # if I don't believe in bigrams , I can use stop words to filter out values
         # for index, row in dataframe.iterrows():
-        #     if row in stop_words:
+        # if row in stop_words:
         #         dataframe.loc[index]
 
         # need to work on stop words if any only if using unigram
@@ -75,9 +75,9 @@ class Frequency(object):
 feature_list = []
 
 
-
 class FeatureWork(object):
     all_words = []
+
     def readUnigrams(self):
         file = "/Users/abhishekchoudhary/Work/python/evolveML/py/post_neg.txt"
         # bigramData = sc.textFile(contentFile).cache()
@@ -87,7 +87,7 @@ class FeatureWork(object):
 
     def getFeaturedWords(self):
         unidf = self.readUnigrams()
-         # create random index
+        # create random index
         unidf = unidf.ix[random.sample(unidf.index, 100)]
         unidf = unidf.replace("@", "", regex=True)
         unidf = unidf.replace("#", "", regex=True)
@@ -95,7 +95,7 @@ class FeatureWork(object):
         feature = []
         positive = []
         negative = []
-        print "length f UDFFDFDFDFD ",len(unidf)
+        print "length f UDFFDFDFDFD ", len(unidf)
         self.all_words = unidf.term.tolist()
         for index, row in unidf.iterrows():
             try:
@@ -202,13 +202,13 @@ sc = SparkContext("yarn-client", "Data Sampling")
 feature = FeatureWork()
 feature_value = feature.getFeaturedWords()
 
-print "LENGTHH ==========::::%s ----- %s "%(len(feature_value),len(feature.all_words))
+print "LENGTHH ==========::::%s ----- %s " % (len(feature_value), len(feature.all_words))
 # Extract feature vector for all tweets in one shot
 training_set = nltk.classify.util.apply_features(feature.document_features, feature_value)
 
 # featuresets = [(feature.document_features(d), c) for (d, c) in feature_value]
-print "training_settraining_settraining_set ",len(training_set)
-print "TRAINING SETETETE ",training_set[20:]
+print "training_settraining_settraining_set ", len(training_set)
+print "TRAINING SETETETE ", training_set[20:]
 # Train the classifier
 NBClassifier = nltk.NaiveBayesClassifier.train(training_set)
-print "MOST ONE ",NBClassifier.show_most_informative_features(32)
+print "MOST ONE ", NBClassifier.show_most_informative_features(32)

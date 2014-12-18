@@ -6,13 +6,25 @@ import numpy as np
 import csv
 
 
-with open('/Users/abhishekchoudhary/Downloads/trainingandtestdata/training.1600000.processed.noemoticon.csv') as csvfile:
+
+
+size = 1700000*2/3
+print size
+
+# val = "@mitchelmusso i really really wish i could, but i can't @abhih sds "
+# val = re.sub(r"@/?\w+", " :: ", val)
+# print "valvalvalvalvalvalval ",val
+'''
+with open('D:/Work/Python/training.1600000.processed.noemoticon.csv') as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
     for row in reader:
         statement = unicode(row[5], errors='replace')
         statement = statement.lower()
-        statement = statement.replace("!@#$%^&*()[]{};:,./<>?\|`~-=_+", " ")
-        print "row %s column %s " %(row[0],statement)
+        # statement = statement.replace("!@#$%^&*()[]{};:,./<>?\|`~-=_+", " ")
+        statement = re.sub(r"@/?\w+", "", statement)
+        statement = re.sub('[^A-Za-z0-9]+', ' ', statement)
+        print "row %s col %s " %(statement,row[0])
+'''
 
 
 
