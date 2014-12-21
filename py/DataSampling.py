@@ -50,7 +50,7 @@ class DataSampling(object):
         # if I don't believe in bigrams , I can use stop words to filter out values
         # for index, row in dataframe.iterrows():
         # if row in stop_words:
-        #         dataframe.loc[index]
+        # dataframe.loc[index]
 
         # need to work on stop words if any only if using unigram
         return dataframe

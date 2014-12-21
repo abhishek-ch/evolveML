@@ -1,6 +1,6 @@
 __author__ = 'achoudhary'
 # http://www.nltk.org/book/ch06.html
-#http://www.tweenator.com/index.php?page_id=13
+# http://www.tweenator.com/index.php?page_id=13
 #http://help.sentiment140.com/for-students/
 
 # import sys

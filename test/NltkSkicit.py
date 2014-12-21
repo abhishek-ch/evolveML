@@ -1,6 +1,6 @@
 __author__ = 'achoudhary'
 
-#http://stackoverflow.com/questions/21107075/classification-using-movie-review-corpus-in-nltk-python
+# http://stackoverflow.com/questions/21107075/classification-using-movie-review-corpus-in-nltk-python
 
 
 import string
@@ -20,15 +20,16 @@ import nltk
 
 # nltk.download()
 stop = stopwords.words('english')
-documents = [([w for w in mr.words(i) if w.lower() not in stop and w.lower() not in string.punctuation], i.split('/')[0]) for i in mr.fileids()]
+documents = [
+    ([w for w in mr.words(i) if w.lower() not in stop and w.lower() not in string.punctuation], i.split('/')[0]) for i
+    in mr.fileids()]
 
-word_features = FreqDist(chain(*[i for i,j in documents]))
+word_features = FreqDist(chain(*[i for i, j in documents]))
 word_features = word_features.keys()[:100]
 
 numtrain = int(len(documents) * 90 / 100)
-train_set = [({i:(i in tokens) for i in word_features}, tag) for tokens,tag in documents[:numtrain]]
-test_set = [({i:(i in tokens) for i in word_features}, tag) for tokens,tag in documents[numtrain:]]
-
+train_set = [({i: (i in tokens) for i in word_features}, tag) for tokens, tag in documents[:numtrain]]
+test_set = [({i: (i in tokens) for i in word_features}, tag) for tokens, tag in documents[numtrain:]]
 
 classifier = nbc.train(train_set)
 print nltk.classify.accuracy(classifier, test_set)

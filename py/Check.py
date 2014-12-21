@@ -80,7 +80,7 @@ def extract_features(tweet):
 extract_features(tweets)
 
 # for val in stop_words:
-#     print val
+# print val
 
 def readUnigrams():
     file = "post_neg.txt"

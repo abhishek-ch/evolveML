@@ -21,7 +21,7 @@ documents = [(list(movie_reviews.words(fileid)), category)
              for fileid in movie_reviews.fileids(category)]
 
 # for list,key in documents:
-#     for word in list:
+# for word in list:
 #         print word
 #     print key
 
