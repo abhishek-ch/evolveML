@@ -141,13 +141,14 @@ class DataExtractor(object):
                 observed = classifier.classify(feats)
                 testsets[observed].add(i)
 
+
             print 'Average accuracy K-Fold ',sum(scores)/float(len(scores))
             print 'accuracy:', nltk.classify.util.accuracy(classifier, testfeats)
             print 'Happy precision:', nltk.metrics.precision(refsets['Happy'], testsets['Happy'])
             print 'Happy recall:', nltk.metrics.recall(refsets['Happy'], testsets['Happy'])
             print 'Sad precision:', nltk.metrics.precision(refsets['Sad'], testsets['Sad'])
             print 'Sad recall:', nltk.metrics.recall(refsets['Sad'], testsets['Sad'])
-            print 'Output:',nltk.classify.util.accuracy(classifier, ['He is Our To be Hanged'])
+            # print 'Output:',nltk.classify.util.accuracy(classifier, ['He is Our To be Hanged'])
             # print 'Trust precision:', nltk.metrics.precision(refsets['Trust'], testsets['Trust'])
             # print 'Trust recall:', nltk.metrics.recall(refsets['Trust'], testsets['Trust'])
             # print 'Sad precision:', nltk.metrics.precision(refsets['Angry'], testsets['Angry'])
@@ -162,7 +163,6 @@ class DataExtractor(object):
         return dict([(word, True) for word in words if word in self.bestwords])
 
     def best_bigram_word_feats(self, words, score_fn=BigramAssocMeasures.chi_sq, n=500):
-        # print "OKOOK ",words
         #unique words within a list will be entertained else its trouble
         words = list(set(words))
         if len(words) > 0:
