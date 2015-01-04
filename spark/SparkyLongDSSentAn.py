@@ -4,10 +4,10 @@ __author__ = 'abhishekchoudhary'
 # http://spark.apache.org/docs/1.0.1/configuration.html
 # https://spark.apache.org/docs/1.1.0/configuration.html
 
-#load csv file
+# load csv file
 #http://stackoverflow.com/questions/24299427/how-do-i-convert-csv-file-to-rdd
 
-from pyspark import SparkConf,SparkContext
+from pyspark import SparkConf, SparkContext
 from Util import Ready
 import pandas as pd
 import pandas as pd
@@ -18,7 +18,7 @@ import csv
 import re
 import collections
 import nltk.classify.util, nltk.metrics
-from nltk.classify import NaiveBayesClassifier
+from nltk.classify import NaiveBayesClassifier, MaxentClassifier
 from nltk.corpus import stopwords
 from nltk.collocations import BigramCollocationFinder
 from nltk.metrics import BigramAssocMeasures
@@ -82,7 +82,7 @@ class PrepareData(object):
         # for data in dataset:
         cutoff = len(features) * 3 / 4
         trainfeats = features[:cutoff]
-        testfeats =  features[cutoff:]
+        testfeats = features[cutoff:]
 
         # print("End of Train and Test Dataset division ",trainfeats)
 
@@ -106,10 +106,13 @@ class PrepareData(object):
                 X_train = list(X_folds)
                 X_test = X_train.pop(k)
                 X_train = np.concatenate(X_train)
-                classifier = NaiveBayesClassifier.train(X_train)
-                scores.append(nltk.classify.util.accuracy(classifier, X_test))
+                # classifier_sub = MaxentClassifier.train(X_train, 'GIS', trace=3,
+                #                                         encoding=None, labels=None, sparse=True, gaussian_prior_sigma=0,
+                #                                         max_iter=10)
+                classifier_sub = NaiveBayesClassifier.train(X_train)
+                scores.append(nltk.classify.util.accuracy(classifier_sub, X_test))
 
-            print("K-Fold scores done ",scores)
+            print("K-Fold scores done ", scores)
 
             for i, (feats, label) in enumerate(testfeats):
                 refsets[label].add(i)
@@ -127,13 +130,15 @@ class PrepareData(object):
             # print 'Trust recall:', nltk.metrics.recall(refsets['Trust'], testsets['Trust'])
             # print 'Sad precision:', nltk.metrics.precision(refsets['Angry'], testsets['Angry'])
             # print 'Sad recall:', nltk.metrics.recall(refsets['Angry'], testsets['Angry'])
-            classifier.show_most_informative_features()
+            classifier.show_most_informative_features(10)
 
         except AttributeError, err:
             print Exception, err
 
+
 conf = (SparkConf().setMaster("yarn-client").setAppName("Long DataSet In YARN").set("spark.executor.memory", "2g"))
-sc = SparkContext(conf = conf)
+sc = SparkContext(conf=conf)
 data = PrepareData()
 df = data.prepare()
 data.unigramAnalysis(data.word_feature, df)
+sc.stop()

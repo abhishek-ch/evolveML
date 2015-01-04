@@ -25,11 +25,11 @@ if __name__ == "__main__":
         # replace all punctuation and ideally we will be expecting the hashtag is almost all the rows
         line = re.sub('[^\w\s]', "", line)
 
-        if line.lower() not in stopset:
-            return line.lower()
-        else:
-            return ""
+        #Replace occurance of all stop words to improvise and remove useless words
+        line = ' '.join(c for c in line.split(" ") if not c in stopset)
 
+
+        return line.lower().strip()
 
 
     def myFunc(s):
@@ -49,8 +49,9 @@ if __name__ == "__main__":
         return LabeledPoint(lbl, htf.transform(cleanlbl.split(" ")))
 
 
-    conf = (SparkConf().setMaster("yarn-client").setAppName("LongDataSet-Spark"))
-    conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+    # conf = (SparkConf().setMaster("yarn-client").setAppName("LongDataSet-Spark"))
+    # conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+    # conf = (SparkConf().setMaster("local").setAppName("Long DataSet In Spark Local With High Mem").set("spark.executor.memory", "2g"))
     sc = SparkContext()
     sparseList = sc.textFile("hdfs:///stats/training.1600000.processed.noemoticon.csv").map(myFunc)
     sparseList.cache()  # Cache data since Logistic Regression is an iterative algorithm.
@@ -62,7 +63,7 @@ if __name__ == "__main__":
     # print "Length1 %s , Length %s "%(trainfeats.count(),testfeats.count())
 
     # model = LogisticRegressionWithSGD.train(trainfeats)  #Accuracy Rate 0.633956586072
-    model = NaiveBayes.train(trainfeats, 2.0)              #Accuracy Rate 0.759233827702
+    model = NaiveBayes.train(trainfeats, 1.0)              #Accuracy Rate 0.759233827702
 
     # accuracy testing
     # NOTE : This will throw error with using YARN
