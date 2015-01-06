@@ -36,7 +36,7 @@ print nltk.classify.accuracy(classifier, test_set)
 classifier.show_most_informative_features(5)
 
 # classifier1 = Pipeline([
-#     ('vectorizer', CountVectorizer()),
+# ('vectorizer', CountVectorizer()),
 #     ('tfidf', TfidfTransformer()),
 #     ('classifier', OneVsRestClassifier(LinearSVC())
 #     )])

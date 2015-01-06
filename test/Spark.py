@@ -9,6 +9,7 @@ from pyspark import SparkContext, SparkConf
 from nltk.corpus import stopwords
 import string
 
+
 def parseCSV(line):
     print "-----------------------------------------"
     values = [s for s in line.strip().split(",")]
@@ -24,7 +25,7 @@ def parseCSV(line):
 
 
 Str = "Abhishek is the best don't guy I ever known for but thats disgu ever known for everthing ever be"
-lis = ["is","don't","ever"]
+lis = ["is", "don't", "ever"]
 str = ' '.join(c for c in Str.split(" ") if not c in lis)
 
 print str

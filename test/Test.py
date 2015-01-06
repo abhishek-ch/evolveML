@@ -6,9 +6,7 @@ import numpy as np
 import csv
 
 
-
-
-size = 1700000*2/3
+size = 1700000 * 2 / 3
 print size
 
 # val = "@mitchelmusso i really really wish i could, but i can't @abhih sds "
@@ -25,7 +23,6 @@ with open('D:/Work/Python/training.1600000.processed.noemoticon.csv') as csvfile
         statement = re.sub('[^A-Za-z0-9]+', ' ', statement)
         print "row %s col %s " %(statement,row[0])
 '''
-
 
 
 def readFile(filepath, header):
@@ -46,7 +43,7 @@ for words in val:
     # replace the string with stop-words which mostly make no sense
     the_message = big_regex.sub("", words)
     # the_message = re.sub(r'\s{2,100}',' ',the_message)
-    #remove unnecessary white-space in-between string
+    # remove unnecessary white-space in-between string
     the_message = " ".join(the_message.split())
     print the_message.strip()
 
@@ -55,9 +52,8 @@ d.append(("foo", 12))
 d.append(("bar", 2))
 d.append(("bob", 17))
 
-
-print "DDDD ",d[1:]
+print "DDDD ", d[1:]
 
 np.random.shuffle(d)
-for val,chal in d:
-    print "VAL %s chal %s "%(val,chal)
+for val, chal in d:
+    print "VAL %s chal %s " % (val, chal)
