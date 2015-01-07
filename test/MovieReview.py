@@ -1,7 +1,7 @@
 # reference : http://www.nyu.edu/projects/politicsdatalab/workshops/NLTK_presentation%20_code.py
-#http://arrow.dit.ie/cgi/viewcontent.cgi?article=1062&context=scschcomcon
+# http://arrow.dit.ie/cgi/viewcontent.cgi?article=1062&context=scschcomcon
 
-#homework - https://78462f86-a-fa7ed8f8-s-sites.googlegroups.com/a/mohamedaly.info/www/teaching/cmp-462-spring-2013/CMP462%20HW04%20Sentiment%202.pdf?attachauth=ANoY7cpstDSqAnBAHmSSWkCQyHGH-ixfkI2OmMPAokebwzw9qVoH1i_XCMAfYVg75s_GbEeaM6uLX9Nf44Jpc8sofTtFMGEpaBn0sKpOWjFh5XaDvHUnIih06r5o3UuLrMxS2ZwFDJL4CKCgzZ1gVxE9oWApglczEXslK9Z8VYGdcqweql-ojoLMQVJDU0568rZ3HsPzKU3hWD2CuS6f3MLnG12cKdAivWee1U-i75fSrOVkDvTwhjtdKNZ1vXklwgV3OQIil7OGcMhQJgXojn97CdxF2dtSkQ%3D%3D&attredirects=0
+# homework - https://78462f86-a-fa7ed8f8-s-sites.googlegroups.com/a/mohamedaly.info/www/teaching/cmp-462-spring-2013/CMP462%20HW04%20Sentiment%202.pdf?attachauth=ANoY7cpstDSqAnBAHmSSWkCQyHGH-ixfkI2OmMPAokebwzw9qVoH1i_XCMAfYVg75s_GbEeaM6uLX9Nf44Jpc8sofTtFMGEpaBn0sKpOWjFh5XaDvHUnIih06r5o3UuLrMxS2ZwFDJL4CKCgzZ1gVxE9oWApglczEXslK9Z8VYGdcqweql-ojoLMQVJDU0568rZ3HsPzKU3hWD2CuS6f3MLnG12cKdAivWee1U-i75fSrOVkDvTwhjtdKNZ1vXklwgV3OQIil7OGcMhQJgXojn97CdxF2dtSkQ%3D%3D&attredirects=0
 
 
 import nltk.classify.util, nltk.metrics
@@ -16,9 +16,10 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.svm import LinearSVC
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.multiclass import OneVsRestClassifier
-from sklearn.naive_bayes import MultinomialNB,BernoulliNB
+from sklearn.naive_bayes import MultinomialNB, BernoulliNB
 from sklearn import svm
 import string
+
 
 class MovieReview:
     def __init__(self):
@@ -34,12 +35,11 @@ class MovieReview:
         self.features_X = []
         self.features_Y = []
 
-        self.negative = ["wasn\'t",'don\'t','not','bad','worst','ugly','hate']
-        self.end = ['\,','\.']
+        self.negative = ["wasn\'t", 'don\'t', 'not', 'bad', 'worst', 'ugly', 'hate']
+        self.end = ['\,', '\.']
         self.negationFeatures = []
 
     def extract_features(self, document, polarity):
-        #print (document)
         document_words = document
         # and not re.match(r'.*[\$\^\*\@\!\_\-\(\)\:\;\'\"\{\}\[\]].*', word.lower())
         # features = dict([(word.lower(), True) for word in document_words if
@@ -51,39 +51,28 @@ class MovieReview:
         '''
         features = []
         agree = True
-        joined = []
         for word in document:
             if (polarity == 'pos' and word in self.negative) or agree == False:
-               # print joined
+                # print joined
                 if word in string.punctuation:
-                    #print('yahaaayaaa')
                     agree = True
-                    line = ' '.join(joined)
-                    #print(joined)
-                    self.negationFeatures.extend(joined)
-                    #print(self.negationFeatures)
-                    del joined[:]
-                    #line = ''
                 else:
                     agree = False
-                    joined.append(word)
+                    self.negationFeatures.append(word)
                     continue
             elif agree:
                 features.append((word.lower(), True))
 
-
-        self.negationFeatures = list(set(self.negationFeatures))
-        print self.negationFeatures
         return dict(features)
 
     def exploreContents(self):
         words = movie_reviews.words('pos/cv000_29590.txt')
         # print(words)
-        print(self.extract_features(words,'pos'))
+        print(self.extract_features(words, 'pos'))
 
     def getAllFeatures(self):
         for d, c in self.documents:
-            extract = self.extract_features(d,c)
+            extract = self.extract_features(d, c)
             self.fullfeatures.append((extract, c))
 
             line = ' '.join(list(extract))
@@ -92,22 +81,23 @@ class MovieReview:
             self.features_X.append(line)
             self.features_Y.append(c)
 
+        #make negation feature as negative polarity
+        self.negationFeatures = list(set(self.negationFeatures))
+        linenegate = ' '.join(self.negationFeatures)
+        linenegate = self.cleanLine(linenegate)
+        self.features_X.append(linenegate)
+        self.features_Y.append('neg')
 
-            #words = ' ,'.join(self.negationFeatures)
-            #words = list(set(words))
-            #print(words)
 
-            for value in self.negationFeatures:
-                value = self.cleanLine(value)
-                self.features_X.append(value)
-                self.features_Y.append('neg')
 
-    def cleanLine(self,text):
+
+    def cleanLine(self, text):
         line = re.sub("U+[a-zA-Z0-9]{0,10}", "", text)
         line = re.sub("[^(a-zA-Z0-9!@#$%&*(_) ]+", "", line)
-            # replace all punctuation
+        # replace all punctuation
         line = re.sub('[^\w\s]', "", line)
         return line
+
 
     def kfoldTest(self):
         cutoff = len(self.fullfeatures) * 3 / 4
@@ -132,7 +122,6 @@ class MovieReview:
 
 
     def nltkClassifier(self):
-
         self.kfoldTest()
         cutoff = len(self.fullfeatures) * 3 / 4
         train = self.fullfeatures[:cutoff]
@@ -144,7 +133,6 @@ class MovieReview:
 
 
     def scikitKFold(self, classifier):
-
         X_folds = np.array_split(self.features_X, 3)
         y_folds = np.array_split(self.features_Y, 3)
 
@@ -163,18 +151,19 @@ class MovieReview:
         print("K-Fold scores @Scikit done ", scores)
         print("Average @Scikit ", np.mean(scores))
 
+
     def scikitClassifier(self):
 
         classifier = Pipeline([
             ('vectorizer', CountVectorizer()),
             ('tfidf', TfidfTransformer()),
-            ('classifier', svm.SVC(kernel='linear',cache_size=4000)
+            ('classifier', svm.SVC(kernel='linear', cache_size=5000)
             )])
 
-        #OneVsRestClassifier(LinearSVC()) - 86.7
-        #MultinomialNB(alpha=1.0,class_prior=None,fit_prior=True) - 83
-        #BernoulliNB(alpha=1.0, binarize=0.0, class_prior=None, fit_prior=True) - 79
-        #svm.SVC(kernel='linear') - 87
+        #OneVsRestClassifier(LinearSVC()) - 92.3
+        #MultinomialNB(alpha=1.0,class_prior=None,fit_prior=True) - 86.7
+        #BernoulliNB(alpha=1.0, binarize=0.0, class_prior=None, fit_prior=True) - 84.5
+        #svm.SVC(kernel='linear', cache_size=4000) - 92.3
 
         self.scikitKFold(classifier)
 
@@ -192,5 +181,5 @@ class MovieReview:
 review = MovieReview()
 #review.exploreContents()
 review.getAllFeatures()
-#review.nltkClassifier()
 review.scikitClassifier()
+#review.nltkClassifier()
