@@ -18,6 +18,7 @@ from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.naive_bayes import MultinomialNB,BernoulliNB
 from sklearn import svm
+import string
 
 class MovieReview:
     def __init__(self):
@@ -33,37 +34,80 @@ class MovieReview:
         self.features_X = []
         self.features_Y = []
 
+        self.negative = ["wasn\'t",'don\'t','not','bad','worst','ugly','hate']
+        self.end = ['\,','\.']
+        self.negationFeatures = []
 
-    def extract_features(self, document):
-        document_words = set(document)
+    def extract_features(self, document, polarity):
+        #print (document)
+        document_words = document
         # and not re.match(r'.*[\$\^\*\@\!\_\-\(\)\:\;\'\"\{\}\[\]].*', word.lower())
         # features = dict([(word.lower(), True) for word in document_words if
         #                  word.lower() not in self.stopset or not re.match(r'.*[\$\^\*\@\!\_\-\(\)\:\;\'\"\{\}\[\]\,].*',
         #                                                                   word.lower())])
-        features = dict([(word.lower(), True) for word in document_words])
+        '''
+        Made the following changes to extract negation
+        https://www.englishclub.com/vocabulary/adjectives-personality-negative.htm
+        '''
+        features = []
+        agree = True
+        joined = []
+        for word in document:
+            if (polarity == 'pos' and word in self.negative) or agree == False:
+               # print joined
+                if word in string.punctuation:
+                    #print('yahaaayaaa')
+                    agree = True
+                    line = ' '.join(joined)
+                    #print(joined)
+                    self.negationFeatures.extend(joined)
+                    #print(self.negationFeatures)
+                    del joined[:]
+                    #line = ''
+                else:
+                    agree = False
+                    joined.append(word)
+                    continue
+            elif agree:
+                features.append((word.lower(), True))
 
-        return features
+
+        self.negationFeatures = list(set(self.negationFeatures))
+        print self.negationFeatures
+        return dict(features)
 
     def exploreContents(self):
-        words = movie_reviews.words('pos/cv957_8737.txt')
+        words = movie_reviews.words('pos/cv000_29590.txt')
         # print(words)
-        print(self.extract_features(words))
+        print(self.extract_features(words,'pos'))
 
     def getAllFeatures(self):
         for d, c in self.documents:
-            extract = self.extract_features(d)
+            extract = self.extract_features(d,c)
             self.fullfeatures.append((extract, c))
 
             line = ' '.join(list(extract))
-
-            line = re.sub("U+[a-zA-Z0-9]{0,10}", "", line)
-            line = re.sub("[^(a-zA-Z0-9!@#$%&*(_) ]+", "", line)
-            # replace all punctuation
-            line = re.sub('[^\w\s]', "", line)
+            line = self.cleanLine(line)
 
             self.features_X.append(line)
             self.features_Y.append(c)
 
+
+            #words = ' ,'.join(self.negationFeatures)
+            #words = list(set(words))
+            #print(words)
+
+            for value in self.negationFeatures:
+                value = self.cleanLine(value)
+                self.features_X.append(value)
+                self.features_Y.append('neg')
+
+    def cleanLine(self,text):
+        line = re.sub("U+[a-zA-Z0-9]{0,10}", "", text)
+        line = re.sub("[^(a-zA-Z0-9!@#$%&*(_) ]+", "", line)
+            # replace all punctuation
+        line = re.sub('[^\w\s]', "", line)
+        return line
 
     def kfoldTest(self):
         cutoff = len(self.fullfeatures) * 3 / 4
@@ -146,7 +190,7 @@ class MovieReview:
 
 
 review = MovieReview()
-# review.exploreContents()
+#review.exploreContents()
 review.getAllFeatures()
 #review.nltkClassifier()
 review.scikitClassifier()
