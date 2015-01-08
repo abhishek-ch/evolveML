@@ -17,6 +17,9 @@ class FeatureFactory:
         self._digits = re.compile('\d\.')
         self.mister = frozenset(['mr',"ms","ms.","mss","mr.","dr","dr.","de","fon"])
         self.midname = re.compile("^[A-Z]\.$")
+        self.joinwords = frozenset(["and","or","by","beat","with","said","appreciate","defeats","legend","the","before","mate","of"])
+        self.punct = ['(',')',',',';','\\','-','.','\"',':']
+        self.wordPattern = re.compile("^[\w\d]*[\-\'][\w\d]+$")
 
 
     """
@@ -38,33 +41,6 @@ class FeatureFactory:
         features.append("prevLabel=" + previousLabel)
         features.append("word=" + currentWord + ", prevLabel=" + previousLabel)
 
-        # if currentWord[0].isupper() and not currentWord.isupper():
-        # features.append("case=Title")
-        '''
-            sort out punctuation before any capital word
-        '''
-
-        '''
-        for j in previousWord:
-            if j in string.punctuation:
-                if (currentWord[0].isupper() or currentWord.isupper()):
-                    features.append("Punctuation")
-                    #print(currentWord)
-                    break;
-        '''
-
-        '''
-        if bool(self._digits.search(previousWord)) and currentWord[0].isupper():
-            features.append("PrevNum")
-        if currentWord[0].isupper() and not currentWord.isupper():
-            features.append("case=Title")
-        if previousWord in string.punctuation and (currentWord[0].isupper() or currentWord.isupper()):
-            features.append("Punctuation")
-            #print('ALLA KASAMMMMM',currentWord)
-        if currentWord == 'Washington':
-            features.append('specific')
-
-        '''
 
         """
             Warning: If you encounter "line search failure" error when
@@ -75,6 +51,32 @@ class FeatureFactory:
 
         """ TODO: Add your features here """
 
+
+
+        if self._digits.match(previousWord) and currentCapitalized:
+            features.append("PrevNum")
+        if currentCapitalized:
+            features.append("case=Title")
+        if previousWord in self.punct and currentCapitalized:
+            #print "pre %s Curr %s"%(previousWord,currentWord)
+            features.append("Punctuation")
+        if self.midname.match(currentWord) or (self.midname.match(previousWord) and currentCapitalized):
+            features.append('Specific')
+        if self.wordPattern.match(previousWord) and currentCapitalized:
+            features.append('PatternWord')
+        if previousWord.lower() in self.joinwords and currentCapitalized:
+            #print "prev %s curr %s"%(previousWord,currentWord)
+            features.append("Join")
+        if currentWord == '\"' and previousLabel == "PERSON":
+            #print("Double link")
+            features.append("VerySpecial")
+
+
+
+
+
+
+        '''
         if previousWord.lower() in self.mister:
             features.append("mister=" + previousWord.lower())
         if self.midname.match(previousWord) and currentCapitalized:
@@ -93,7 +95,7 @@ class FeatureFactory:
             features.append("french")
         if currentCapitalized:
             features.append("capitalized")
-
+        '''
 
         return features
 
