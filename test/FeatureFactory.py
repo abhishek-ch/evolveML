@@ -4,7 +4,6 @@ from Datum import Datum
 import string
 import re
 
-#https://github.com/alexsmirnov/nlp-class-assignments/blob/master/pa4-ner/python/FeatureFactory.py
 
 class FeatureFactory:
     """
@@ -15,10 +14,12 @@ class FeatureFactory:
 
     def __init__(self):
         self._digits = re.compile('\d\.')
-        self.mister = frozenset(['mr',"ms","ms.","mss","mr.","dr","dr.","de","fon"])
+
+        self.mister = frozenset(['mr', "ms", "ms.", "mss", "mr.", "dr", "dr.", "de", "fon"])
         self.midname = re.compile("^[A-Z]\.$")
-        self.joinwords = frozenset(["and","or","by","beat","with","said","appreciate","defeats","legend","the","before","mate","of"])
-        self.punct = ['(',')',',',';','\\','-','.','\"',':']
+        self.joinwords = frozenset(
+            ["and", "or", "by", "beat", "with", "said", "appreciate", "defeats", "legend", "the", "before", "mate",
+             "of", "broker", "including"])
         self.wordPattern = re.compile("^[\w\d]*[\-\'][\w\d]+$")
 
 
@@ -32,15 +33,15 @@ class FeatureFactory:
     def computeFeatures(self, words, previousLabel, position):
         features = []
 
-        currentWord = words[position]
+        currentWord = words[position].strip()
         currentCapitalized = currentWord[0].isupper() and currentWord[1:].islower()
         previousWord = words[position - 1] or "=NOT-A-WORD="
+        previousWord = previousWord.strip()
 
         """ Baseline Features """
         features.append("word=" + currentWord)
         features.append("prevLabel=" + previousLabel)
         features.append("word=" + currentWord + ", prevLabel=" + previousLabel)
-
 
         """
             Warning: If you encounter "line search failure" error when
@@ -51,51 +52,20 @@ class FeatureFactory:
 
         """ TODO: Add your features here """
 
-
-
         if self._digits.match(previousWord) and currentCapitalized:
             features.append("PrevNum")
         if currentCapitalized:
             features.append("case=Title")
-        if previousWord in self.punct and currentCapitalized:
-            #print "pre %s Curr %s"%(previousWord,currentWord)
+        if previousWord in string.punctuation and currentCapitalized:
             features.append("Punctuation")
         if self.midname.match(currentWord) or (self.midname.match(previousWord) and currentCapitalized):
             features.append('Specific')
         if self.wordPattern.match(previousWord) and currentCapitalized:
             features.append('PatternWord')
-        if previousWord.lower() in self.joinwords and currentCapitalized:
-            #print "prev %s curr %s"%(previousWord,currentWord)
-            features.append("Join")
-        if currentWord == '\"' and previousLabel == "PERSON":
-            #print("Double link")
-            features.append("VerySpecial")
-
-
-
-
-
-
-        '''
-        if previousWord.lower() in self.mister:
-            features.append("mister=" + previousWord.lower())
-        if self.midname.match(previousWord) and currentCapitalized:
-            features.append("afterMidName")
-        if self.midname.match(currentWord) and previousLabel == "PERSON":
-            features.append("MidName")
-        if previousWord.lower() == 'the':
-            features.append("afterArticle")
         if previousLabel == "PERSON" and currentCapitalized:
             features.append("afterperson")
-        if currentWord.endswith("'s"):
-            features.append("owns")
-        if currentWord.startswith("O'"):
-            features.append("ireland")
-        if currentWord.startswith("D'"):
-            features.append("french")
-        if currentCapitalized:
-            features.append("capitalized")
-        '''
+
+
 
         return features
 
