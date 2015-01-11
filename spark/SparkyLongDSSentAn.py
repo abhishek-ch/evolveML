@@ -136,7 +136,7 @@ class PrepareData(object):
             print Exception, err
 
 
-conf = (SparkConf().setMaster("yarn-client").setAppName("Long DataSet In YARN").set("spark.executor.memory", "2g"))
+conf = (SparkConf().setMaster("yarn-client").setAppName("Long DataSet In YARN").set("spark.executor.memory", "1g"))
 sc = SparkContext(conf=conf)
 data = PrepareData()
 df = data.prepare()

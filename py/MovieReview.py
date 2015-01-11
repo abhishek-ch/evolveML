@@ -53,7 +53,6 @@ class MovieReview:
         agree = True
         for word in document:
             if (polarity == 'pos' and word in self.negative) or agree == False:
-                # print joined
                 if word in string.punctuation:
                     agree = True
                 else:
