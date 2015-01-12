@@ -6,14 +6,19 @@ from pyspark.mllib.regression import LabeledPoint
 from pyspark.mllib.feature import HashingTF
 from pyspark.mllib.classification import NaiveBayes
 from pyspark.mllib.classification import LogisticRegressionWithSGD
+from pyspark.mllib.classification import SVMWithSGD
 import re
+import string
 from nltk.corpus import stopwords
 
+
+negative = ["wasn\'t", 'don\'t', 'not', 'bad', 'worst', 'ugly', 'hate']
+negationFeatures = []
 if __name__ == "__main__":
     htf = HashingTF()
 
     stopset = set(stopwords.words('english'))
-    def cleanLine(line):
+    def cleanLine(line, negationfeature=False, val = 4):
         # remove retweets
         line = re.sub("(RT|via)((?:\\b\\W*@\\w+)+)", "", line)
         line = re.sub("@\\w+", "", line)
@@ -25,12 +30,79 @@ if __name__ == "__main__":
         # replace all punctuation and ideally we will be expecting the hashtag is almost all the rows
         line = re.sub('[^\w\s]', "", line)
 
-        #Replace occurance of all stop words to improvise and remove useless words
-        line = ' '.join(c for c in line.split(" ") if not c in stopset)
+
+        if negationfeature:
+            wordlist = []
+            agree = True
+
+            for word in line.split(" "):
+                if (val == 4 and word in negative) or agree == False:
+                        if word in string.punctuation:
+                            agree = True
+                        else:
+                            agree = False
+                            negationFeatures.append(word)
+                            continue
+                elif agree:
+                    if word not in stopset:
+                        wordlist.append(word)
+
+            line = ' '.join(wordlist)
+
+        else:
+            #Replace occurance of all stop words to improvise and remove useless words
+            line = ' '.join(c for c in line.split(" ") if not c in stopset)
+
+
+
 
 
         return line.lower().strip()
 
+
+
+    def extract_features(s):
+        #features = []
+        s = re.sub("\"", "", s)
+        agree = True
+        words = [s for s in s.split(",")]
+        document = words[5]
+
+        #extract polarity
+        val = words[0]
+        polarity = 0.0
+        if val == 4 or val == "4":
+            polarity = 0.0       #pos
+        elif val == 0 or val == "0":
+            polarity = 1.0       #neg
+
+
+
+        cleanlbl = cleanLine(words[5],True)
+
+        line = ''
+
+        #Since it just tweets which
+        #already limited to small dataset
+        #so I amy decide to only remove the words
+        for word in document:
+            if (val == 4 and word in negative) or agree == False:
+                if word in string.punctuation:
+                    agree = True
+                else:
+                    agree = False
+                    negationFeatures.append(word)
+                    continue
+            elif agree:
+                #line.append(word.lower())
+                line = ' '.join(word.lower())
+
+        print(line)
+        return LabeledPoint(polarity, htf.transform(line.split(" ")))
+
+
+    def negationParse(s):
+        return LabeledPoint(1.0, htf.transform(s))
 
     def myFunc(s):
         # words = s.split(",")
@@ -43,17 +115,31 @@ if __name__ == "__main__":
         elif val == 0 or val == "0":
             lbl = 1.0
 
-        # print "words[0] %s words[5] %s"%(words[0],words[5])
-        cleanlbl = cleanLine(words[5])
-        # print "cleanlblcleanlbl ",cleanlbl
+
+        cleanlbl = cleanLine(words[5],True,val)
+        #print "cleanlblcleanlbl ",cleanlbl
         return LabeledPoint(lbl, htf.transform(cleanlbl.split(" ")))
 
 
     # conf = (SparkConf().setMaster("yarn-client").setAppName("LongDataSet-Spark"))
     # conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     # conf = (SparkConf().setMaster("local").setAppName("Long DataSet In Spark Local With High Mem").set("spark.executor.memory", "2g"))
+
+
     sc = SparkContext()
     sparseList = sc.textFile("hdfs:///stats/training.1600000.processed.noemoticon.csv").map(myFunc)
+
+
+
+    #negationLines = ' '.join(negationFeatures)
+    #negatedData = sc.parallelize(negationLines).map(negationParse)
+
+
+    #negationlbl = LabeledPoint(1.0, htf.transform(negationFeatures))
+
+
+    #sparseList = sparseList.join(negatedData)
+
     sparseList.cache()  # Cache data since Logistic Regression is an iterative algorithm.
 
 
@@ -64,6 +150,8 @@ if __name__ == "__main__":
 
     # model = LogisticRegressionWithSGD.train(trainfeats)  #Accuracy Rate 0.633956586072
     model = NaiveBayes.train(trainfeats, 1.0)              #Accuracy Rate 0.759233827702
+    #model = SVMWithSGD.train(trainfeats,iterations=100)    #Accuracy Rate 0.654065011402
+
 
     # accuracy testing
     # NOTE : This will throw error with using YARN
