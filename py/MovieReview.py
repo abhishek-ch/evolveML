@@ -42,12 +42,9 @@ class MovieReview:
 
     def extract_features(self, document, polarity):
         document_words = document
-        # and not re.match(r'.*[\$\^\*\@\!\_\-\(\)\:\;\'\"\{\}\[\]].*', word.lower())
-        # features = dict([(word.lower(), True) for word in document_words if
-        #                  word.lower() not in self.stopset or not re.match(r'.*[\$\^\*\@\!\_\-\(\)\:\;\'\"\{\}\[\]\,].*',
-        #                                                                   word.lower())])
         '''
         Made the following changes to extract negation
+        Read about negation feature -
         https://www.englishclub.com/vocabulary/adjectives-personality-negative.htm
         '''
         features = []
@@ -94,7 +91,8 @@ class MovieReview:
     #gives 75% accuracy which seems to be fair and I wouldn't
     #like to do the overfitting anymore
     def getUnknownTestSet(self):
-        PATH = "C:\\Users\\achoudhary\\Downloads\\aclImdb_v1.tar\\aclImdb_v1\\aclImdb\\test"
+        #PATH = "C:\\Users\\achoudhary\\Downloads\\aclImdb_v1.tar\\aclImdb_v1\\aclImdb\\test"
+        PATH = "/Users/abhishekchoudhary/Downloads/aclImdb/test"
         #fetches the neg and pos dir path only and ignore all other files
         val = [os.path.join(PATH,o) for o in os.listdir(PATH) if os.path.isdir(os.path.join(PATH,o))]
 
@@ -107,7 +105,7 @@ class MovieReview:
             polarity =  os.path.basename(dirpath)
             fileslist = os.listdir(dirpath)
             #get random set of files from pos and neg
-            choices = random.sample(fileslist, 5000)
+            choices = random.sample(fileslist, 10000)
 
             #append the file content and polarity
             for fname in choices:
