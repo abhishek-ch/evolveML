@@ -8,7 +8,6 @@ import nltk.classify.util, nltk.metrics
 from nltk.classify import NaiveBayesClassifier, MaxentClassifier
 from nltk.corpus import stopwords
 from nltk.corpus import movie_reviews
-from random import shuffle
 import re
 import numpy as np
 from sklearn.pipeline import Pipeline
@@ -19,6 +18,8 @@ from sklearn.multiclass import OneVsRestClassifier
 from sklearn.naive_bayes import MultinomialNB, BernoulliNB
 from sklearn import svm
 import string
+import os
+import random
 
 
 class MovieReview:
@@ -27,7 +28,7 @@ class MovieReview:
                           for category in movie_reviews.categories()
                           for fileid in movie_reviews.fileids(category)]
 
-        shuffle(self.documents)
+        random.shuffle(self.documents)
 
         self.stopset = set(stopwords.words('english'))
         self.K_FOLDS = 10
@@ -87,6 +88,36 @@ class MovieReview:
         self.features_X.append(linenegate)
         self.features_Y.append('neg')
 
+    #this fetches a total unknown dataset from
+    #http://ai.stanford.edu/~amaas/data/sentiment/
+    # after entirely different dataset with no modification
+    #gives 75% accuracy which seems to be fair and I wouldn't
+    #like to do the overfitting anymore
+    def getUnknownTestSet(self):
+        PATH = "C:\\Users\\achoudhary\\Downloads\\aclImdb_v1.tar\\aclImdb_v1\\aclImdb\\test"
+        #fetches the neg and pos dir path only and ignore all other files
+        val = [os.path.join(PATH,o) for o in os.listdir(PATH) if os.path.isdir(os.path.join(PATH,o))]
+
+        TestX = []
+        TestY = []
+
+        #for each pos and neg dir
+        for dirpath in val:
+            #get the folder name {pos, neg}
+            polarity =  os.path.basename(dirpath)
+            fileslist = os.listdir(dirpath)
+            #get random set of files from pos and neg
+            choices = random.sample(fileslist, 5000)
+
+            #append the file content and polarity
+            for fname in choices:
+                file = open(os.path.join(dirpath, fname))  # open a file
+                lines = file.read()
+                TestX.append(lines)
+                TestY.append(polarity)
+
+        #return the combined result
+        return (TestX,TestY)
 
 
 
@@ -177,7 +208,12 @@ class MovieReview:
         print "Scores @Scikit", classifier.score(X_test, y_test)
 
 
+        XTEST,YTEST = self.getUnknownTestSet()
+        print "KARMA ", classifier.score(XTEST, YTEST)
+
+
 review = MovieReview()
+#review.getUnknownTestSet()
 #review.exploreContents()
 review.getAllFeatures()
 review.scikitClassifier()
