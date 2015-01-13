@@ -40,6 +40,8 @@ class MovieReview:
         self.end = ['\,', '\.']
         self.negationFeatures = []
 
+    #just verifies the word exist or not
+    #not working on frequency of word
     def extract_features(self, document, polarity):
         document_words = document
         '''
@@ -190,6 +192,7 @@ class MovieReview:
 
         #OneVsRestClassifier(LinearSVC()) - 92.3
         #MultinomialNB(alpha=1.0,class_prior=None,fit_prior=True) - 86.7
+        #generally sentiment analysis works better with BernoulliNB because of boolean nature
         #BernoulliNB(alpha=1.0, binarize=0.0, class_prior=None, fit_prior=True) - 84.5
         #svm.SVC(kernel='linear', cache_size=4000) - 92.3
 
