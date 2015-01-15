@@ -126,6 +126,4 @@ if __name__ == '__main__':
     reader = DataReader()
     train_data, test_data = reader.getTrainTestData()
     specific_words_dict, all_words, reader.most_significant_words = reader.wordFrequency(list(train_data))
-    reader.feature_extraction(specific_words_dict)
-    # for val in data:
-    #   print(val.Phrase)
+    features_X, features_Y = reader.feature_extraction(specific_words_dict)
