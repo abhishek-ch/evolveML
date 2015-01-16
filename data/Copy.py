@@ -1,4 +1,5 @@
 __author__ = 'achoudhary'
+__author__ = 'achoudhary'
 
 import os
 import csv
@@ -30,7 +31,7 @@ class DataReader(object):
         self.signature = ['Mr.', 'Mrs.', 'Dr.', 'Ms.', 'Miss.']
         self.stop_words = list(set(stopwords.words('english')))
         self.remove_words = ["'ve", "'nt", "'ll", "n't", '...', "'re'", "'s"]
-        self.previouswords = ['was', 'do', 'have', 'were', 'had', 'need', 'has', 'did']
+        self.previouswords = ['was', 'do', 'have', 'were', 'had', 'need', 'has','did']
         self.pattern1 = re.compile("^[.-]+\w+[.-]+$")
         self.wordPattern = re.compile("^[\w\d]*[\-\'][\w\d]+$")
         self.useless = re.compile("^[0123456789+-.,!@#$%^&*();\/|<>\"']+$")
@@ -73,81 +74,55 @@ class DataReader(object):
 
         return train_data, test_data
 
-
-
     def cleanData(self, data=[]):
         specific_words_dict = collections.defaultdict(list)
         all_words = []
         skip = False
-        possentiments = ['2', '3', '4']
+        possentiments = ['2','3','4']
         previous = ""
-
+        looper = False
         if len(data) < 2:
             print 'Sorry but its too less data for ML'
         else:
             for line in data:
-                looper = False
                 phrase = line.Phrase
                 sentiment = line.Sentiment
                 i = 0
                 _cached_ = []
-                _negativecached_ = []
 
-                for word in phrase.split(' '):
-                    # extract name and name honouring
-                    # negation foundation
-                    #print('prpprprpr ',previous)
-                    if word.lower() in self.remove_words and sentiment in possentiments and previous in self.previouswords:
-                        #print(' word ', word, ' prev ', previous, ' sentiment ', sentiment)
-                        looper = True
-                        _negativecached_.append(previous)
-
-                    elif looper:
-                        if word in string.punctuation:
-                            looper = False
-                        else:
-                            _negativecached_.append(word)
-                    else:
-                        previous = word
-                        if skip:
-                            skip = False
-                            continue
-                        if word in self.signature:
-                            # print('Sig ',word)
-                            skip = True
-                            continue
-                        if len(word) > 0 and (word[0].isupper() and i > 0) or word.isupper():
-                            # print('Upper ',word)
-                            continue
-                        if self.worddashword.match(word.lower()) or word in string.punctuation:
-                            # print('WOD SSAHAHHAHAHAH DASHHH ',word)
-                            continue
-                        if word.lower() in self.stop_words:
-                            # print('Stop ',word)
-                            continue
-                        if word.lower() in self.remove_words:
-                            # print('remo ',word)
-                            continue
-                        if self.pattern1.match(word.lower()):
-                            # print('Pattern ',word)
-                            continue
-                        if self.useless.match(word.lower()):
-                            # print('useless', word)
-                            continue
-                        all_words.append(word.lower())
-                        _cached_.append(word.lower())
-                        # For First Worst Check
-                        i += 1
+                for word in phrase.split():
+                    if skip:
+                        skip = False
+                        continue
+                    if word in self.signature:
+                        # print('Sig ',word)
+                        skip = True
+                        continue
+                    if len(word) > 0 and (word[0].isupper() and i > 0) or word.isupper():
+                        # print('Upper ',word)
+                        continue
+                    if self.worddashword.match(word.lower()) or word in string.punctuation:
+                        # print('WOD SSAHAHHAHAHAH DASHHH ',word)
+                        continue
+                    if word.lower() in self.stop_words:
+                        # print('Stop ',word)
+                        continue
+                    if word.lower() in self.remove_words:
+                        # print('remo ',word)
+                        continue
+                    if self.pattern1.match(word.lower()):
+                        # print('Pattern ',word)
+                        continue
+                    if self.useless.match(word.lower()):
+                        # print('useless', word)
+                        continue
+                    all_words.append(word.lower())
+                    _cached_.append(word.lower())
+                    # For First Worst Check
+                    i += 1
                 line = ' '.join(_cached_)
                 specific_words_dict[sentiment].append(line)
-
-                if len(_negativecached_)>0:
-                    print('_negativecached_ ',_negativecached_)
-                    negline = ' '.join(_negativecached_)
-                    specific_words_dict[sentiment-1].append(negline)
-
         return specific_words_dict, all_words
-
 
     # find the frequency of the all word list
     def wordFrequency(self, data=[]):
@@ -192,8 +167,8 @@ class DataReader(object):
 
 
 
-        # OneVsRestClassifier(LinearSVC()) - 92.3
-        # MultinomialNB(alpha=1.0,class_prior=None,fit_prior=True) - 86.7
+        #OneVsRestClassifier(LinearSVC()) - 92.3
+        #MultinomialNB(alpha=1.0,class_prior=None,fit_prior=True) - 86.7
         #generally sentiment analysis works better with BernoulliNB because of boolean nature
         #BernoulliNB(alpha=1.0, binarize=0.0, class_prior=None, fit_prior=True) - 84.5
         #svm.SVC(kernel='linear', cache_size=5000) - 92.3
@@ -219,7 +194,7 @@ class DataReader(object):
             else:
                 error.append(PhraseId)
 
-        print(' Accuracy ', count, 'test ', len(test_data) , 'percetage ',float(count)/float(len(test_data)))
+        print(' Accuracy ', count, 'test ', len(test_data))
         print('error ', len(error))
         error.sort()
         print(error)

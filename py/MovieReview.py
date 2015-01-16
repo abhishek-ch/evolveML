@@ -93,8 +93,8 @@ class MovieReview:
     #gives 75% accuracy which seems to be fair and I wouldn't
     #like to do the overfitting anymore
     def getUnknownTestSet(self):
-        #PATH = "C:\\Users\\achoudhary\\Downloads\\aclImdb_v1.tar\\aclImdb_v1\\aclImdb\\test"
-        PATH = "/Users/abhishekchoudhary/Downloads/aclImdb/test"
+        PATH = "C:\\Users\\achoudhary\\Downloads\\aclImdb_v1.tar\\aclImdb_v1\\aclImdb\\test"
+        #PATH = "/Users/abhishekchoudhary/Downloads/aclImdb/test"
         #fetches the neg and pos dir path only and ignore all other files
         val = [os.path.join(PATH,o) for o in os.listdir(PATH) if os.path.isdir(os.path.join(PATH,o))]
 
@@ -201,6 +201,9 @@ class MovieReview:
         size = len(self.features_X) * 2 / 3
         X_train = np.array(self.features_X[0:size])
         y_train = np.array(self.features_Y[0:size])
+
+
+        print(' feaxtureX ',X_train[1:4],' length ',len(X_train), ' y_train ',y_train[1:10], len(y_train) )
 
         X_test = np.array(self.features_X[size + 1: len(self.features_X)])
         y_test = np.array(self.features_Y[size + 1: len(self.features_Y)])
