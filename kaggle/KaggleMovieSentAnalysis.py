@@ -14,7 +14,7 @@ import re
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.svm import LinearSVC
-from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.feature_extraction.text import TfidfTransformer,TfidfVectorizer
 from sklearn.multiclass import OneVsRestClassifier
 
 from sklearn.linear_model import PassiveAggressiveClassifier
@@ -24,7 +24,6 @@ from sklearn.cross_validation import cross_val_score
 from sklearn import cross_validation
 from sklearn.svm import SVC
 import numpy as np
-
 
 class DataReader(object):
     def __init__(self):
@@ -98,7 +97,7 @@ class DataReader(object):
                     if len(word) > 0 and (word[0].isupper() and i > 0) or word.isupper():
                         # print('Upper ',word)
                         continue
-                    if self.worddashword.match(word.lower()) or word in string.punctuation:
+                    if self.worddashword.match(word.lower()) or word in string.punctuation or word[0] in string.punctuation:
                         # print('WOD SSAHAHHAHAHAH DASHHH ',word)
                         continue
                     if word.lower() in self.stop_words:
@@ -111,8 +110,8 @@ class DataReader(object):
                         # print('Pattern ',word)
                         continue
                     if self.useless.match(word.lower()):
-                        # print('useless', word)
                         continue
+                    #print('FINANA ',word)
                     all_words.append(word.lower())
                     _cached_.append(word.lower())
                     # For First Worst Check
@@ -121,6 +120,44 @@ class DataReader(object):
                 specific_words_dict[sentiment].append(line)
         return specific_words_dict, all_words
 
+
+    def tokenize_data(self,moviedata):
+        phrase = moviedata.Phrase
+        sentiment = moviedata.Sentiment
+        i = 0
+        _cached_ = []
+
+        for word in phrase.split():
+            if skip:
+                skip = False
+                continue
+            if word in self.signature:
+                # print('Sig ',word)
+                skip = True
+                continue
+            if len(word) > 0 and (word[0].isupper() and i > 0) or word.isupper():
+                # print('Upper ',word)
+                continue
+            if self.worddashword.match(word.lower()) or word in string.punctuation or word[0] in string.punctuation:
+                # print('WOD SSAHAHHAHAHAH DASHHH ',word)
+                continue
+            if word.lower() in self.stop_words:
+                # print('Stop ',word)
+                continue
+            if word.lower() in self.remove_words:
+                # print('remo ',word)
+                continue
+            if self.pattern1.match(word.lower()):
+                # print('Pattern ',word)
+                continue
+            if self.useless.match(word.lower()):
+                continue
+            #print('FINANA ',word)
+            _cached_.append(word.lower())
+            # For First Worst Check
+            i += 1
+        return _cached_
+
     # find the frequency of the all word list
     def wordFrequency(self, data=[]):
         if len(data) < 2:
@@ -128,41 +165,44 @@ class DataReader(object):
         else:
             specific_words_dict, all_words = self.cleanData(data)
             word_features = nltk.FreqDist(all_words)
-            print(word_features.most_common(10))
-            return specific_words_dict, all_words, word_features.keys()[:6000]
+            print(word_features.most_common(30))
+            return specific_words_dict, all_words, word_features.keys()[:9000]
 
 
     # extracting features from the dataset extracted
     # it currently checks the availability among the most popular words in the list
-    def feature_extraction(self, specific_words_dict, most_significant_words):
+    def feature_extraction(self, specific_words_dict):
         features_X = []
         features_Y = []
         for sentiment, values in specific_words_dict.iteritems():
             for line in values:
                 features_X.append(line)
                 features_Y.append(self.sents[sentiment])
-                '''
-                for word in line.split():
-                    if word in most_significant_words:
-                        features_X.append(word)
-                        features_Y.append(sentiment)
-                '''
+
         return features_X, features_Y
 
 
     def kfoldClassification(self, X, y, classifier):
         # Let's do a 2-fold cross-validation of the SVC estimator
-        print 'Cross validation ', cross_val_score(classifier, X, y, cv=10, n_jobs=1)
+        print 'Cross validation ', cross_val_score(classifier, X, y, cv=10, n_jobs=-1)
 
 
-    def classifier(self, features_X, features_Y, test_data):
+
+    def tryanother(self):
+        pass
+
+
+    #http://scikit-learn.org/stable/modules/feature_extraction.html#text-feature-extraction
+    def classifier(self, features_X, features_Y, test_data,all_words):
+        all_words = list(set(all_words))
+
         classifier = Pipeline([
-            ('vectorizer', CountVectorizer()),
-            ('tfidf', TfidfTransformer()),
-            ('classifier', OneVsRestClassifier(LinearSVC())
+            ('vectorizer', CountVectorizer(ngram_range=(1,2),stop_words='english')),
+            ('tfidf', TfidfTransformer(norm="l2",smooth_idf=True,use_idf=True)),
+            ('classifier',OneVsRestClassifier(LinearSVC())
             )])
 
-
+        count_vectorizer = CountVectorizer(ngram_range=(1,2),stop_words='english')
 
         #OneVsRestClassifier(LinearSVC()) - 92.3
         #MultinomialNB(alpha=1.0,class_prior=None,fit_prior=True) - 86.7
@@ -208,6 +248,6 @@ if __name__ == '__main__':
     reader = DataReader()
     train_data, test_data = reader.getTrainTestData()
     specific_words_dict, all_words, reader.most_significant_words = reader.wordFrequency(list(train_data))
-    features_X, features_Y = reader.feature_extraction(specific_words_dict, reader.most_significant_words)
-    reader.classifier(features_X, features_Y, test_data)
+    features_X, features_Y = reader.feature_extraction(specific_words_dict)
+    reader.classifier(features_X, features_Y, test_data,list(train_data))
     #print(features_X[1:5])
