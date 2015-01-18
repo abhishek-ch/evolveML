@@ -3,7 +3,7 @@ __author__ = 'achoudhary'
 
 import os
 import csv
-from MovieRecord import MovieSingleData, MovieData
+from MovieRecord import  MovieData,TestMovieData
 import random
 import nltk
 import collections
@@ -44,8 +44,8 @@ class DataReader(object):
 
     # http://stackoverflow.com/questions/36901/what-does-double-star-and-star-do-for-python-parameters
     # https://github.com/rafacarrascosa/samr/blob/develop/samr/corpus.py
-    def readFilelinebyline(self, DIRECTORY):
-        filepath = os.path.join(DIRECTORY, 'train.tsv')
+    def readFilelinebyline(self, DIRECTORY,file='train.tsv',movieRecordType=MovieData):
+        filepath = os.path.join(DIRECTORY, file)
         if os.path.exists(filepath):
             # read the file contents seperated by tab with ignoring the first row
             # using namedtuple here to arrange data one after
@@ -53,7 +53,7 @@ class DataReader(object):
             next(iter)  # ignore first row
 
             for row in iter:
-                yield MovieData(*row)  # * passes the value as list
+                yield movieRecordType(*row)  # * passes the value as list
                 # yield MovieSingleData(row[0],row[1],row[2],row[3])
 
         else:
@@ -63,6 +63,7 @@ class DataReader(object):
         # get current project root -> one step up -> get data dir -> get the file
         BASE_DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'data'))
         datalist.extend(self.readFilelinebyline(BASE_DATA_PATH))
+
 
         # shuffle the entire dataset
         random.shuffle(datalist)
@@ -74,6 +75,18 @@ class DataReader(object):
         test_data = datalist[traincount:]
 
         return train_data, test_data
+
+
+    def getRealData(self):
+        datalist = []
+        BASE_DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'data'))
+        datalist.extend(self.readFilelinebyline(BASE_DATA_PATH))
+
+        testdata = []
+        testdata.extend(self.readFilelinebyline(BASE_DATA_PATH,'test.tsv',TestMovieData))
+
+        return datalist,testdata
+
 
     def cleanData(self, data=[]):
         specific_words_dict = collections.defaultdict(list)
@@ -238,11 +251,37 @@ class DataReader(object):
         classfier.fit(data, _all_sentiments)
 
 
-        self.KFOLDTEST(np.asarray(_all_values), np.asarray(_all_sentiments))
+        #self.KFOLDTEST(np.asarray(_all_values), np.asarray(_all_sentiments))
         #learn pipeline
         #http://zacstewart.com/2014/08/05/pipelines-of-featureunions-of-pipelines.html
 
 
+        test_X = []
+        phraseid_test = []
+        for line in test_data:
+            test_X.append(line.Phrase)
+            phraseid_test.append(line.PhraseId)
+
+        example_counts = count_vectorizer.transform(test_X)
+        tfidf1 = tfidf.transform(example_counts)
+        predicted = classfier.predict(tfidf1)
+        #print(predicted)
+
+        tutorial_out = open('sentiment.csv', 'wb')
+        mywriter = csv.writer(tutorial_out)
+        data = []
+        data.append(('PhraseId','Sentiment'))
+        i = 0
+        for output in predicted:
+            data.append((phraseid_test[i],output))
+            i += 1
+
+        for item in data:
+             mywriter.writerow(item)
+
+        tutorial_out.close()
+
+        '''
 
         test_X = []
         sent_test = []
@@ -271,7 +310,7 @@ class DataReader(object):
 
         print(' Accuracy1 ', count, 'test1 ', len(test_data),' Percentage ',float(count)/float(len(test_data)))
         print(error)
-
+        '''
 
     # http://scikit-learn.org/stable/modules/feature_extraction.html#text-feature-extraction
 
