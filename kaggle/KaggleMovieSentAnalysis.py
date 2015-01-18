@@ -186,20 +186,30 @@ class DataReader(object):
     #https://gist.github.com/zacstewart/5978000
     def kfoldClassification(self, X, y, classifier):
         # Let's do a 2-fold cross-validation of the SVC estimator
-        print 'Cross validation ', cross_val_score(classifier, X, y, cv=10, n_jobs=-1)
+        print 'Cross validation ', cross_val_score(classifier, X, y, cv=10, n_jobs=2)
 
 
-    def KFOLDTEST(self, text, sent, pipeline):
-        k_fold = KFold(n=len(text), n_folds=6, indices=False)
+    def KFOLDTEST(self, text, sent):
+        k_fold = KFold(n=len(text), n_folds=6)
+
+
+
+
+        pipeline = Pipeline([
+        ('vectorizer', CountVectorizer(ngram_range=(1, 2), stop_words='english', tokenizer=self.tokenize_data)),
+        ('tfidf', TfidfTransformer(norm="l2", smooth_idf=True, use_idf=True)),
+        ('classifier', OneVsRestClassifier(LinearSVC())
+        )])
+
 
         scores = []
         for train_indices, test_indices in k_fold:
-            train_text = text
-            train_y = sent
+            #print('Train: %s | test: %s' % (train_indices, test_indices))
+            train_text = text[train_indices]
+            train_y = sent[train_indices]
 
-            test_text = text
-            test_y = sent
-
+            test_text = text[test_indices]
+            test_y = sent[test_indices]
 
 
             pipeline.fit(train_text, train_y)
@@ -228,37 +238,39 @@ class DataReader(object):
         classfier.fit(data, _all_sentiments)
 
 
-        
-
-
-
-        #self.KFOLDTEST(_all_values, _all_sentiments, classfier,tfidf)
+        self.KFOLDTEST(np.asarray(_all_values), np.asarray(_all_sentiments))
         #learn pipeline
         #http://zacstewart.com/2014/08/05/pipelines-of-featureunions-of-pipelines.html
 
-        #k-fold classification
-        #self.kfoldClassification(data, _all_sentiments, classfier)
+
+
+        test_X = []
+        sent_test = []
+        phraseid_test = []
+        for line in test_data:
+
+            test_X.append(line.Phrase)
+            sent_test.append(line.Sentiment)
+            phraseid_test.append(line.PhraseId)
+
+        example_counts = count_vectorizer.transform(test_X)
+        tfidf1 = tfidf.transform(example_counts)
+        predicted = classfier.predict(tfidf1)
 
         count = 0
-
+        counter = 0
         error = []
-        for line in test_data:
-            phrase = line.Phrase
-            sentiment = line.Sentiment
-            PhraseId = line.PhraseId
-
-            example_counts = count_vectorizer.transform([phrase])
-            tfidf1 = tfidf.transform(example_counts)
-            predicted = classfier.predict(tfidf1)
-            #print('phrase',phrase ,'phraseprediction ',predicted)
-            #print(' predicted ',predicted[0],' Sent ',sentiment)
-            if predicted == sentiment:
+        for prediction in predicted:
+            if prediction == sent_test[counter]:
                 count += 1
             else:
-                error.append(PhraseId)
+                error.append((phraseid_test[counter],[prediction,sent_test[counter]]))
 
-        print(' Accuracy1 ', count, 'test1 ', len(test_data))
-        print('error1 ', len(error))
+
+            counter += 1
+
+        print(' Accuracy1 ', count, 'test1 ', len(test_data),' Percentage ',float(count)/float(len(test_data)))
+        print(error)
 
 
     # http://scikit-learn.org/stable/modules/feature_extraction.html#text-feature-extraction
