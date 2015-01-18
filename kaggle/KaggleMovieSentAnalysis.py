@@ -1,5 +1,4 @@
 __author__ = 'achoudhary'
-__author__ = 'achoudhary'
 
 import os
 import csv
@@ -40,6 +39,9 @@ class DataReader(object):
         self.negative = ["wasn\'t", 'don\'t', 'not', 'bad', 'worst', 'ugly', 'hate']
 
         self.sents = {'0': 'neg', '1': 'someneg', '2': 'neutral', '3': 'sompos', '4': 'pos'}
+
+        self.matchingparam = [',','.']
+        self.allPhrases = []
         # self.most_significant_words = []
 
     # http://stackoverflow.com/questions/36901/what-does-double-star-and-star-do-for-python-parameters
@@ -141,6 +143,8 @@ class DataReader(object):
         i = 0
         _cached_ = []
         skip = False
+
+
         for word in phrase.split():
             if skip:
                 skip = False
@@ -170,6 +174,9 @@ class DataReader(object):
             _cached_.append(word.lower())
             # For First Worst Check
             i += 1
+
+        self.allPhrases.append(phrase)
+
         return _cached_
 
     # find the frequency of the all word list
@@ -238,8 +245,18 @@ class DataReader(object):
         _all_values = []
         _all_sentiments = []
         for value in trainingdata:
-            _all_values.append(value.Phrase)
+            phrase = value.Phrase
+
+            if phrase.startswith(tuple(self.matchingparam)):
+                phrase = phrase[1:]
+            if phrase.endswith(tuple(self.matchingparam)):
+                phrase = phrase[0:len(phrase)-1]
+
+            phrase = phrase.strip()
+            _all_values.append(phrase)
             _all_sentiments.append(value.Sentiment)
+
+
 
         count_vectorizer = CountVectorizer(ngram_range=(1, 2), stop_words='english', tokenizer=self.tokenize_data)
         count = count_vectorizer.fit_transform(_all_values)
@@ -267,6 +284,8 @@ class DataReader(object):
         predicted = classfier.predict(tfidf1)
         #print(predicted)
 
+
+        '''
         tutorial_out = open('sentiment.csv', 'wb')
         mywriter = csv.writer(tutorial_out)
         data = []
@@ -310,7 +329,7 @@ class DataReader(object):
 
         print(' Accuracy1 ', count, 'test1 ', len(test_data),' Percentage ',float(count)/float(len(test_data)))
         print(error)
-        '''
+
 
     # http://scikit-learn.org/stable/modules/feature_extraction.html#text-feature-extraction
 
