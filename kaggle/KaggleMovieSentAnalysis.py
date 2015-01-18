@@ -14,7 +14,7 @@ import re
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.svm import LinearSVC
-from sklearn.feature_extraction.text import TfidfTransformer,TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer, TfidfVectorizer
 from sklearn.multiclass import OneVsRestClassifier
 
 from sklearn.linear_model import PassiveAggressiveClassifier
@@ -24,13 +24,15 @@ from sklearn.cross_validation import cross_val_score
 from sklearn import cross_validation
 from sklearn.svm import SVC
 import numpy as np
+from sklearn.cross_validation import KFold
+
 
 class DataReader(object):
     def __init__(self):
         self.signature = ['Mr.', 'Mrs.', 'Dr.', 'Ms.', 'Miss.']
         self.stop_words = list(set(stopwords.words('english')))
         self.remove_words = ["'ve", "'nt", "'ll", "n't", '...', "'re'", "'s"]
-        self.previouswords = ['was', 'do', 'have', 'were', 'had', 'need', 'has','did']
+        self.previouswords = ['was', 'do', 'have', 'were', 'had', 'need', 'has', 'did']
         self.pattern1 = re.compile("^[.-]+\w+[.-]+$")
         self.wordPattern = re.compile("^[\w\d]*[\-\'][\w\d]+$")
         self.useless = re.compile("^[0123456789+-.,!@#$%^&*();\/|<>\"']+$")
@@ -97,7 +99,8 @@ class DataReader(object):
                     if len(word) > 0 and (word[0].isupper() and i > 0) or word.isupper():
                         # print('Upper ',word)
                         continue
-                    if self.worddashword.match(word.lower()) or word in string.punctuation or word[0] in string.punctuation:
+                    if self.worddashword.match(word.lower()) or word in string.punctuation or word[
+                        0] in string.punctuation:
                         # print('WOD SSAHAHHAHAHAH DASHHH ',word)
                         continue
                     if word.lower() in self.stop_words:
@@ -111,7 +114,7 @@ class DataReader(object):
                         continue
                     if self.useless.match(word.lower()):
                         continue
-                    #print('FINANA ',word)
+                    # print('FINANA ',word)
                     all_words.append(word.lower())
                     _cached_.append(word.lower())
                     # For First Worst Check
@@ -121,12 +124,10 @@ class DataReader(object):
         return specific_words_dict, all_words
 
 
-    def tokenize_data(self,moviedata):
-        phrase = moviedata.Phrase
-        sentiment = moviedata.Sentiment
+    def tokenize_data(self, phrase):
         i = 0
         _cached_ = []
-
+        skip = False
         for word in phrase.split():
             if skip:
                 skip = False
@@ -141,9 +142,9 @@ class DataReader(object):
             if self.worddashword.match(word.lower()) or word in string.punctuation or word[0] in string.punctuation:
                 # print('WOD SSAHAHHAHAHAH DASHHH ',word)
                 continue
-            if word.lower() in self.stop_words:
+                # if word.lower() in self.stop_words:
                 # print('Stop ',word)
-                continue
+            # continue
             if word.lower() in self.remove_words:
                 # print('remo ',word)
                 continue
@@ -152,7 +153,7 @@ class DataReader(object):
                 continue
             if self.useless.match(word.lower()):
                 continue
-            #print('FINANA ',word)
+            # print('FINANA ',word)
             _cached_.append(word.lower())
             # For First Worst Check
             i += 1
@@ -181,28 +182,98 @@ class DataReader(object):
 
         return features_X, features_Y
 
-
+    # more details on cross fold
+    #https://gist.github.com/zacstewart/5978000
     def kfoldClassification(self, X, y, classifier):
         # Let's do a 2-fold cross-validation of the SVC estimator
         print 'Cross validation ', cross_val_score(classifier, X, y, cv=10, n_jobs=-1)
 
 
+    def KFOLDTEST(self, text, sent, pipeline):
+        k_fold = KFold(n=len(text), n_folds=6, indices=False)
 
-    def tryanother(self):
-        pass
+        scores = []
+        for train_indices, test_indices in k_fold:
+            train_text = text
+            train_y = sent
+
+            test_text = text
+            test_y = sent
 
 
-    #http://scikit-learn.org/stable/modules/feature_extraction.html#text-feature-extraction
-    def classifier(self, features_X, features_Y, test_data,all_words):
+
+            pipeline.fit(train_text, train_y)
+            score = pipeline.score(test_text, test_y)
+            scores.append(score)
+
+        score = sum(scores) / len(scores)
+        print('scores ', scores, ' Score ', score)
+        return score
+
+
+    def tryanother(self, trainingdata):
+        _all_values = []
+        _all_sentiments = []
+        for value in trainingdata:
+            _all_values.append(value.Phrase)
+            _all_sentiments.append(value.Sentiment)
+
+        count_vectorizer = CountVectorizer(ngram_range=(1, 2), stop_words='english', tokenizer=self.tokenize_data)
+        count = count_vectorizer.fit_transform(_all_values)
+
+        tfidf = TfidfTransformer(norm="l2", smooth_idf=True, use_idf=True)
+        data = tfidf.fit_transform(count)
+
+        classfier = OneVsRestClassifier(LinearSVC())
+        classfier.fit(data, _all_sentiments)
+
+
+        
+
+
+
+        #self.KFOLDTEST(_all_values, _all_sentiments, classfier,tfidf)
+        #learn pipeline
+        #http://zacstewart.com/2014/08/05/pipelines-of-featureunions-of-pipelines.html
+
+        #k-fold classification
+        #self.kfoldClassification(data, _all_sentiments, classfier)
+
+        count = 0
+
+        error = []
+        for line in test_data:
+            phrase = line.Phrase
+            sentiment = line.Sentiment
+            PhraseId = line.PhraseId
+
+            example_counts = count_vectorizer.transform([phrase])
+            tfidf1 = tfidf.transform(example_counts)
+            predicted = classfier.predict(tfidf1)
+            #print('phrase',phrase ,'phraseprediction ',predicted)
+            #print(' predicted ',predicted[0],' Sent ',sentiment)
+            if predicted == sentiment:
+                count += 1
+            else:
+                error.append(PhraseId)
+
+        print(' Accuracy1 ', count, 'test1 ', len(test_data))
+        print('error1 ', len(error))
+
+
+    # http://scikit-learn.org/stable/modules/feature_extraction.html#text-feature-extraction
+
+
+    def classifier(self, features_X, features_Y, test_data, all_words):
         all_words = list(set(all_words))
 
         classifier = Pipeline([
-            ('vectorizer', CountVectorizer(ngram_range=(1,2),stop_words='english')),
-            ('tfidf', TfidfTransformer(norm="l2",smooth_idf=True,use_idf=True)),
-            ('classifier',OneVsRestClassifier(LinearSVC())
+            ('vectorizer', CountVectorizer(ngram_range=(1, 2), stop_words='english')),
+            ('tfidf', TfidfTransformer(norm="l2", smooth_idf=True, use_idf=True)),
+            ('classifier', OneVsRestClassifier(LinearSVC())
             )])
 
-        count_vectorizer = CountVectorizer(ngram_range=(1,2),stop_words='english')
+
 
         #OneVsRestClassifier(LinearSVC()) - 92.3
         #MultinomialNB(alpha=1.0,class_prior=None,fit_prior=True) - 86.7
@@ -247,7 +318,10 @@ class DataReader(object):
 if __name__ == '__main__':
     reader = DataReader()
     train_data, test_data = reader.getTrainTestData()
+    reader.tryanother(train_data)
+
+    '''
     specific_words_dict, all_words, reader.most_significant_words = reader.wordFrequency(list(train_data))
     features_X, features_Y = reader.feature_extraction(specific_words_dict)
     reader.classifier(features_X, features_Y, test_data,list(train_data))
-    #print(features_X[1:5])
+    '''
