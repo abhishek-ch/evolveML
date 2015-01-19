@@ -29,7 +29,7 @@ from sklearn.cross_validation import KFold
 class DataReader(object):
     def __init__(self):
         self.signature = ['Mr.', 'Mrs.', 'Dr.', 'Ms.', 'Miss.']
-        self.stop_words = list(set(stopwords.words('english')))
+        #self.stop_words = list(set(stopwords.words('english')))
         self.remove_words = ["'ve", "'nt", "'ll", "n't", '...', "'re'", "'s"]
         self.previouswords = ['was', 'do', 'have', 'were', 'had', 'need', 'has', 'did']
         self.pattern1 = re.compile("^[.-]+\w+[.-]+$")
@@ -42,6 +42,7 @@ class DataReader(object):
 
         self.matchingparam = [',','.']
         self.allPhrases = []
+        self.stop_words=['in','a','an','i','are','for','oh','hi','all','on','am','is','once','it','we','be']
         # self.most_significant_words = []
 
     # http://stackoverflow.com/questions/36901/what-does-double-star-and-star-do-for-python-parameters
@@ -140,12 +141,12 @@ class DataReader(object):
 
 
     def tokenize_data(self, phrase):
-        i = 0
+        i = -1
         _cached_ = []
         skip = False
 
-
         for word in phrase.split():
+            i += 1
             if skip:
                 skip = False
                 continue
@@ -159,9 +160,9 @@ class DataReader(object):
             if self.worddashword.match(word.lower()) or word in string.punctuation or word[0] in string.punctuation:
                 # print('WOD SSAHAHHAHAHAH DASHHH ',word)
                 continue
-                # if word.lower() in self.stop_words:
+            if word.lower() in self.stop_words:
                 # print('Stop ',word)
-            # continue
+             continue
             if word.lower() in self.remove_words:
                 # print('remo ',word)
                 continue
@@ -173,7 +174,7 @@ class DataReader(object):
             # print('FINANA ',word)
             _cached_.append(word.lower())
             # For First Worst Check
-            i += 1
+
 
         self.allPhrases.append(phrase)
 
@@ -216,7 +217,7 @@ class DataReader(object):
 
 
         pipeline = Pipeline([
-        ('vectorizer', CountVectorizer(ngram_range=(1, 2), stop_words='english', tokenizer=self.tokenize_data)),
+        ('vectorizer', CountVectorizer(ngram_range=(1, 2), tokenizer=self.tokenize_data)),
         ('tfidf', TfidfTransformer(norm="l2", smooth_idf=True, use_idf=True)),
         ('classifier', OneVsRestClassifier(LinearSVC())
         )])
@@ -258,7 +259,7 @@ class DataReader(object):
 
 
 
-        count_vectorizer = CountVectorizer(ngram_range=(1, 2), stop_words='english', tokenizer=self.tokenize_data)
+        count_vectorizer = CountVectorizer(ngram_range=(1, 2), tokenizer=self.tokenize_data)
         count = count_vectorizer.fit_transform(_all_values)
 
         tfidf = TfidfTransformer(norm="l2", smooth_idf=True, use_idf=True)
