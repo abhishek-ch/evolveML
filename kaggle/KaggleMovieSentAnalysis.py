@@ -43,9 +43,6 @@ class DataReader(object):
 
         self.matchingparam = [',', '.']
         self.allPhrases = []
-        # self.stop_words = ['this', 'a', 'of', 'to', 'at', 'movie', 'film',  'in',
-        # 'it', 'as', 'an', 'be', 'on',  'is', 'or', 'for','so'
-        #                   ]
         self.stop_words = ['the', 'a', 'of', 'and', 'to', 'in', 'is', 'that', 'it', 'as', 'with', 'for', 'its',
                            'an', 'of the', 'film', 'this', 'movie', 'be', 'on', 'all', 'by', 'or', 'at', 'not', 'like'
             , 'you',  'more', 'his', 'are', 'has', 'so', "``"]
@@ -156,7 +153,73 @@ class DataReader(object):
         return score
 
 
-    def tryanother(self, trainingdata):
+    def countWordFreq(self,count_vectorizer,frequencies):
+        word_freq_df = pd.DataFrame({'term': count_vectorizer.get_feature_names(),
+                             'occurrences': np.asarray(frequencies.sum(axis=0)).ravel().tolist()})
+        word_freq_df['frequency'] = word_freq_df['occurrences'] / np.sum(word_freq_df['occurrences'])
+        print word_freq_df.sort('occurrences', ascending=False).head(20)
+
+
+    def writeToFile(self,test_data,count_vectorizer,tfidf,classfier):
+        test_X = []
+        phraseid_test = []
+        for line in test_data:
+            test_X.append(line.Phrase)
+            phraseid_test.append(line.PhraseId)
+
+        example_counts = count_vectorizer.transform(test_X)
+        tfidf1 = tfidf.transform(example_counts)
+        predicted = classfier.predict(tfidf1)
+
+
+        tutorial_out = open('sentiment.csv', 'wb')
+        mywriter = csv.writer(tutorial_out)
+        data = []
+        data.append(('PhraseId','Sentiment'))
+        i = 0
+        for output in predicted:
+            data.append((phraseid_test[i],output))
+            i += 1
+
+        for item in data:
+             mywriter.writerow(item)
+
+        tutorial_out.close()
+
+
+    def normalexecution(self,test_data,count_vectorizer,tfidf,classfier):
+        test_X = []
+        sent_test = []
+        phraseid_test = []
+        for line in test_data:
+            test_X.append(line.Phrase)
+            sent_test.append(line.Sentiment)
+            phraseid_test.append(line.PhraseId)
+
+        example_counts = count_vectorizer.transform(test_X)
+        tfidf1 = tfidf.transform(example_counts)
+        predicted = classfier.predict(tfidf1)
+
+        count = 0
+        counter = 0
+        error = []
+        for prediction in predicted:
+            if prediction == sent_test[counter]:
+                count += 1
+            else:
+                error.append((phraseid_test[counter], [prediction, sent_test[counter]]))
+
+            counter += 1
+
+        print(' Accuracy1 ', count, 'test1 ', len(test_data), ' Percentage ', float(count) / float(len(test_data)))
+        print(error)
+
+    def analysis(self, testanalysis = True):
+        if testanalysis:
+            trainingdata,testdata = self.getTrainTestData()
+        else:
+            trainingdata,testdata = self.getRealData()
+
         aDict = {}
         for value in trainingdata:
             phrase = value.Phrase
@@ -184,13 +247,8 @@ class DataReader(object):
 
         count_vectorizer = CountVectorizer(ngram_range=(1, 2), tokenizer=self.tokenize_data)
         count = count_vectorizer.fit_transform(_all_values)
-        '''
-        word_freq_df = pd.DataFrame({'term': count_vectorizer.get_feature_names(),
-                                     'occurrences': np.asarray(count.sum(axis=0)).ravel().tolist()})
-        word_freq_df['frequency'] = word_freq_df['occurrences'] / np.sum(word_freq_df['occurrences'])
-        print word_freq_df.sort('occurrences', ascending=False).head(20)
-        '''
 
+        self.countWordFreq(count_vectorizer,count)
 
         tfidf = TfidfTransformer(norm="l2", smooth_idf=True, use_idf=True)
         data = tfidf.fit_transform(count)
@@ -199,66 +257,13 @@ class DataReader(object):
         classfier.fit(data, _all_sentiments)
 
 
-
-
-        test_X = []
-        phraseid_test = []
-        for line in test_data:
-            test_X.append(line.Phrase)
-            phraseid_test.append(line.PhraseId)
-
-        example_counts = count_vectorizer.transform(test_X)
-        tfidf1 = tfidf.transform(example_counts)
-        predicted = classfier.predict(tfidf1)
-
-        # print(predicted)
-
-
         # Data to write the content into the CSV , for getting this comment the above to take entire training set
         #as the real data
         #along with that call the method @getRealData
-        '''
-        tutorial_out = open('sentiment.csv', 'wb')
-        mywriter = csv.writer(tutorial_out)
-        data = []
-        data.append(('PhraseId','Sentiment'))
-        i = 0
-        for output in predicted:
-            data.append((phraseid_test[i],output))
-            i += 1
-
-        for item in data:
-             mywriter.writerow(item)
-
-        tutorial_out.close()
-        '''
-
-
-        test_X = []
-        sent_test = []
-        phraseid_test = []
-        for line in test_data:
-            test_X.append(line.Phrase)
-            sent_test.append(line.Sentiment)
-            phraseid_test.append(line.PhraseId)
-
-        example_counts = count_vectorizer.transform(test_X)
-        tfidf1 = tfidf.transform(example_counts)
-        predicted = classfier.predict(tfidf1)
-
-        count = 0
-        counter = 0
-        error = []
-        for prediction in predicted:
-            if prediction == sent_test[counter]:
-                count += 1
-            else:
-                error.append((phraseid_test[counter], [prediction, sent_test[counter]]))
-
-            counter += 1
-
-        print(' Accuracy1 ', count, 'test1 ', len(test_data), ' Percentage ', float(count) / float(len(test_data)))
-        print(error)
+        if testanalysis:
+            self.normalexecution(testdata,count_vectorizer,tfidf,classfier)
+        else:
+            self.writeToFile(testdata,count_vectorizer,tfidf,classfier)
 
 
     def getTrainTestData(self):
@@ -270,5 +275,6 @@ class DataReader(object):
 
 if __name__ == '__main__':
     reader = DataReader()
-    train_data, test_data = reader.getTrainTestData()
-    reader.tryanother(train_data)
+    #train_data, test_data = reader.getTrainTestData()
+    reader.analysis(True)
+    #reader.tryanother(train_data)
