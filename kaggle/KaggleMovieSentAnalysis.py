@@ -41,12 +41,21 @@ class DataReader(object):
 
         self.sents = {'0': 'neg', '1': 'someneg', '2': 'neutral', '3': 'sompos', '4': 'pos'}
 
-        self.matchingparam = [',', '.']
+        self.matchingparam = [',']
         self.allPhrases = []
-        self.stop_words = ['the', 'a', 'of', 'and', 'to', 'in', 'is', 'that', 'it', 'as', 'with', 'for', 'its',
-                           'an', 'of the', 'film', 'this', 'movie', 'be', 'on', 'all', 'by', 'or', 'at', 'not', 'like'
-            , 'you',  'more', 'his', 'are', 'has', 'so', "``"]
+        self.stop_words =['a','can','and']
+       # self.stop_words = ['the', 'a', 'of', 'and', 'to', 'in', 'is', 'that', 'it', 'as', 'with', 'for', 'its',
+       #                    'an', 'of the', 'film', 'this', 'movie', 'be', 'on', 'all', 'by', 'or', 'at', 'not', 'like'
+       #     , 'you',  'more', 'his', 'are', 'has', 'so', "``"]
         # self.most_significant_words = [],
+
+    #first word
+    #capital letter always is not right 33896
+    #it has significance
+    #is 's is there , then previous word can be popped 151528
+
+
+
 
     # http://stackoverflow.com/questions/36901/what-does-double-star-and-star-do-for-python-parameters
     # https://github.com/rafacarrascosa/samr/blob/develop/samr/corpus.py
@@ -243,7 +252,7 @@ class DataReader(object):
         _all_values = aDict.keys()
         _all_sentiments = aDict.values()
 
-        #self.KFOLDTEST(np.asarray(_all_values), np.asarray(_all_sentiments))
+        self.KFOLDTEST(np.asarray(_all_values), np.asarray(_all_sentiments))
 
         count_vectorizer = CountVectorizer(ngram_range=(1, 2), tokenizer=self.tokenize_data)
         count = count_vectorizer.fit_transform(_all_values)
