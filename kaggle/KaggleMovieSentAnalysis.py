@@ -31,7 +31,7 @@ class DataReader(object):
     def __init__(self):
         self.signature = ['Mr.', 'Mrs.', 'Dr.', 'Ms.', 'Miss.']
         # self.stop_words = list(set(stopwords.words('english')))
-        self.remove_words = ["'ve", "'nt", "'ll", "n't", '...', "'re'", "'s"]
+        self.remove_words = ["'ve", "'nt", "'ll", "n't", '...', "'re","'d","'n","'m","'em","'til"]
         self.previouswords = ['was', 'do', 'have', 'were', 'had', 'need', 'has', 'did']
         self.pattern1 = re.compile("^[.-]+\w+[.-]+$")
         self.wordPattern = re.compile("^[\w\d]*[\-\'][\w\d]+$")
@@ -41,9 +41,24 @@ class DataReader(object):
 
         self.sents = {'0': 'neg', '1': 'someneg', '2': 'neutral', '3': 'sompos', '4': 'pos'}
 
-        self.matchingparam = [',']
+        self.matchingparam = [',','.']
         self.allPhrases = []
-        self.stop_words =['a','can','and']
+
+        self.punctuations = """!"#$%&'()*+/:;<=>?@[\]^_`{|}~"""
+
+
+        self.stop_words =['a','can','and','zone','-lrb-','yu',"`","=","``","your","about","you","/","\\","\*","yet",
+                          "young","till","written","above","year","accepts","abstract","would","writer","action","world",
+                          "according","words","with","years","word","will","without","actually","work",
+                          "who","an","well","all","as","be"]
+
+        self.allmainwords = []
+        self.minimumfreqwords = re.compile("'\d{2}s")
+        self.minimumfreqwords1 = re.compile("-\w+-")
+        self.minimumfreqwords2 = re.compile("[\\*]+")
+        self._digits = re.compile('\d')
+
+
        # self.stop_words = ['the', 'a', 'of', 'and', 'to', 'in', 'is', 'that', 'it', 'as', 'with', 'for', 'its',
        #                    'an', 'of the', 'film', 'this', 'movie', 'be', 'on', 'all', 'by', 'or', 'at', 'not', 'like'
        #     , 'you',  'more', 'his', 'are', 'has', 'so', "``"]
@@ -110,23 +125,29 @@ class DataReader(object):
             if word in self.signature:
                 # print('Sig ',word)
                 continue
-            if len(word) > 0 and (word[0].isupper() and len(_cached_) > 1) or word.isupper():
+            if word.isupper() or word == ":":
                 # print('Upper ',word)
                 continue
-            if self.worddashword.match(word.lower()):
-                continue
+            #if self.worddashword.match(word.lower()):
+            #    continue
             if word.lower() in self.stop_words:
                 continue
             if word.lower() in self.remove_words:
                 if len(_cached_) > 0:
                     _cached_.pop()
                 continue
-            if self.pattern1.match(word.lower()):
-                # print('Pattern ',word)
+            if self.minimumfreqwords.match(word.lower()) or self.minimumfreqwords1.match(word.lower()) or self.minimumfreqwords2.match(word.lower()):
                 continue
             if self.useless.match(word.lower()):
                 continue
-            if word in string.punctuation:
+            if word == "'s":
+                if len(_cached_)>0:
+                    _cached_.pop()
+                continue
+            if bool(self._digits.search(word)):
+                continue
+            if phrase[len(phrase)-1] not in string.punctuation and word in string.punctuation:
+                #print(phrase)
                 continue
 
             _cached_.append(word.lower())
@@ -166,8 +187,11 @@ class DataReader(object):
         word_freq_df = pd.DataFrame({'term': count_vectorizer.get_feature_names(),
                              'occurrences': np.asarray(frequencies.sum(axis=0)).ravel().tolist()})
         word_freq_df['frequency'] = word_freq_df['occurrences'] / np.sum(word_freq_df['occurrences'])
-        print word_freq_df.sort('occurrences', ascending=False).head(20)
 
+        #print word_freq_df.sort('occurrences', ascending=False)
+        wordlist = word_freq_df[word_freq_df.occurrences == 16]
+        print('length ok',wordlist)
+        return wordlist['term']
 
     def writeToFile(self,test_data,count_vectorizer,tfidf,classfier):
         test_X = []
@@ -216,12 +240,14 @@ class DataReader(object):
             if prediction == sent_test[counter]:
                 count += 1
             else:
-                error.append((phraseid_test[counter], [prediction, sent_test[counter]]))
+                error.append((phraseid_test[counter], [prediction, sent_test[counter],test_X[counter]]))
 
             counter += 1
 
         print(' Accuracy1 ', count, 'test1 ', len(test_data), ' Percentage ', float(count) / float(len(test_data)))
-        print(error)
+
+        #for item in error:
+        #    print(item)
 
     def analysis(self, testanalysis = True):
         if testanalysis:
@@ -233,10 +259,12 @@ class DataReader(object):
         for value in trainingdata:
             phrase = value.Phrase
 
+            '''
             if phrase.startswith(tuple(self.matchingparam)):
                 phrase = phrase[1:]
             if phrase.endswith(tuple(self.matchingparam)):
                 phrase = phrase[0:len(phrase) - 1]
+            '''
 
             phrase = phrase.strip()
 
@@ -252,18 +280,24 @@ class DataReader(object):
         _all_values = aDict.keys()
         _all_sentiments = aDict.values()
 
-        self.KFOLDTEST(np.asarray(_all_values), np.asarray(_all_sentiments))
+        #self.KFOLDTEST(np.asarray(_all_values), np.asarray(_all_sentiments))
 
         count_vectorizer = CountVectorizer(ngram_range=(1, 2), tokenizer=self.tokenize_data)
         count = count_vectorizer.fit_transform(_all_values)
 
-        self.countWordFreq(count_vectorizer,count)
+        #self.countWordFreq(count_vectorizer,count)
+
+
+
 
         tfidf = TfidfTransformer(norm="l2", smooth_idf=True, use_idf=True)
         data = tfidf.fit_transform(count)
 
-        classfier = OneVsRestClassifier(LinearSVC())
-        classfier.fit(data, _all_sentiments)
+        classfier = OneVsOneClassifier(LinearSVC())
+        classfier.fit(data, np.asarray(_all_sentiments))
+
+
+
 
 
         # Data to write the content into the CSV , for getting this comment the above to take entire training set
@@ -285,5 +319,5 @@ class DataReader(object):
 if __name__ == '__main__':
     reader = DataReader()
     #train_data, test_data = reader.getTrainTestData()
-    reader.analysis(True)
+    reader.analysis(False)
     #reader.tryanother(train_data)
