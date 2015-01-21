@@ -53,7 +53,10 @@ class DataReader(object):
                            "action", "world",
                            "according", "words", "with", "years", "word", "will", "without", "actually", "work",
                            "who", "an", "well", "all", "as", "be",
-                           "the","of","to","it","in","is","that","for","movi","thi"]
+                           "the","of","to","it","in","is","that","for","movi","thi","film",
+                           "hi","ha",
+                           "?!?","all-tim","arni","bug-ey","war-torn","x.","tsai",
+                           "bros.","xxx","--",":"]
 
         self.allmainwords = []
         self.minimumfreqwords = re.compile("'\d{2}s")
@@ -63,10 +66,17 @@ class DataReader(object):
         self.stemmer = PorterStemmer()
 
 
-        # self.stop_words = ['the', 'a', 'of', 'and', 'to', 'in', 'is', 'that', 'it', 'as', 'with', 'for', 'its',
-        #                    'an', 'of the', 'film', 'this', 'movie', 'be', 'on', 'all', 'by', 'or', 'at', 'not', 'like'
-        #     , 'you',  'more', 'his', 'are', 'has', 'so', "``"]
-        # self.most_significant_words = [],
+
+
+    def countWordFreq(self, count_vectorizer, frequencies):
+        word_freq_df = pd.DataFrame({'term': count_vectorizer.get_feature_names(),
+                                     'occurrences': np.asarray(frequencies.sum(axis=0)).ravel().tolist()})
+        word_freq_df['frequency'] = word_freq_df['occurrences'] / np.sum(word_freq_df['occurrences'])
+
+        print word_freq_df.sort('occurrences', ascending=False).head(100)
+        #wordlist = word_freq_df[word_freq_df.occurrences == 38]
+        #print('length ok', wordlist)
+        #return wordlist['term']
 
     #first word
     #capital letter always is not right 33896
@@ -131,12 +141,12 @@ class DataReader(object):
             _cached_.append(".")
         '''
         for word in wordlist:
-
+            word = self.stemmer.stem(word)
 
             if word in self.signature:
                 # print('Sig ',word)
                 continue
-            if word.isupper() or word == ":":
+            if word.isupper():
                 # print('Upper ',word)
                 continue
             #if self.worddashword.match(word.lower()):
@@ -147,8 +157,7 @@ class DataReader(object):
                 if len(_cached_) > 0:
                     _cached_.pop()
                 continue
-            if self.minimumfreqwords.match(word) or self.minimumfreqwords1.match(word) or self.minimumfreqwords2.match(
-                    word):
+            if self.minimumfreqwords.match(word):
                 continue
             if self.useless.match(word):
                 continue
@@ -158,15 +167,13 @@ class DataReader(object):
                 continue
             if bool(self._digits.search(word)):
                 continue
-            if word in string.punctuation:
+            #if word in string.punctuation:
                 #print(phrase)
+            #    continue
+            if word[0].isupper():
                 continue
 
-
-
-            word = self.stemmer.stem(word)
-
-            _cached_.append(word)
+            _cached_.append(word.lower())
             # For First Worst Check
 
         return _cached_
@@ -199,15 +206,6 @@ class DataReader(object):
         return score
 
 
-    def countWordFreq(self, count_vectorizer, frequencies):
-        word_freq_df = pd.DataFrame({'term': count_vectorizer.get_feature_names(),
-                                     'occurrences': np.asarray(frequencies.sum(axis=0)).ravel().tolist()})
-        word_freq_df['frequency'] = word_freq_df['occurrences'] / np.sum(word_freq_df['occurrences'])
-
-        print word_freq_df.sort('occurrences', ascending=False)
-        #wordlist = word_freq_df[word_freq_df.occurrences == 16]
-        #print('length ok', wordlist)
-        #return wordlist['term']
 
 
     def normalexecution(self, test_data, count_vectorizer, tfidf, classfier):
@@ -236,8 +234,8 @@ class DataReader(object):
 
         print(' Accuracy1 ', count, 'test1 ', len(test_data), ' Percentage ', float(count) / float(len(test_data)))
 
-        #for item in error:
-        #    print(item)
+        for item in error:
+            print(item)
 
     def analysis(self, testanalysis=True):
         if testanalysis:
@@ -261,7 +259,7 @@ class DataReader(object):
         count_vectorizer = CountVectorizer(ngram_range=(1, 2), tokenizer=self.tokenize_data)
         count = count_vectorizer.fit_transform(_all_values)
 
-        self.countWordFreq(count_vectorizer, count)
+        #self.countWordFreq(count_vectorizer, count)
 
         tfidf = TfidfTransformer(norm="l2", smooth_idf=True, use_idf=True)
         data = tfidf.fit_transform(count)
@@ -344,5 +342,5 @@ class DataReader(object):
 if __name__ == '__main__':
     reader = DataReader()
     #train_data, test_data = reader.getTrainTestData()
-    reader.analysis(True)
+    reader.analysis(False)
     #reader.tryanother(train_data)
