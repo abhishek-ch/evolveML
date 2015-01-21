@@ -14,7 +14,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.svm import LinearSVC
 from sklearn.feature_extraction.text import TfidfTransformer, TfidfVectorizer
-from sklearn.multiclass import OneVsRestClassifier,OneVsOneClassifier
+from sklearn.multiclass import OneVsRestClassifier, OneVsOneClassifier
 
 from sklearn.linear_model import PassiveAggressiveClassifier
 from sklearn.naive_bayes import MultinomialNB, BernoulliNB
@@ -25,13 +25,14 @@ from sklearn.svm import SVC
 import numpy as np
 import pandas as pd
 from sklearn.cross_validation import KFold
+from nltk.stem.porter import PorterStemmer
 
-#todo https://github.com/yogesh-kamble/kaggle-submission/blob/master/movie_review.py
+# todo https://github.com/yogesh-kamble/kaggle-submission/blob/master/movie_review.py
 class DataReader(object):
     def __init__(self):
         self.signature = ['Mr.', 'Mrs.', 'Dr.', 'Ms.', 'Miss.']
         # self.stop_words = list(set(stopwords.words('english')))
-        self.remove_words = ["'ve", "'nt", "'ll", "n't", '...', "'re","'d","'n","'m","'em","'til"]
+        self.remove_words = ["'ve", "'nt", "'ll", "n't", '...', "'re", "'d", "'n", "'m", "'em", "'til"]
         self.previouswords = ['was', 'do', 'have', 'were', 'had', 'need', 'has', 'did']
         self.pattern1 = re.compile("^[.-]+\w+[.-]+$")
         self.wordPattern = re.compile("^[\w\d]*[\-\'][\w\d]+$")
@@ -41,27 +42,30 @@ class DataReader(object):
 
         self.sents = {'0': 'neg', '1': 'someneg', '2': 'neutral', '3': 'sompos', '4': 'pos'}
 
-        self.matchingparam = [',','.']
+        self.matchingparam = [',', '.']
         self.allPhrases = []
 
         self.punctuations = """!"#$%&'()*+/:;<=>?@[\]^_`{|}~"""
 
-
-        self.stop_words =['a','can','and','zone','-lrb-','yu',"`","=","``","your","about","you","/","\\","\*","yet",
-                          "young","till","written","above","year","accepts","abstract","would","writer","action","world",
-                          "according","words","with","years","word","will","without","actually","work",
-                          "who","an","well","all","as","be"]
+        self.stop_words = ['a', 'can', 'and', 'zone', '-lrb-', 'yu', "`", "=", "``", "your", "about", "you", "/", "\\",
+                           "\*", "yet",
+                           "young", "till", "written", "above", "year", "accepts", "abstract", "would", "writer",
+                           "action", "world",
+                           "according", "words", "with", "years", "word", "will", "without", "actually", "work",
+                           "who", "an", "well", "all", "as", "be",
+                           "the","of","to","it","in","is","that","for","movi","thi"]
 
         self.allmainwords = []
         self.minimumfreqwords = re.compile("'\d{2}s")
         self.minimumfreqwords1 = re.compile("-\w+-")
         self.minimumfreqwords2 = re.compile("[\\*]+")
         self._digits = re.compile('\d')
+        self.stemmer = PorterStemmer()
 
 
-       # self.stop_words = ['the', 'a', 'of', 'and', 'to', 'in', 'is', 'that', 'it', 'as', 'with', 'for', 'its',
-       #                    'an', 'of the', 'film', 'this', 'movie', 'be', 'on', 'all', 'by', 'or', 'at', 'not', 'like'
-       #     , 'you',  'more', 'his', 'are', 'has', 'so', "``"]
+        # self.stop_words = ['the', 'a', 'of', 'and', 'to', 'in', 'is', 'that', 'it', 'as', 'with', 'for', 'its',
+        #                    'an', 'of the', 'film', 'this', 'movie', 'be', 'on', 'all', 'by', 'or', 'at', 'not', 'like'
+        #     , 'you',  'more', 'his', 'are', 'has', 'so', "``"]
         # self.most_significant_words = [],
 
     #first word
@@ -121,7 +125,14 @@ class DataReader(object):
     def tokenize_data(self, phrase):
         _cached_ = []
 
-        for word in phrase.split():
+        wordlist = phrase.split()
+        '''
+        if len(wordlist) >0 and wordlist[len(wordlist)-1] == ".":
+            _cached_.append(".")
+        '''
+        for word in wordlist:
+
+
             if word in self.signature:
                 # print('Sig ',word)
                 continue
@@ -130,27 +141,32 @@ class DataReader(object):
                 continue
             #if self.worddashword.match(word.lower()):
             #    continue
-            if word.lower() in self.stop_words:
+            if word in self.stop_words:
                 continue
-            if word.lower() in self.remove_words:
+            if word in self.remove_words:
                 if len(_cached_) > 0:
                     _cached_.pop()
                 continue
-            if self.minimumfreqwords.match(word.lower()) or self.minimumfreqwords1.match(word.lower()) or self.minimumfreqwords2.match(word.lower()):
+            if self.minimumfreqwords.match(word) or self.minimumfreqwords1.match(word) or self.minimumfreqwords2.match(
+                    word):
                 continue
-            if self.useless.match(word.lower()):
+            if self.useless.match(word):
                 continue
             if word == "'s":
-                if len(_cached_)>0:
+                if len(_cached_) > 0:
                     _cached_.pop()
                 continue
             if bool(self._digits.search(word)):
                 continue
-            if phrase[len(phrase)-1] not in string.punctuation and word in string.punctuation:
+            if word in string.punctuation:
                 #print(phrase)
                 continue
 
-            _cached_.append(word.lower())
+
+
+            word = self.stemmer.stem(word)
+
+            _cached_.append(word)
             # For First Worst Check
 
         return _cached_
@@ -183,44 +199,18 @@ class DataReader(object):
         return score
 
 
-    def countWordFreq(self,count_vectorizer,frequencies):
+    def countWordFreq(self, count_vectorizer, frequencies):
         word_freq_df = pd.DataFrame({'term': count_vectorizer.get_feature_names(),
-                             'occurrences': np.asarray(frequencies.sum(axis=0)).ravel().tolist()})
+                                     'occurrences': np.asarray(frequencies.sum(axis=0)).ravel().tolist()})
         word_freq_df['frequency'] = word_freq_df['occurrences'] / np.sum(word_freq_df['occurrences'])
 
-        #print word_freq_df.sort('occurrences', ascending=False)
-        wordlist = word_freq_df[word_freq_df.occurrences == 16]
-        print('length ok',wordlist)
-        return wordlist['term']
-
-    def writeToFile(self,test_data,count_vectorizer,tfidf,classfier):
-        test_X = []
-        phraseid_test = []
-        for line in test_data:
-            test_X.append(line.Phrase)
-            phraseid_test.append(line.PhraseId)
-
-        example_counts = count_vectorizer.transform(test_X)
-        tfidf1 = tfidf.transform(example_counts)
-        predicted = classfier.predict(tfidf1)
+        print word_freq_df.sort('occurrences', ascending=False)
+        #wordlist = word_freq_df[word_freq_df.occurrences == 16]
+        #print('length ok', wordlist)
+        #return wordlist['term']
 
 
-        tutorial_out = open('sentiment.csv', 'wb')
-        mywriter = csv.writer(tutorial_out)
-        data = []
-        data.append(('PhraseId','Sentiment'))
-        i = 0
-        for output in predicted:
-            data.append((phraseid_test[i],output))
-            i += 1
-
-        for item in data:
-             mywriter.writerow(item)
-
-        tutorial_out.close()
-
-
-    def normalexecution(self,test_data,count_vectorizer,tfidf,classfier):
+    def normalexecution(self, test_data, count_vectorizer, tfidf, classfier):
         test_X = []
         sent_test = []
         phraseid_test = []
@@ -240,7 +230,7 @@ class DataReader(object):
             if prediction == sent_test[counter]:
                 count += 1
             else:
-                error.append((phraseid_test[counter], [prediction, sent_test[counter],test_X[counter]]))
+                error.append((phraseid_test[counter], [prediction, sent_test[counter], test_X[counter]]))
 
             counter += 1
 
@@ -249,33 +239,19 @@ class DataReader(object):
         #for item in error:
         #    print(item)
 
-    def analysis(self, testanalysis = True):
+    def analysis(self, testanalysis=True):
         if testanalysis:
-            trainingdata,testdata = self.getTrainTestData()
+            trainingdata, testdata = self.getTrainTestData()
         else:
-            trainingdata,testdata = self.getRealData()
+            trainingdata, testdata = self.getRealData()
 
         aDict = {}
         for value in trainingdata:
             phrase = value.Phrase
 
-            '''
-            if phrase.startswith(tuple(self.matchingparam)):
-                phrase = phrase[1:]
-            if phrase.endswith(tuple(self.matchingparam)):
-                phrase = phrase[0:len(phrase) - 1]
-            '''
-
             phrase = phrase.strip()
 
             aDict[phrase] = value.Sentiment
-
-            '''
-            if not aDict.has_key(phrase):
-                aDict[phrase] = value.Sentiment
-            elif not aDict[phrase] == value.Sentiment:
-                print(value.PhraseId)
-            '''
 
         _all_values = aDict.keys()
         _all_sentiments = aDict.values()
@@ -285,10 +261,7 @@ class DataReader(object):
         count_vectorizer = CountVectorizer(ngram_range=(1, 2), tokenizer=self.tokenize_data)
         count = count_vectorizer.fit_transform(_all_values)
 
-        #self.countWordFreq(count_vectorizer,count)
-
-
-
+        self.countWordFreq(count_vectorizer, count)
 
         tfidf = TfidfTransformer(norm="l2", smooth_idf=True, use_idf=True)
         data = tfidf.fit_transform(count)
@@ -304,9 +277,61 @@ class DataReader(object):
         #as the real data
         #along with that call the method @getRealData
         if testanalysis:
-            self.normalexecution(testdata,count_vectorizer,tfidf,classfier)
+            self.normalexecution(testdata, count_vectorizer, tfidf, classfier)
         else:
-            self.writeToFile(testdata,count_vectorizer,tfidf,classfier)
+            self.writeToFile(testdata, count_vectorizer, tfidf, classfier)
+
+
+
+    def writeToFile(self, test_data, count_vectorizer, tfidf, classfier):
+        test_X = []
+        phraseid_test = []
+        for line in test_data:
+            test_X.append(line.Phrase)
+            phraseid_test.append(line.PhraseId)
+
+        example_counts = count_vectorizer.transform(test_X)
+        tfidf1 = tfidf.transform(example_counts)
+        predicted = classfier.predict(tfidf1)
+
+        tutorial_out = open('sentiment.csv', 'wb')
+        mywriter = csv.writer(tutorial_out)
+        data = []
+        data.append(('PhraseId', 'Sentiment'))
+        i = 0
+        for output in predicted:
+            data.append((phraseid_test[i], output))
+            i += 1
+
+        for item in data:
+            mywriter.writerow(item)
+
+        tutorial_out.close()
+
+    def writeToFile(self, test_data, count_vectorizer, tfidf, classfier):
+        test_X = []
+        phraseid_test = []
+        for line in test_data:
+            test_X.append(line.Phrase)
+            phraseid_test.append(line.PhraseId)
+
+        example_counts = count_vectorizer.transform(test_X)
+        tfidf1 = tfidf.transform(example_counts)
+        predicted = classfier.predict(tfidf1)
+
+        tutorial_out = open('sentiment.csv', 'wb')
+        mywriter = csv.writer(tutorial_out)
+        data = []
+        data.append(('PhraseId', 'Sentiment'))
+        i = 0
+        for output in predicted:
+            data.append((phraseid_test[i], output))
+            i += 1
+
+        for item in data:
+            mywriter.writerow(item)
+
+        tutorial_out.close()
 
 
     def getTrainTestData(self):
@@ -319,5 +344,5 @@ class DataReader(object):
 if __name__ == '__main__':
     reader = DataReader()
     #train_data, test_data = reader.getTrainTestData()
-    reader.analysis(False)
+    reader.analysis(True)
     #reader.tryanother(train_data)
