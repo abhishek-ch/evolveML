@@ -9,6 +9,7 @@ from nltk.classify import NaiveBayesClassifier, MaxentClassifier
 from nltk.corpus import stopwords
 from nltk.corpus import movie_reviews
 import re
+import pandas as pd
 import numpy as np
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import CountVectorizer

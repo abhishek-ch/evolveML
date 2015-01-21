@@ -261,7 +261,7 @@ class DataReader(object):
 
         #self.countWordFreq(count_vectorizer, count)
 
-        tfidf = TfidfTransformer(norm="l2", smooth_idf=True, use_idf=True)
+        tfidf = TfidfTransformer()
         data = tfidf.fit_transform(count)
 
         classfier = OneVsOneClassifier(LinearSVC())
@@ -342,5 +342,5 @@ class DataReader(object):
 if __name__ == '__main__':
     reader = DataReader()
     #train_data, test_data = reader.getTrainTestData()
-    reader.analysis(False)
+    reader.analysis(True)
     #reader.tryanother(train_data)
