@@ -32,12 +32,13 @@ class DataReader(object):
     def __init__(self):
         self.signature = ['Mr.', 'Mrs.', 'Dr.', 'Ms.', 'Miss.']
         # self.stop_words = list(set(stopwords.words('english')))
-        self.remove_words = ["'ve", "'nt", "'ll", "n't", '...', "'re", "'d", "'n", "'m", "'em", "'til"]
+        self.remove_words = ["'ve", "'nt", "'ll", "n't", '...', "'re", "'d", "'n", "'m", "'em", "'til","'s"]
         self.previouswords = ['was', 'do', 'have', 'were', 'had', 'need', 'has', 'did']
         self.pattern1 = re.compile("^[.-]+\w+[.-]+$")
         self.wordPattern = re.compile("^[\w\d]*[\-\'][\w\d]+$")
         self.useless = re.compile("^[0123456789+-.,!@#$%^&*();\/|<>\"']+$")
-        self.worddashword = re.compile("^\w+-\w+$")
+        self.worddashword = re.compile("\w+-\w+")
+        self.worddashword1 = re.compile("\w+-\w+-\w+")
         self.negative = ["wasn\'t", 'don\'t', 'not', 'bad', 'worst', 'ugly', 'hate']
 
         self.sents = {'0': 'neg', '1': 'someneg', '2': 'neutral', '3': 'sompos', '4': 'pos'}
@@ -47,20 +48,20 @@ class DataReader(object):
 
         self.punctuations = """!"#$%&'()*+/:;<=>?@[\]^_`{|}~"""
 
-        self.stop_words = ['a', 'can', 'and', 'zone', '-lrb-', 'yu', "`", "=", "``", "your", "about", "you", "/", "\\",
+        self.stop_words = ['a', 'can', 'and', 'zone',  'yu', "`", "=", "your", "about", "you", "/", "\\",
                            "\*", "yet",
                            "young", "till", "written", "above", "year", "accepts", "abstract", "would", "writer",
                            "action", "world",
                            "according", "words", "with", "years", "word", "will", "without", "actually", "work",
                            "who", "an", "well", "all", "as", "be",
-                           "the","of","to","it","in","is","that","for","movi","thi","film",
+                           "of","to","it","in","is","that","for","movi","thi","film",
                            "hi","ha",
                            "?!?","all-tim","arni","bug-ey","war-torn","x.","tsai",
-                           "bros.","xxx","--",":"]
+                           "bros.","xxx"]
 
         self.allmainwords = []
         self.minimumfreqwords = re.compile("'\d{2}s")
-        self.minimumfreqwords1 = re.compile("-\w+-")
+        self.minimumfreqwords1 = re.compile("-\w{3}-")
         self.minimumfreqwords2 = re.compile("[\\*]+")
         self._digits = re.compile('\d')
         self.stemmer = PorterStemmer()
@@ -146,13 +147,14 @@ class DataReader(object):
             if word in self.signature:
                 # print('Sig ',word)
                 continue
+
             if word.isupper():
                 # print('Upper ',word)
                 continue
-            #if self.worddashword.match(word.lower()):
-            #    continue
-            if word in self.stop_words:
+            if self.worddashword.match(word) or self.worddashword1.match(word):
                 continue
+            #if word in self.stop_words:
+             #   continue
             if word in self.remove_words:
                 if len(_cached_) > 0:
                     _cached_.pop()
@@ -184,7 +186,7 @@ class DataReader(object):
 
         pipeline = Pipeline([
             ('vectorizer', CountVectorizer(ngram_range=(1, 2), tokenizer=self.tokenize_data)),
-            ('tfidf', TfidfTransformer(norm="l2", smooth_idf=True, use_idf=True)),
+            ('tfidf', TfidfTransformer(norm="l2", smooth_idf=False, use_idf=False)),
             ('classifier', OneVsOneClassifier(LinearSVC())
             )])
 
@@ -254,14 +256,14 @@ class DataReader(object):
         _all_values = aDict.keys()
         _all_sentiments = aDict.values()
 
-        #self.KFOLDTEST(np.asarray(_all_values), np.asarray(_all_sentiments))
+        self.KFOLDTEST(np.asarray(_all_values), np.asarray(_all_sentiments))
 
         count_vectorizer = CountVectorizer(ngram_range=(1, 2), tokenizer=self.tokenize_data)
         count = count_vectorizer.fit_transform(_all_values)
 
         #self.countWordFreq(count_vectorizer, count)
 
-        tfidf = TfidfTransformer()
+        tfidf = TfidfTransformer(norm="l2", smooth_idf=False, use_idf=False)
         data = tfidf.fit_transform(count)
 
         classfier = OneVsOneClassifier(LinearSVC())
