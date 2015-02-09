@@ -256,7 +256,7 @@ class DataReader(object):
         _all_values = aDict.keys()
         _all_sentiments = aDict.values()
 
-        self.KFOLDTEST(np.asarray(_all_values), np.asarray(_all_sentiments))
+        #self.KFOLDTEST(np.asarray(_all_values), np.asarray(_all_sentiments))
 
         count_vectorizer = CountVectorizer(ngram_range=(1, 2), tokenizer=self.tokenize_data)
         count = count_vectorizer.fit_transform(_all_values)
@@ -344,5 +344,5 @@ class DataReader(object):
 if __name__ == '__main__':
     reader = DataReader()
     #train_data, test_data = reader.getTrainTestData()
-    reader.analysis(True)
+    reader.analysis(False)
     #reader.tryanother(train_data)
