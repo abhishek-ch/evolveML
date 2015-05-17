@@ -2,8 +2,12 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$USER_HOME$/PycharmProjects/Algorithm/.idea/Algorithm.iml" filepath="$USER_HOME$/PycharmProjects/Algorithm/.idea/Algorithm.iml" />
+      <module fileurl="file://$USER_HOME$/PycharmProjects/Billionwords/.idea/Billionwords.iml" filepath="$USER_HOME$/PycharmProjects/Billionwords/.idea/Billionwords.iml" />
+      <module fileurl="file://$USER_HOME$/PycharmProjects/DeepLearning/.idea/DeepLearning.iml" filepath="$USER_HOME$/PycharmProjects/DeepLearning/.idea/DeepLearning.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../InformationRetrievel/.idea/InformationRetrievel.iml" filepath="$PROJECT_DIR$/../InformationRetrievel/.idea/InformationRetrievel.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../assignment/.idea/assignment.iml" filepath="$PROJECT_DIR$/../assignment/.idea/assignment.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/evolveML.iml" filepath="$PROJECT_DIR$/.idea/evolveML.iml" />
     </modules>
   </component>
 </project>
-
