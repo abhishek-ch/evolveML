@@ -126,6 +126,30 @@ def tokenize(data):
 def tokenize1(data):
     return data.split()
 
+'''
+Grid Search API
+'''
+def gridsearchWithData(pipeline,search_param,verbose_v=10,iid_v=True,cv_v=2):
+       # Kappa Scorer
+    kappa_scorer = metrics.make_scorer(quadratic_weighted_kappa, greater_is_better=True)
+
+    # Initialize Grid Search Model
+    model = grid_search.GridSearchCV(estimator=pipeline, param_grid=search_param, scoring=kappa_scorer,
+                                     verbose=verbose_v, n_jobs=-1, iid=iid_v, refit=True, cv=cv_v)
+    #model = grid_search.GridSearchCV(pipeline, parameters, n_jobs=-1, verbose=2)
+
+    # Fit Grid Search Model
+    model.fit(traindata, train.median_relevance.values)
+    print("Best score: %0.3f" % model.best_score_)
+    print("Best parameters set:")
+    best_parameters = model.best_estimator_.get_params()
+    for param_name in sorted(search_param.keys()):
+        print("\t%s: %r" % (param_name, best_parameters[param_name]))
+
+
+    return model.best_estimator_
+
+
 if __name__ == '__main__':
     BASE_DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..', '..', 'crowdflower'))
     # Use Pandas to read in the training and test data
@@ -140,26 +164,10 @@ if __name__ == '__main__':
 
 
 
-
-
-
-
-
     print("LENGTH ", len(train.median_relevance))
     #train.product_description = list(map(lambda row: BeautifulSoup(row).get_text(), train.product_description))
     traindata = list(train.apply(lambda x: '%s %s %s' % (x['query'], x['product_title'], x['product_description']), axis=1))
     testdata = list(test.apply(lambda x: '%s %s %s' % (x['query'], x['product_title'], x['product_description']), axis=1))
-    #print(traindata[1:5])
-
-    '''
-    count_vectorizer = CountVectorizer(max_features=140,ngram_range=(1, 2), tokenizer=tokenize)
-    count = count_vectorizer.fit_transform(traindata)
-
-    tfidf = TfidfTransformer(norm="l2", smooth_idf=True, use_idf=True)
-    data = tfidf.fit_transform(count)
-
-    clf = OneVsRestClassifier(LinearSVC())
-    '''
 
 
     count_vectorizer = CountVectorizer(ngram_range=(1, 2), tokenizer=tokenize)
@@ -169,7 +177,6 @@ if __name__ == '__main__':
     #testdata = tfidf.transform(testdata)
     print(testdata[1:5])
 
-    #traindata = list(map(lambda row: BeautifulSoup(row).get_text(), traindata))
 
 
     #why probality = True (Sparse matrix)
@@ -181,34 +188,23 @@ if __name__ == '__main__':
             ('clf', SVC())
         ]
         ))
+
     #http://stackoverflow.com/questions/12632992/gridsearch-for-an-estimator-inside-a-onevsrestclassifier
     #http://w3facility.org/question/gridsearch-for-multilabel-onevsrestclassifier/
-
-    pipeline = Pipeline([
+    pipeline_NaiveBayes = Pipeline([
         ('vec', CountVectorizer(ngram_range=(1, 2), tokenizer=tokenize, min_df=1)),
         ('tfidf', TfidfTransformer(norm="l2", smooth_idf=False, use_idf=True)),
         ('classifier', MultinomialNB()
         )])
 
     #clf.fit(data, np.asarray(train.median_relevance))
-
     # Create a parameter grid to search for best parameters for everything in the pipeline
     param_grid = {'svd__n_components': [120, 140],
                   'svm__C': [1.0, 10]}
 
     #http://stackoverflow.com/questions/26569478/performing-grid-search-on-sklearn-naive-bayes-multinomialnb-on-multi-core-machin
     #GridSearchCV MultinomilaNB
-    parameters_multinomial_main = {
-        'vec__max_df': (0.5, 0.625, 0.75, 0.875, 1.0),
-        'vec__max_features': (None, 5000, 10000, 20000),
-        'vec__min_df': (1, 5, 10, 20, 50),
-        'tfidf__use_idf': (True, False),
-        'tfidf__sublinear_tf': (True, False),
-        'vec__binary': (True, False),
-        'tfidf__norm': ('l1', 'l2'),
-        'clf__alpha': (1, 0.1, 0.01, 0.001, 0.0001, 0.00001)
-    }
-    parameters_multinomial = {
+    parameters_NaiveBayes = {
         'vec__max_features': (None, 200,2000),
         'tfidf__use_idf': (True, False),
         'tfidf__norm': ('l1', 'l2'),
@@ -224,26 +220,9 @@ if __name__ == '__main__':
         "classifier__estimator__clf__degree": [1, 2, 3, 4]
     }
 
-    # Kappa Scorer
-    kappa_scorer = metrics.make_scorer(quadratic_weighted_kappa, greater_is_better=True)
-
-    # Initialize Grid Search Model
-    model = grid_search.GridSearchCV(estimator=pipeline, param_grid=parameters_multinomial, scoring=kappa_scorer,
-                                     verbose=10, n_jobs=-1, iid=True, refit=True, cv=2)
-    #model = grid_search.GridSearchCV(pipeline, parameters, n_jobs=-1, verbose=2)
-
-    # Fit Grid Search Model
-    model.fit(traindata, train.median_relevance.values)
-    print("Best score: %0.3f" % model.best_score_)
-    print("Best parameters set:")
-    best_parameters = model.best_estimator_.get_params()
-    for param_name in sorted(parameters_multinomial.keys()):
-        print("\t%s: %r" % (param_name, best_parameters[param_name]))
 
 
-
-    # Get best model
-    best_model = model.best_estimator_
+    best_model = gridsearchWithData(pipeline_NaiveBayes,parameters_NaiveBayes)
     print(best_model)
 
 
@@ -254,14 +233,3 @@ if __name__ == '__main__':
     # Create your first submission file
     submission = pd.DataFrame({"id": idx, "prediction": preds})
     submission.to_csv("output_NaiveBayes.csv", index=False)
-
-    '''
-
-    count_test = count_vectorizer.transform(testdata)
-    tfidf_test = tfidf.transform(count_test)
-    predicted = classfier.predict(tfidf_test)
-
-    # Create your first submission file
-    submission = pd.DataFrame({"id": idx, "prediction": predicted})
-    submission.to_csv("output2.csv", index=False)
-    '''
