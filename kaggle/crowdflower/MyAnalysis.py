@@ -17,6 +17,8 @@ from nltk.corpus import stopwords
 import numpy as np
 from sklearn import decomposition, pipeline, metrics, grid_search
 from sklearn.svm import SVC
+from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.decomposition import RandomizedPCA
 
 # The following 3 functions have been taken from Ben Hamner's github repository
@@ -103,9 +105,10 @@ def quadratic_weighted_kappa(y, y_pred):
 
     return (1.0 - numerator / denominator)
 
-#define stemmer
+# define stemmer
 stemmer = PorterStemmer()
 cachedStopWords = stopwords.words("english")
+
 
 def tokenize(data):
     _cached_ = []
@@ -126,11 +129,15 @@ def tokenize(data):
 def tokenize1(data):
     return data.split()
 
+
 '''
 Grid Search API
+#http://isaacslavitt.com/2014/10/24/spdc-lightning-talk/
 '''
-def gridsearchWithData(pipeline,search_param,verbose_v=10,iid_v=True,cv_v=2):
-       # Kappa Scorer
+
+
+def gridsearchWithData(pipeline, search_param, verbose_v=10, iid_v=True, cv_v=2):
+    # Kappa Scorer
     kappa_scorer = metrics.make_scorer(quadratic_weighted_kappa, greater_is_better=True)
 
     # Initialize Grid Search Model
@@ -145,7 +152,6 @@ def gridsearchWithData(pipeline,search_param,verbose_v=10,iid_v=True,cv_v=2):
     best_parameters = model.best_estimator_.get_params()
     for param_name in sorted(search_param.keys()):
         print("\t%s: %r" % (param_name, best_parameters[param_name]))
-
 
     return model.best_estimator_
 
@@ -162,23 +168,52 @@ if __name__ == '__main__':
     train = train.drop('id', axis=1)
     test = test.drop('id', axis=1)
 
-
-
     print("LENGTH ", len(train.median_relevance))
     #train.product_description = list(map(lambda row: BeautifulSoup(row).get_text(), train.product_description))
-    traindata = list(train.apply(lambda x: '%s %s %s' % (x['query'], x['product_title'], x['product_description']), axis=1))
-    testdata = list(test.apply(lambda x: '%s %s %s' % (x['query'], x['product_title'], x['product_description']), axis=1))
-
+    traindata = list(
+        train.apply(lambda x: '%s %s %s' % (x['query'], x['product_title'], x['product_description']), axis=1))
+    testdata = list(
+        test.apply(lambda x: '%s %s %s' % (x['query'], x['product_title'], x['product_description']), axis=1))
 
     count_vectorizer = CountVectorizer(ngram_range=(1, 2), tokenizer=tokenize)
     tfidf = TfidfTransformer(norm="l2", smooth_idf=False, use_idf=False)
 
     #testdata = count_vectorizer.fit_transform(testdata)
     #testdata = tfidf.transform(testdata)
-    print(testdata[1:5])
 
 
 
+
+    ##########################################################NaiveBayes GridCV################################
+
+    #http://stackoverflow.com/questions/12632992/gridsearch-for-an-estimator-inside-a-onevsrestclassifier
+    #http://w3facility.org/question/gridsearch-for-multilabel-onevsrestclassifier/
+    pipeline_NaiveBayes = Pipeline([
+        ('vec', CountVectorizer(ngram_range=(1, 2), tokenizer=tokenize, min_df=1)),
+        ('tfidf', TfidfTransformer(norm="l2", smooth_idf=False, use_idf=True)),
+        ('classifier', MultinomialNB()
+        )])
+
+
+
+    #http://stackoverflow.com/questions/26569478/performing-grid-search-on-sklearn-naive-bayes-multinomialnb-on-multi-core-machin
+    #GridSearchCV MultinomilaNB
+    parameters_NaiveBayes = {
+        'vec__max_features': (None, 200, 2000),
+        'tfidf__use_idf': (True, False),
+        'tfidf__norm': ('l1', 'l2'),
+        'classifier__alpha': (1, 0.1, 0.001)
+    }
+
+    ######################################################################################
+
+    #clf.fit(data, np.asarray(train.median_relevance))
+    # Create a parameter grid to search for best parameters for everything in the pipeline
+    param_grid = {'svd__n_components': [120, 140],
+                  'svm__C': [1.0, 10]}
+
+
+    ##############################################################ONeVSOne/Rest##############################
     #why probality = True (Sparse matrix)
     #http://stackoverflow.com/questions/27365020/scikit-learn-0-15-2-onevsrestclassifier-not-works-due-to-predict-proba-not-ava
     #classifier pipeline
@@ -189,29 +224,6 @@ if __name__ == '__main__':
         ]
         ))
 
-    #http://stackoverflow.com/questions/12632992/gridsearch-for-an-estimator-inside-a-onevsrestclassifier
-    #http://w3facility.org/question/gridsearch-for-multilabel-onevsrestclassifier/
-    pipeline_NaiveBayes = Pipeline([
-        ('vec', CountVectorizer(ngram_range=(1, 2), tokenizer=tokenize, min_df=1)),
-        ('tfidf', TfidfTransformer(norm="l2", smooth_idf=False, use_idf=True)),
-        ('classifier', MultinomialNB()
-        )])
-
-    #clf.fit(data, np.asarray(train.median_relevance))
-    # Create a parameter grid to search for best parameters for everything in the pipeline
-    param_grid = {'svd__n_components': [120, 140],
-                  'svm__C': [1.0, 10]}
-
-    #http://stackoverflow.com/questions/26569478/performing-grid-search-on-sklearn-naive-bayes-multinomialnb-on-multi-core-machin
-    #GridSearchCV MultinomilaNB
-    parameters_NaiveBayes = {
-        'vec__max_features': (None, 200,2000),
-        'tfidf__use_idf': (True, False),
-        'tfidf__norm': ('l1', 'l2'),
-        'classifier__alpha': (1, 0.1, 0.001)
-    }
-
-
     #OneVsRest classfiier
     #http://stackoverflow.com/questions/12632992/gridsearch-for-an-estimator-inside-a-onevsrestclassifier
     parameters_OVR = {
@@ -219,10 +231,32 @@ if __name__ == '__main__':
         "classifier__estimator__clf__kernel": ["linear", "poly", "rbf"],
         "classifier__estimator__clf__degree": [1, 2, 3, 4]
     }
+    #######################################################################################################
+
+    ###########################################AdaBoost GridCV###############################################
+
+    #Adaboost Classifier
+    #https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/tests/test_weight_boosting.py
+    #http://codiply.com/blog/hyperparameter-grid-search-across-multiple-models-in-scikit-learn
 
 
 
-    best_model = gridsearchWithData(pipeline_NaiveBayes,parameters_NaiveBayes)
+    pipeline_Boost = Pipeline([
+        ('vec', CountVectorizer(ngram_range=(1, 2), tokenizer=tokenize, min_df=1)),
+        ('tfidf', TfidfTransformer(norm="l2", smooth_idf=False, use_idf=True)),
+        ('clf', AdaBoostClassifier(base_estimator=DecisionTreeClassifier())
+        )])
+
+    #n_estimators
+    parameters_boost = {'clf__n_estimators': (1, 2),
+                        'clf__algorithm': ('SAMME', 'SAMME.R'),
+                        'clf__base_estimator__max_depth': (1, 2)
+                        }
+
+    #####################################################################################################
+
+
+    best_model = gridsearchWithData(pipeline_Boost, parameters_boost)
     print(best_model)
 
 
@@ -232,4 +266,4 @@ if __name__ == '__main__':
 
     # Create your first submission file
     submission = pd.DataFrame({"id": idx, "prediction": preds})
-    submission.to_csv("output_NaiveBayes.csv", index=False)
+    submission.to_csv("output_Boost.csv", index=False)
