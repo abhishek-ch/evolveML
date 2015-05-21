@@ -28,6 +28,7 @@ from bs4 import BeautifulSoup
 from nltk.stem.porter import PorterStemmer
 from nltk.corpus import stopwords
 
+#`@linked http://scikit-learn.org/stable/auto_examples/text/document_classification_20newsgroups.html#example-text-document-classification-20newsgroups-py
 
 def tokenize(data):
     _cached_ = []
