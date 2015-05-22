@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.linear_model import RidgeClassifier
 import os, string, re
 
 from sklearn.pipeline import Pipeline
@@ -20,6 +21,11 @@ from sklearn.svm import SVC
 from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.decomposition import RandomizedPCA
+from sklearn.base import TransformerMixin
+from sklearn.decomposition import TruncatedSVD,ProjectedGradientNMF
+from sklearn.preprocessing import StandardScaler,MinMaxScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
 
 # The following 3 functions have been taken from Ben Hamner's github repository
 # https://github.com/benhamner/Metrics
@@ -109,7 +115,8 @@ def quadratic_weighted_kappa(y, y_pred):
 stemmer = PorterStemmer()
 cachedStopWords = stopwords.words("english")
 
-
+#http://www.nltk.org/book/ch03.html
+#need to write proper tokenize algorithm
 def tokenize(data):
     _cached_ = []
     data = BeautifulSoup(data).get_text()
@@ -136,7 +143,7 @@ Grid Search API
 '''
 
 
-def gridsearchWithData(pipeline, search_param, verbose_v=10, iid_v=True, cv_v=2):
+def gridsearchWithData(pipeline, search_param,inputX,inputY, verbose_v=10, iid_v=True, cv_v=2):
     # Kappa Scorer
     kappa_scorer = metrics.make_scorer(quadratic_weighted_kappa, greater_is_better=True)
 
@@ -146,7 +153,7 @@ def gridsearchWithData(pipeline, search_param, verbose_v=10, iid_v=True, cv_v=2)
     #model = grid_search.GridSearchCV(pipeline, parameters, n_jobs=-1, verbose=2)
 
     # Fit Grid Search Model
-    model.fit(traindata, train.median_relevance.values)
+    model.fit(inputX, inputY)
     print("Best score: %0.3f" % model.best_score_)
     print("Best parameters set:")
     best_parameters = model.best_estimator_.get_params()
@@ -154,6 +161,7 @@ def gridsearchWithData(pipeline, search_param, verbose_v=10, iid_v=True, cv_v=2)
         print("\t%s: %r" % (param_name, best_parameters[param_name]))
 
     return model.best_estimator_
+
 
 
 if __name__ == '__main__':
@@ -167,6 +175,8 @@ if __name__ == '__main__':
     # drop the column
     train = train.drop('id', axis=1)
     test = test.drop('id', axis=1)
+
+    y = train.median_relevance.values
 
     print("LENGTH ", len(train.median_relevance))
     #train.product_description = list(map(lambda row: BeautifulSoup(row).get_text(), train.product_description))
@@ -183,6 +193,18 @@ if __name__ == '__main__':
 
 
 
+    tfv = TfidfVectorizer(min_df=3,  max_features=None,tokenizer=tokenize,
+        strip_accents='unicode', analyzer='word',token_pattern=r'\w{1,}',
+        ngram_range=(1, 2), use_idf=1,smooth_idf=1,sublinear_tf=1,
+        stop_words = 'english')
+
+
+
+    # Fit TFIDF
+    tfv.fit(traindata)
+    X =  tfv.transform(traindata)
+    X_test = tfv.transform(testdata)
+
 
     ##########################################################NaiveBayes GridCV################################
 
@@ -190,7 +212,7 @@ if __name__ == '__main__':
     #http://w3facility.org/question/gridsearch-for-multilabel-onevsrestclassifier/
     pipeline_NaiveBayes = Pipeline([
         ('vec', CountVectorizer(ngram_range=(1, 2), tokenizer=tokenize, min_df=1)),
-        ('tfidf', TfidfTransformer(norm="l2", smooth_idf=False, use_idf=True)),
+        ('tfidf',  TfidfTransformer(norm="l2", smooth_idf=False, use_idf=True)),
         ('classifier', MultinomialNB()
         )])
 
@@ -199,11 +221,27 @@ if __name__ == '__main__':
     #http://stackoverflow.com/questions/26569478/performing-grid-search-on-sklearn-naive-bayes-multinomialnb-on-multi-core-machin
     #GridSearchCV MultinomilaNB
     parameters_NaiveBayes = {
-        'vec__max_features': (None, 200, 2000),
+        'vec__max_features': (None, 200, 400),
         'tfidf__use_idf': (True, False),
         'tfidf__norm': ('l1', 'l2'),
-        'classifier__alpha': (1, 0.1, 0.001)
+        'classifier_NaiveBayes__alpha': (1, 0.1, 0.001)
     }
+
+    #Since NaiveBayes can't afford negative value
+
+
+    classifier_NaiveBayes = MultinomialNB()
+    pipeline_NB = pipeline.Pipeline([('svd', TruncatedSVD()),
+                     ('scl', MinMaxScaler()),
+                     ('classifier', classifier_NaiveBayes)
+                    ])
+
+
+    parameters_NB = {'svd__n_components' : [120, 140],
+                    'classifier__alpha': (1, 0.1, 0.001)
+                    }
+
+
 
     ######################################################################################
 
@@ -239,31 +277,125 @@ if __name__ == '__main__':
     #https://github.com/scikit-learn/scikit-learn/blob/master/sklearn/ensemble/tests/test_weight_boosting.py
     #http://codiply.com/blog/hyperparameter-grid-search-across-multiple-models-in-scikit-learn
 
-
-
-    pipeline_Boost = Pipeline([
-        ('vec', CountVectorizer(ngram_range=(1, 2), tokenizer=tokenize, min_df=1)),
-        ('tfidf', TfidfTransformer(norm="l2", smooth_idf=False, use_idf=True)),
-        ('clf', AdaBoostClassifier(base_estimator=DecisionTreeClassifier())
-        )])
+    adaboost = AdaBoostClassifier(base_estimator=DecisionTreeClassifier())
 
     #n_estimators
-    parameters_boost = {'clf__n_estimators': (1, 2),
-                        'clf__algorithm': ('SAMME', 'SAMME.R'),
-                        'clf__base_estimator__max_depth': (1, 2)
-                        }
+
+
+
+    # Create the pipeline
+    pipeline_Boost = pipeline.Pipeline([('svd', TruncatedSVD()),
+						 ('scl', StandardScaler()),
+                	     ('classifier', adaboost)
+                        ])
+
+
+    param_grid = {'svd__n_components' : [120, 140],
+              'svm__C': [1.0, 10]}
+
+    parameters_boost = {'svd__n_components' : [120, 140],
+                        'classifier__n_estimators': (1, 2),
+                    'classifier__algorithm': ('SAMME', 'SAMME.R'),
+                    'classifier__base_estimator__max_depth': (1, 2)
+                    }
 
     #####################################################################################################
 
 
-    best_model = gridsearchWithData(pipeline_Boost, parameters_boost)
+
+    ###############################################gRADIENTbOOSTING########################################################
+    #GradientBoostingClassifier(), {'learning_rate': [0.1, 0.5], 'subsample': [1,0.8,0.6], 'n_estimators':[100,150]}, "GBM" + nm, "Gradient Boosting Machines " + par)
+
+    gridboostclassifier = GradientBoostingClassifier()
+      # Create the pipeline
+    pipeline_Boost = pipeline.Pipeline([('svd', TruncatedSVD()),
+						 ('scl', StandardScaler()),
+                	     ('classifier', gridboostclassifier)
+                        ])
+
+
+    parameters_boost = {'svd__n_components' : [120, 140],
+                        'classifier__learning_rate': (0.1, 0.5),
+                    'classifier__subsample': (1,0.8,0.6),
+                    'classifier__n_estimators': (100,150)
+                    }
+
+    #it brought the score more worse
+    #Score = 0.32
+
+    ###################################################################################
+
+
+
+    ###############################################SVM########################################################
+    #GradientBoostingClassifier(), {'learning_rate': [0.1, 0.5], 'subsample': [1,0.8,0.6], 'n_estimators':[100,150]}, "GBM" + nm, "Gradient Boosting Machines " + par)
+
+    svmclassifier = SVC()
+      # Create the pipeline
+    pipeline_SVM = pipeline.Pipeline([('svd', TruncatedSVD()),
+						 ('scl', StandardScaler()),
+                	     ('classifier', svmclassifier)
+                        ])
+
+
+    parameters_SVM = {'svd__n_components' : [120, 140],
+                    'classifier__C': [1.0,10]
+                    }
+
+    #it SCORE = 0.47
+
+    ###################################################################################
+
+
+    ################Ridge Classifier############################################################
+    classifierR = RidgeClassifier(tol=1e-2, solver="lsqr")
+
+    parameters_Ridge = {'svd__n_components' : [120, 140],
+                    'classifier__alpha': [ 0.1, 1., 10.],
+                    'classifier__solver':["lsqr","cholesky","sparse_cg"],
+                    }
+
+    #poor score of 0.079
+    ###################################################################################
+
+
+    #####################K-Neighboyrs####################################################
+
+    classifierKN = KNeighborsClassifier(n_neighbors=10)
+    parameters_KN = {'svd__n_components' : [120, 140],
+                    'classifier__n_neighbors':[10,100,200],
+                    }
+
+    #Best score: 0.400
+    ######################################################################################
+
+    #####################RandomForestClassifier##########################################
+
+    classifier = RandomForestClassifier(n_estimators=100)
+    parameters_RF = {'svd__n_components' : [120, 140],
+                    'classifier__n_estimators':[10,100,200],
+                    }
+
+
+    #Best score: 0.267
+
+
+    #################################################################
+
+
+    pipelineGlobal = pipeline.Pipeline([('svd', TruncatedSVD()),
+						 ('scl', StandardScaler()),
+                	     ('classifier', classifier)
+                        ])
+
+    best_model = gridsearchWithData(pipelineGlobal, parameters_RF,inputX=X,inputY=y)
     print(best_model)
 
 
     # Fit model with best parameters optimized for quadratic_weighted_kappa
-    best_model.fit(traindata, train.median_relevance.values)
-    preds = best_model.predict(testdata)
+    best_model.fit(X, y)
+    preds = best_model.predict(X_test)
 
     # Create your first submission file
     submission = pd.DataFrame({"id": idx, "prediction": preds})
-    submission.to_csv("output_Boost.csv", index=False)
+    submission.to_csv("output_Ridge.csv", index=False)

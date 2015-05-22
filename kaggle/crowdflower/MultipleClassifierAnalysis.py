@@ -27,22 +27,28 @@ import re, string
 from bs4 import BeautifulSoup
 from nltk.stem.porter import PorterStemmer
 from nltk.corpus import stopwords
+from sklearn.pipeline import Pipeline
+from sklearn import decomposition, pipeline
+from sklearn.decomposition import TruncatedSVD,ProjectedGradientNMF
+from sklearn.preprocessing import StandardScaler,MinMaxScaler
+from sklearn.svm import SVC
 
 #`@linked http://scikit-learn.org/stable/auto_examples/text/document_classification_20newsgroups.html#example-text-document-classification-20newsgroups-py
 
 def tokenize(data):
     _cached_ = []
-    data = BeautifulSoup(data).get_text().strip()
-    if len(data) > 0:
-        for word in data.split():
-            word = word.lower()
-            word = stemmer.stem(word)
-            if word not in string.punctuation and len(word) > 3:
-                word = re.sub("http\\w+", "", word)
-                word = re.sub("U+[a-zA-Z0-9]{0,10}", "", word)
-                word = re.sub("[^(a-zA-Z0-9!@#$%&*(_) ]+", "", word)
-                print(word)
-                _cached_.append(word)
+    data = BeautifulSoup(data).get_text()
+    for word in data.split():
+        word = word.lower()
+        word = stemmer.stem(word)
+        if word not in cachedStopWords and word not in string.punctuation and len(word) > 3:
+            word = re.sub("http\\w+", "", word)
+            word = re.sub("U+[a-zA-Z0-9]{0,10}", "", word)
+            word = re.sub("[^(a-zA-Z0-9!@#$%&*(_) ]+", "", word)
+            #print(word)
+            _cached_.append(word)
+
+    return _cached_
 
 
 # Benchmark classifiers
@@ -50,13 +56,19 @@ def benchmark(clf):
     print('_' * 80)
     print("Training: ")
     print(clf)
+
+    pipelineGlobal = pipeline.Pipeline([('svd', TruncatedSVD()),
+						 ('scl', StandardScaler()),
+                	     ('classifier', clf)
+                        ])
+
     t0 = time()
-    clf.fit(X_train, y_train)
+    pipelineGlobal.fit(X_train, datatest)
     train_time = time() - t0
     print("train time: %0.3fs" % train_time)
 
     t0 = time()
-    pred = clf.predict(X_test)
+    pred = pipelineGlobal.predict(X_test)
     test_time = time() - t0
     print("test time:  %0.3fs" % test_time)
 
@@ -103,33 +115,40 @@ if __name__ == '__main__':
     traindata = list(
         train.apply(lambda x: '%s %s %s' % (x['query'], x['product_title'], x['product_description']), axis=1))
 
-    msk = np.random.rand(len(out)) < 0.9
-    testing,training = out[msk],out[~msk]
+    msk = np.random.rand(len(out)) < 0.7
+    training,testing = out[msk],out[~msk]
+    print len(training),len(testing)
 
     datatrain = training['text']
     datatest = training['target']
     y_train = testing['text']
     y_test =testing['target']
 
-    vectorizer = TfidfVectorizer(min_df=3, max_features=None,
+    vectorizer = TfidfVectorizer(min_df=3, max_features=None,tokenizer=tokenize,
                                  strip_accents='unicode', analyzer='word', token_pattern=r'\w{1,}',
                                  ngram_range=(1, 2), use_idf=1, smooth_idf=1, sublinear_tf=1,
                                  stop_words='english')
 
 
-
+   # print(datatrain[1:5])
     X_train = vectorizer.fit_transform(datatrain)
-    X_test = vectorizer.transform(datatest)
+    X_test = vectorizer.transform(y_train)
 
     results = []
     for clf, name in (
-            (RidgeClassifier(tol=1e-2, solver="lsqr"), "Ridge Classifier"),
+            (RidgeClassifier(alpha=1.0, class_weight=None, copy_X=True, fit_intercept=True,
+            max_iter=None, normalize=False, solver='cholesky', tol=0.01), "Ridge Classifier"),
             (Perceptron(n_iter=50), "Perceptron"),
             (PassiveAggressiveClassifier(n_iter=50), "Passive-Aggressive"),
             (KNeighborsClassifier(n_neighbors=10), "kNN"),
-            (RandomForestClassifier(n_estimators=100), "Random forest")):
+            (RandomForestClassifier(n_estimators=100), "Random forest"),
+            (SVC(C=10, cache_size=200, class_weight=None, coef0=0.0, degree=3, gamma=0.0,
+              kernel='rbf', max_iter=-1, probability=False, random_state=None,
+              shrinking=True, tol=0.001, verbose=False),'SVM')):
         print('=' * 80)
-    print(name)
-    results.append(benchmark(clf))
+        print(name)
+        results.append(benchmark(clf))
+
 
     print(results)
+
