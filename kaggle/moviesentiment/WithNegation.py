@@ -2,27 +2,22 @@ __author__ = 'achoudhary'
 
 import os
 import csv
-from MovieRecord import MovieSingleData, MovieData
 import random
-import nltk
 import collections
 import string
-from nltk.corpus import stopwords
 import re
 
+import nltk
+from nltk.corpus import stopwords
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.svm import LinearSVC
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.multiclass import OneVsRestClassifier
-
-from sklearn.linear_model import PassiveAggressiveClassifier
-from sklearn.naive_bayes import MultinomialNB, BernoulliNB
-from sklearn import svm
 from sklearn.cross_validation import cross_val_score
-from sklearn import cross_validation
-from sklearn.svm import SVC
 import numpy as np
+
+from kaggle.moviesentiment.MovieRecord import MovieData
 
 
 class DataReader(object):

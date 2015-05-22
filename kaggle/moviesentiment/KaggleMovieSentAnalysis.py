@@ -2,30 +2,21 @@ __author__ = 'achoudhary'
 
 import os
 import csv
-from MovieRecord import MovieData, TestMovieData
 import random
-import nltk
-import collections
-import string
-from nltk.corpus import stopwords
 import re
 
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.svm import LinearSVC
-from sklearn.feature_extraction.text import TfidfTransformer, TfidfVectorizer
-from sklearn.multiclass import OneVsRestClassifier, OneVsOneClassifier
-
-from sklearn.linear_model import PassiveAggressiveClassifier
-from sklearn.naive_bayes import MultinomialNB, BernoulliNB
-from sklearn import svm
-from sklearn.cross_validation import cross_val_score
-from sklearn import cross_validation
-from sklearn.svm import SVC
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.multiclass import OneVsOneClassifier
 import numpy as np
 import pandas as pd
 from sklearn.cross_validation import KFold
 from nltk.stem.porter import PorterStemmer
+
+from kaggle.moviesentiment.MovieRecord import MovieData, TestMovieData
+
 
 # todo https://github.com/yogesh-kamble/kaggle-submission/blob/master/movie_review.py
 class DataReader(object):
