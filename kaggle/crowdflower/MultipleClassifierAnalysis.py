@@ -142,9 +142,7 @@ if __name__ == '__main__':
             (PassiveAggressiveClassifier(n_iter=50), "Passive-Aggressive"),
             (KNeighborsClassifier(n_neighbors=10), "kNN"),
             (RandomForestClassifier(n_estimators=100), "Random forest"),
-            (SVC(C=10, cache_size=200, class_weight=None, coef0=0.0, degree=3, gamma=0.0,
-              kernel='rbf', max_iter=-1, probability=False, random_state=None,
-              shrinking=True, tol=0.001, verbose=False),'SVM')):
+            (SVC(),'SVM')):
         print('=' * 80)
         print(name)
         results.append(benchmark(clf))
