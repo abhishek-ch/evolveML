@@ -18,7 +18,7 @@ from nltk.corpus import stopwords
 import numpy as np
 from sklearn import decomposition, pipeline, metrics, grid_search
 from sklearn.svm import SVC
-from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier
+from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier,ExtraTreesClassifier
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.decomposition import RandomizedPCA
 from sklearn.base import TransformerMixin
@@ -382,13 +382,33 @@ if __name__ == '__main__':
 
     #################################################################
 
+    ##############################AdaBoost ExtraTree###############################################
+    classifier = AdaBoostClassifier(
+            n_estimators = 20,
+            learning_rate = 0.75,
+            base_estimator = ExtraTreesClassifier(
+                n_estimators = 400,
+                max_features = 30,
+                max_depth = 12,
+                min_samples_leaf = 100,
+                min_samples_split = 100,
+                verbose = 1,
+                n_jobs = -1))
+
+    parameters_Adaextra = {'svd__n_components' : [120, 140],
+                          'classifier__n_estimators':[20],
+                          'classifier__learning_rate':[1.0, 0.7],
+                          }
+    #Best score: 0.235
+    ################################################################################################
+
 
     pipelineGlobal = pipeline.Pipeline([('svd', TruncatedSVD()),
 						 ('scl', StandardScaler()),
                 	     ('classifier', classifier)
                         ])
 
-    best_model = gridsearchWithData(pipelineGlobal, parameters_RF,inputX=X,inputY=y)
+    best_model = gridsearchWithData(pipelineGlobal, parameters_Adaextra,inputX=X,inputY=y)
     print(best_model)
 
 
@@ -398,4 +418,4 @@ if __name__ == '__main__':
 
     # Create your first submission file
     submission = pd.DataFrame({"id": idx, "prediction": preds})
-    submission.to_csv("output_Ridge.csv", index=False)
+    submission.to_csv("output_Extra.csv", index=False)

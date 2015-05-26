@@ -32,6 +32,7 @@ from sklearn import decomposition, pipeline
 from sklearn.decomposition import TruncatedSVD,ProjectedGradientNMF
 from sklearn.preprocessing import StandardScaler,MinMaxScaler
 from sklearn.svm import SVC
+from sklearn.ensemble import *
 
 #`@linked http://scikit-learn.org/stable/auto_examples/text/document_classification_20newsgroups.html#example-text-document-classification-20newsgroups-py
 
@@ -126,13 +127,22 @@ if __name__ == '__main__':
 
     vectorizer = TfidfVectorizer(min_df=3, max_features=None,tokenizer=tokenize,
                                  strip_accents='unicode', analyzer='word', token_pattern=r'\w{1,}',
-                                 ngram_range=(1, 2), use_idf=1, smooth_idf=1, sublinear_tf=1,
+                                 ngram_range=(1, 3), use_idf=True, smooth_idf=1, sublinear_tf=1,
                                  stop_words='english')
 
 
    # print(datatrain[1:5])
     X_train = vectorizer.fit_transform(datatrain)
     X_test = vectorizer.transform(y_train)
+
+    adaclassifier = AdaBoostClassifier(
+        n_estimators = 40,
+        learning_rate = 0.85,
+        base_estimator = ExtraTreesClassifier(
+            n_estimators = 400,
+            min_samples_split = 100,
+            verbose = 1,
+            n_jobs = -1))
 
     results = []
     for clf, name in (
@@ -142,6 +152,7 @@ if __name__ == '__main__':
             (PassiveAggressiveClassifier(n_iter=50), "Passive-Aggressive"),
             (KNeighborsClassifier(n_neighbors=10), "kNN"),
             (RandomForestClassifier(n_estimators=100), "Random forest"),
+            (adaclassifier, "Extra Trees"),
             (SVC(),'SVM')):
         print('=' * 80)
         print(name)
