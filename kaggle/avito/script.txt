@@ -209,3 +209,6 @@ model = RandomForest.trainClassifier(testing, numClasses=2,
                                          numTrees=3, featureSubsetStrategy="auto",
                                          impurity='gini', maxDepth=4, maxBins=32)
 
+
+
+http://apache-spark-developers-list.1001551.n3.nabble.com/Dataframe-fillna-from-1-3-0-td11682.html  check this
