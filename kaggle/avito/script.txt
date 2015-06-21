@@ -102,3 +102,68 @@ df = sqlContext.read.format('com.databricks.spark.csv').options(header='false').
 val = df.map(lambda row: LabeledPoint(0.0,SparseVector(float(row.C1))))
 
 
+=================TESTING WITH ACTUAL SAVED PRE-PROCESSED DATA =======================
+
+
+
+df_loc = sqlContext.read.format("com.databricks.spark.csv").options(delimiter="\t").options(header="true").load("/Volumes/work/data/kaggle/avitocontextadd/Location.tsv")
+df_loc.registerTempTable("loc")
+
+
+df_cat = sqlContext.read.format("com.databricks.spark.csv").options(delimiter="\t").options(header="true").load("/Volumes/work/data/kaggle/avitocontextadd/Category.tsv")
+df_cat.registerTempTable("cat")
+
+df_ads = sqlContext.read.format("com.databricks.spark.csv").options(delimiter="\t").options(header="true").load("/Volumes/work/data/kaggle/avitocontextadd/AdsInfo.tsv")
+df_ads.registerTempTable("ads")
+
+df_user = sqlContext.read.format("com.databricks.spark.csv").options(delimiter="\t").options(header="true").load("/Volumes/work/data/kaggle/avitocontextadd/UserInfo.tsv")
+df_user.registerTempTable("user")
+
+df_search = sqlContext.read.format("com.databricks.spark.csv").options(delimiter="\t").options(header="true").load("/Volumes/work/data/kaggle/avitocontextadd/SearchInfo.tsv")
+df_search.registerTempTable("search")
+
+df_train = sqlContext.read.format("com.databricks.spark.csv").options(delimiter="\t").options(header="true").load("/Volumes/work/data/kaggle/avitocontextadd/trainSearchStream.tsv")
+
+traincon = df_train.filter(df_train("ObjectType") === 3)
+traincon.registerTempTable("train")
+
+
+df_trainads = sqlContext.sql("SELECT t.*,c.Params,c.Price,c.Title FROM train t JOIN ads c ON t.AdID = c.AdID")
+df_trainads.registerTempTable("trainads")
+
+
+df_trainads = sqlContext.sql("SELECT t.*,c.Params,c.Price,c.Title FROM train t JOIN ads c ON t.AdID = c.AdID")
+df_trainads.registerTempTable("trainads")
+
+
+df_trainloc = sqlContext.sql("SELECT t.*,c.LocationID FROM trainads t JOIN search c ON t.SearchID = c.SearchID")
+df_trainloc.registerTempTable("trainloc")
+
+
+df_trainlevel = sqlContext.sql("SELECT t.*,c.Level,c.RegionID FROM trainloc t JOIN loc c ON t.LocationID = c.LocationID")
+df_trainloc.registerTempTable("trainloc")
+
+
+from pyspark.mllib.regression import LabeledPoint
+from pyspark.mllib.linalg import SparseVector
+
+
+avito = sqlContext.read.format('com.databricks.spark.csv').options(header='false').load('Volumes/work/data/kaggle/avitotrain4.csv')
+
+Columns - [u'C0', u'C1', u'C2', u'C3', u'C4', u'C5', u'C6', u'C7']
+Compare - "SearchID","AdID","Position","ObjectType","HistCTR","Price","Level","RegionID"
+
+input = {'A': 1.0, 'B': 0.0}
+
+[u'SearchID', u'AdID', u'Position', u'ObjectType', u'HistCTR', u'IsClick', u'Params', u'Price', u'Title', u'LocationID', u'Level', u'RegionID']
+
+data = df_trainlevel.map(lambda row: LabeledPoint(row.IsClick,[float(row.AdID),float(row.Position),float(row.ObjectType),float(row.HistCTR),float(row.Params),float(row.Price),float(row.LocationID),float(row.Level),float(row.RegionID)]))
+
+model = RandomForest.trainClassifier(data, numClasses=2,
+                                         categoricalFeaturesInfo={},
+                                         numTrees=3, featureSubsetStrategy="auto",
+                                         impurity='gini', maxDepth=4, maxBins=32)
+
+
+
+
