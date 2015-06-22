@@ -212,3 +212,4 @@ model = RandomForest.trainClassifier(testing, numClasses=2,
 
 
 http://apache-spark-developers-list.1001551.n3.nabble.com/Dataframe-fillna-from-1-3-0-td11682.html  check this
+Avoid UserID , LocationID - may contain Blank Value
