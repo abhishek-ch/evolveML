@@ -226,7 +226,10 @@ model = RandomForest.trainClassifier(training, numClasses=2,
                                          impurity='gini', maxDepth=4, maxBins=32)
 
 
-
+//Load the model back
+# Trying to load saved model and work with it
+model0 = MatrixFactorizationModel.load(sc, "model0")
+#https://github.com/apache/spark/pull/5243
 
 ================================ Preparing Test Data =========================================================================
 
