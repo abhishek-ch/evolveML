@@ -255,10 +255,13 @@ model = RandomForest.trainClassifier(training, numClasses=2,
                                          numTrees=3, featureSubsetStrategy="auto",
                                          impurity='gini', maxDepth=4, maxBins=32)
 
+//verify to clear threshold to get probability
+http://stackoverflow.com/questions/26599819/spark-prediction-probability-api-predict-proba
+
 
 //Load the model back
 # Trying to load saved model and work with it
-model0 = MatrixFactorizationModel.load(sc, "model0")
+model0 = RandomForestModel.load(sc, "model0")
 #https://github.com/apache/spark/pull/5243
 
 
