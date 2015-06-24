@@ -124,8 +124,20 @@ df_search.registerTempTable("search")
 
 df_train = sqlContext.read.format("com.databricks.spark.csv").options(delimiter="\t").options(header="true").load("/Volumes/work/data/kaggle/avitocontextadd/trainSearchStream.tsv")
 
+===================================== Preparing Test Data=============================================================================================================
+
+df_test = sqlContext.read.format("com.databricks.spark.csv").options(delimiter="\t").options(header="true").load("/Volumes/work/data/kaggle/avitocontextadd/testSearchStream.tsv")
+
+traincon = df_test.filter(df_test["ObjectType"] == 3)
+traincon.registerTempTable("train")
+
+=====================================================================================================================================================================
+
 traincon = df_train.filter(df_train["ObjectType"] == 3)
 traincon.registerTempTable("train")
+
+------------------------------------------------------
+
 
 
 df_trainads = sqlContext.sql("SELECT t.*,c.Params,c.Price,c.Title FROM train t JOIN ads c ON t.AdID = c.AdID")
@@ -146,6 +158,10 @@ df_trainlevel = sqlContext.sql("SELECT t.*,c.Level,c.RegionID FROM trainloc t JO
 
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
 
 
 from pyspark.mllib.regression import LabeledPoint
@@ -218,7 +234,21 @@ df_blank = sqlContext.sql("SELECT * FROM trainloc WHERE SearchID == '' OR AdID =
 | 56463930|12449698|       7|         3|0.064274|      0|      |     |     |       742|
 +---------+--------+--------+----------+--------+-------+------+-----+-----+----------+
 
+
+==============================================Model Building=================================================================================================
+from pyspark.mllib.tree import RandomForest,RandomForestModel
+from pyspark.mllib.regression import LabeledPoint
+from pyspark.mllib.linalg import Vectors 
+
+from pyspark.mllib.regression import LabeledPoint, LinearRegressionWithSGD
+//import LabeledPoint
+
 training = df_trainloc.map(lambda row: LabeledPoint(row.IsClick,[float(row.SearchID),float(row.AdID),float(row.Position),float(row.ObjectType),float(row.HistCTR)]))
+
+Building The Mofel eith linear Regression
+
+model = LinearRegressionWithSGD.train(training)
+
 
 model = RandomForest.trainClassifier(training, numClasses=2,
                                          categoricalFeaturesInfo={},
@@ -230,6 +260,15 @@ model = RandomForest.trainClassifier(training, numClasses=2,
 # Trying to load saved model and work with it
 model0 = MatrixFactorizationModel.load(sc, "model0")
 #https://github.com/apache/spark/pull/5243
+
+
+
+output = model0.predict(df_trainloc.map(lambda row : [float(row.SearchID),float(row.AdID),float(row.Position),float(row.ObjectType),float(row.HistCTR)]))
+
+model0 = RandomForestModel.load(sc,"/Volumes/work/data/kaggle/output")
+
+
+
 
 ================================ Preparing Test Data =========================================================================
 
