@@ -266,7 +266,11 @@ model0 = RandomForestModel.load(sc, "model0")
 
 
 
-output = model0.predict(df_trainloc.map(lambda row : [float(row.SearchID),float(row.AdID),float(row.Position),float(row.ObjectType),float(row.HistCTR)]))
+output = model0.predict(test.map(lambda row : [float(row.SearchID),float(row.AdID),float(row.Position),float(row.ObjectType),float(row.HistCTR)]))
+
+output1 = model.predict(test.map(lambda row : [float(row.SearchID),float(row.AdID),float(row.Position),float(row.ObjectType),float(row.HistCTR)]))
+
+
 
 model0 = RandomForestModel.load(sc,"/Volumes/work/data/kaggle/output")
 
