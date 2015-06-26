@@ -102,6 +102,7 @@ df = sqlContext.read.format('com.databricks.spark.csv').options(header='false').
 val = df.map(lambda row: LabeledPoint(0.0,SparseVector(float(row.C1))))
 
 
+
 =================TESTING WITH ACTUAL SAVED PRE-PROCESSED DATA =======================
 
 
@@ -247,13 +248,16 @@ training = df_trainloc.map(lambda row: LabeledPoint(row.IsClick,[float(row.Searc
 
 Building The Mofel eith linear Regression
 
-model = LinearRegressionWithSGD.train(training)
+model = LinearRegressionWithSGD.train(training) //flop
 
 
 model = RandomForest.trainClassifier(training, numClasses=2,
                                          categoricalFeaturesInfo={},
                                          numTrees=3, featureSubsetStrategy="auto",
                                          impurity='gini', maxDepth=4, maxBins=32)
+
+ modelgb = GradientBoostedTrees.trainClassifier(training, categoricalFeaturesInfo={},
+         numIterations=30, maxDepth=4)
 
 //verify to clear threshold to get probability
 http://stackoverflow.com/questions/26599819/spark-prediction-probability-api-predict-proba
