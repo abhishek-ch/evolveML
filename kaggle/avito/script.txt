@@ -301,3 +301,22 @@ model = RandomForest.trainClassifier(testing, numClasses=2,
 
 http://apache-spark-developers-list.1001551.n3.nabble.com/Dataframe-fillna-from-1-3-0-td11682.html  check this
 Avoid UserID , LocationID - may contain Blank Value
+
+
+
+
+
+===================
+
+
+Tested with training data
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+	model1 = SVMWithSGD.train(trainingData, iterations=200)
+	(trainingData, testData) = training.randomSplit([0.7, 0.3])
+    predictions = model1.predict(testData.map(lambda x: x.features))
+    labelsAndPredictions = testData.map(lambda lp: lp.label).zip(predictions)
+    testMSE = labelsAndPredictions.map(lambda (v, p): (v - p) * (v - p)).sum() / float(testData.count())
+    print('Test Mean Squared Error Model1= ' + str(testMSE))
+
+    Test Mean Squared Error Model1= 0.00603485125813
