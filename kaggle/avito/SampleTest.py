@@ -12,6 +12,8 @@ from pyspark.mllib.regression import LabeledPoint, LinearRegressionWithSGD
 from pyspark.mllib.classification import SVMWithSGD, SVMModel,LogisticRegressionWithLBFGS
 
 if __name__ == '__main__':
+
+    #https://spark.apache.org/docs/latest/mllib-ensembles.html#gradient-boosted-trees-gbts
     BASE_DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..', '../../../data', 'kaggle'))
     print(BASE_DATA_PATH)
 
