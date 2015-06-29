@@ -320,3 +320,7 @@ Tested with training data
     print('Test Mean Squared Error Model1= ' + str(testMSE))
 
     Test Mean Squared Error Model1= 0.00603485125813
+
+
+Check for setting Threshold to model
+https://github.com/apache/spark/blob/master/mllib/src/test/scala/org/apache/spark/mllib/classification/SVMSuite.scala
