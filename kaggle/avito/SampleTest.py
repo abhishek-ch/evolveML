@@ -7,9 +7,9 @@ from pyspark.mllib.tree import RandomForest, RandomForestModel
 from pyspark.mllib.regression import LabeledPoint
 from pyspark.mllib.linalg import Vectors
 from pyspark.mllib.tree import GradientBoostedTrees, GradientBoostedTreesModel
-
 from pyspark.mllib.regression import LabeledPoint, LinearRegressionWithSGD
-from pyspark.mllib.classification import SVMWithSGD, SVMModel,LogisticRegressionWithLBFGS
+from pyspark.mllib.classification import SVMWithSGD, SVMModel,LogisticRegressionWithLBFGS,LogisticRegressionWithSGD
+from pyspark.mllib.classification import SVMWithSGD, SVMModel
 
 if __name__ == '__main__':
 
@@ -30,12 +30,12 @@ if __name__ == '__main__':
 
     (trainingData, testData) = training.randomSplit([0.7, 0.3])
 
-    model = LinearRegressionWithSGD.train(training)
+    model = LogisticRegressionWithSGD.train(trainingData,iterations = 100,step=0.4)
 
 
 
     # Build the model
-    model1 = SVMWithSGD.train(trainingData, iterations=200)
+    model1 = SVMWithSGD.train(trainingData, iterations=100)
 
 
 
@@ -60,32 +60,43 @@ if __name__ == '__main__':
         categoricalFeaturesInfo={}, numIterations=3)
 
 
+    #model.setThreshold(0.07)
+    model.clearThreshold()
+        # Evaluate model on test instances and compute test error
+    predictions = model.predict(testData.map(lambda x: x.features))
+    labelsAndPredictions = testData.map(lambda lp: lp.label).zip(predictions)
+    testMSE = labelsAndPredictions.map(lambda (v, p): (v - p) * (v - p)).sum() / float(testData.count())
 
 
         # Evaluate model on test instances and compute test error
     predictions = model1.predict(testData.map(lambda x: x.features))
     labelsAndPredictions = testData.map(lambda lp: lp.label).zip(predictions)
-    testMSE = labelsAndPredictions.map(lambda (v, p): (v - p) * (v - p)).sum() / float(testData.count())
-    print('Test Mean Squared Error Model1= ' + str(testMSE))
+    testMSE1 = labelsAndPredictions.map(lambda (v, p): (v - p) * (v - p)).sum() / float(testData.count())
 
         # Evaluate model on test instances and compute test error
     predictions = model2.predict(testData.map(lambda x: x.features))
     labelsAndPredictions = testData.map(lambda lp: lp.label).zip(predictions)
-    testMSE = labelsAndPredictions.map(lambda (v, p): (v - p) * (v - p)).sum() / float(testData.count())
-    print('Test Mean Squared Error Model2= ' + str(testMSE))
+    testMSE2 = labelsAndPredictions.map(lambda (v, p): (v - p) * (v - p)).sum() / float(testData.count())
 
 
           # Evaluate model on test instances and compute test error
     predictions = model3.predict(testData.map(lambda x: x.features))
     labelsAndPredictions = testData.map(lambda lp: lp.label).zip(predictions)
-    testMSE = labelsAndPredictions.map(lambda (v, p): (v - p) * (v - p)).sum() / float(testData.count())
-    print('Test Mean Squared Error Model3= ' + str(testMSE))
+    testMSE3 = labelsAndPredictions.map(lambda (v, p): (v - p) * (v - p)).sum() / float(testData.count())
 
       # Evaluate model on test instances and compute test error
     predictions = model4.predict(testData.map(lambda x: x.features))
     labelsAndPredictions = testData.map(lambda lp: lp.label).zip(predictions)
-    testMSE = labelsAndPredictions.map(lambda (v, p): (v - p) * (v - p)).sum() / float(testData.count())
-    print('Test Mean Squared Error Model4= ' + str(testMSE))
+    testMSE4 = labelsAndPredictions.map(lambda (v, p): (v - p) * (v - p)).sum() / float(testData.count())
+
+
+
+
+    print('Test Mean Squared Error Model= ' + str(testMSE))
+    print('Test Mean Squared Error Model1= ' + str(testMSE1))
+    print('Test Mean Squared Error Model2= ' + str(testMSE2))
+    print('Test Mean Squared Error Model3= ' + str(testMSE3))
+    print('Test Mean Squared Error Model4= ' + str(testMSE4))
 
     print('{} {} {} - {} - {}'.format(
         model.predict([float(37653743), float(13558903), float(1), float(0.044174), float(1550)]),
