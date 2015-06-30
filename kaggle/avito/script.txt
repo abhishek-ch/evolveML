@@ -281,6 +281,10 @@ model0 = RandomForestModel.load(sc,"/Volumes/work/data/kaggle/output")
 outputSVM = modelSVM.predict(test_df.map(lambda row : [float(row.SearchID),float(row.AdID),float(row.Position),float(row.HistCTR)]))
 
 
+predict_proba(modelrf,test)
+
+
+
 
 
 ================================ Preparing Test Data =========================================================================
@@ -308,7 +312,7 @@ training = traincon.map(lambda row: LabeledPoint(row.IsClick,[float(row.SearchID
 #LOgisticRegression Model
 modellr = LogisticRegressionWithSGD.train(training,iterations = 200,step=0.4)
 
-
+outputLR= modellr.predict(test.map(lambda row : [float(row.SearchID),float(row.AdID),float(row.Position),float(row.ObjectType),float(row.HistCTR)]))
 
 
 ===================
