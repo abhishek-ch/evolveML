@@ -76,7 +76,7 @@ where ranking <= 2
 ;
 
 
-select 
+CREATE TABLE temp AS select 
 destination ,time_interval_6
 from
 (
