@@ -92,3 +92,22 @@ FROM csvlog
 where ranking <= 10
 order by time_interval_6
 ;
+
+==========================PLAY===================
+
+
+create table csvlog(user_id string, time timestamp, action string, destination string, hotel string) row format serde 'com.bizo.hive.serde.csv.CSVSerde' with serdeproperties("separatorChar" = "\,","quoteChar"= "\"") stored as textfile;
+
+load data local inpath '/home/cloudera/clicklog.csv' into table csvl
+
+
+create table part(user_id string, time timestamp, action string, hotel string) PARTITIONED BY(destination string) row format serde 'com.bizo.hive.serde.csv.CSVSerde' with serdeproperties("separatorChar" = "\,","quoteChar"= "\"") stored as textfile;
+
+load data local inpath '/home/cloudera/clicklog.csv' into table part partition(destination='Ireland');
+
+FROM csvlog csv
+INSERT OVERWRITE TABLE part PARTITION(destination='Berlin')
+SELECT csv.user_id,csv.time,csv.action,csv.hotel
+WHERE csv.destination = 'Berlin';
+
+select destination, count(1),floor((floor(cast(substring(time,1,2) as int)*60 + cast(substring(time,4,2) as int)))/6) from csvlog GROUP BY destination , floor((floor(cast(substring(time,1,2) as int)*60 + cast(substring(time,4,2) as int)))/6) limit 10;
