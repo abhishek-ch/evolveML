@@ -333,3 +333,5 @@ Tested with training data
 
 Check for setting Threshold to model
 https://github.com/apache/spark/blob/master/mllib/src/test/scala/org/apache/spark/mllib/classification/SVMSuite.scala
+
+Start checking with H20
