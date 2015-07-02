@@ -95,6 +95,13 @@ where ranking <= 10
 order by time_interval_6
 ;
 
+
+
+select destination,from_unixtime(CAST(time_interval_6 as timestamp),'HH:mm:ss') from temp;
+
+
+
+
 ==========================PLAY===================
 
 
