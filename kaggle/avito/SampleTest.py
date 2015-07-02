@@ -8,7 +8,7 @@ from pyspark.mllib.regression import LabeledPoint
 from pyspark.mllib.linalg import Vectors
 from pyspark.mllib.tree import GradientBoostedTrees, GradientBoostedTreesModel
 from pyspark.mllib.regression import LabeledPoint, LinearRegressionWithSGD
-from pyspark.mllib.classification import SVMWithSGD, SVMModel,LogisticRegressionWithLBFGS,LogisticRegressionWithSGD
+from pyspark.mllib.classification import SVMWithSGD, SVMModel,LogisticRegressionWithLBFGS,LogisticRegressionWithSGD,LogisticRegressionModel
 from pyspark.mllib.classification import SVMWithSGD, SVMModel
 
 if __name__ == '__main__':
