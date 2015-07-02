@@ -51,7 +51,9 @@ I	7	NULL
 ==============
 QUERIES
 
-
+Some useful links-
+https://blogs.oracle.com/taylor22/entry/hive_0_11_may_15
+http://stackoverflow.com/questions/9390698/hive-getting-top-n-records-in-group-by-query
 ----
 
 
@@ -84,9 +86,9 @@ select destination
 from
   (select count(1) as ct
   ,  destination
-  ,  floor((floor(cast(substring(time,1,2) as int)*60 + cast(substring(time,4,2) as int)))/10) as time_interval_6
+  ,  FLOOR(UNIX_TIMESTAMP(Time,'HH:mm:ss')/600) as time_interval_6
 FROM csvlog
-  group by destination,  floor((floor(cast(substring(time,1,2) as int)*60 + cast(substring(time,4,2) as int)))/10)
+  group by destination,  FLOOR(UNIX_TIMESTAMP(Time,'HH:mm:ss')/600)
    ) a
 )b
 where ranking <= 10
