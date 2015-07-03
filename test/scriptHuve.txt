@@ -100,6 +100,8 @@ order by time_interval_6
 select destination,from_unixtime(CAST(time_interval_6 as timestamp),'HH:mm:ss') from temp;
 
 =======================================Query2=====================================================
+I was quite confused about this problem -2.
+As it has unique user more than 1000+ but maximum occurance of Hotel is 13 , so how each user might have clicked it
 
 Select value as second_distinct
 from
@@ -129,6 +131,12 @@ where rank = 2
 ;
 
 
+===============
+http://stackoverflow.com/questions/7677333/how-to-write-subquery-and-use-in-clause-in-hive
+for part (b) of 2
+select user_id from csvlog where action = 'Click' and hotel = '';
+
+
 ==========================PLAY===================
 
 
@@ -153,4 +161,10 @@ select destination, count(1),floor((floor(cast(substring(time,1,2) as int)*60 + 
 create table temp2 AS select hotel , count(*) as c from csvlog group by hotel order by c desc;
 create table temp1 AS select hotel, count(distinct user_id) as c from csvlog group by hotel order by c desc;
 
+create table temp3 AS select user_id,count(user_id) as c from csvlog group by user_id order by c desc;
+
+
+select user_id from csvlog where (select count)
+
+create table as temp 4 select user_id from csvlog where action <> '';
 
