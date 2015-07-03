@@ -147,3 +147,10 @@ SELECT csv.user_id,csv.time,csv.action,csv.hotel
 WHERE csv.destination = 'Berlin';
 
 select destination, count(1),floor((floor(cast(substring(time,1,2) as int)*60 + cast(substring(time,4,2) as int)))/6) from csvlog GROUP BY destination , floor((floor(cast(substring(time,1,2) as int)*60 + cast(substring(time,4,2) as int)))/6) limit 10;
+
+
+//get hotel count
+create table temp2 AS select hotel , count(*) as c from csvlog group by hotel order by c desc;
+create table temp1 AS select hotel, count(distinct user_id) as c from csvlog group by hotel order by c desc;
+
+
