@@ -99,7 +99,34 @@ order by time_interval_6
 
 select destination,from_unixtime(CAST(time_interval_6 as timestamp),'HH:mm:ss') from temp;
 
+=======================================Query2=====================================================
 
+Select value as second_distinct
+from
+(select value
+  , rank() over (order by value desc) as rank
+from
+    (SELECT
+      value
+      , length(COLLECT_set(user)) as users
+      --or count(distinct user) as users
+    FROM
+    my_table
+    group by value
+   ) a
+left outer join
+    (select count(1) as count_users
+     from 
+         (select users 
+         from my_table 
+         group by users
+          ) c
+     ) b
+on (1=1)
+where a.users=b.count_users
+) d
+where rank = 2
+;
 
 
 ==========================PLAY===================
