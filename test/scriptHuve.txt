@@ -1,6 +1,6 @@
 add jar /Volumes/work/data/csv-serde-0.9.1.jar;
 
- create table csvlog3(user_id string, time timestamp, action string, destination string,hotel string) row format serde 'com.bizo.hive.serde.csv.CSVSerde' with serdeproperties("separatorChar" = "\,","quoteChar"= "\"") stored as textfile;
+ create table csvlog(user_id string, time string, action string, destination string,hotel string) row format serde 'com.bizo.hive.serde.csv.CSVSerde' with serdeproperties("separatorChar" = "\,","quoteChar"= "\"") stored as textfile;
 
  load data local inpath '/Volumes/work/data/clicklog.csv' into table csvlog3;
 
