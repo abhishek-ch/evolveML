@@ -133,20 +133,18 @@ where rank = 2
 
 ===============
 http://stackoverflow.com/questions/7677333/how-to-write-subquery-and-use-in-clause-in-hive
-for part (b) of 2
-select user_id from csvlog where action = 'Click' and hotel = '';
-
 
 select c.user_id 
 from csvlog c
-where c.user_id NOT IN (select d.user_id from csvlog d where action = 'Click' and hotel = '' group by d.user_id having count(d.user_id) >=2)
+where c.user_id NOT IN (select d.user_id from csvlog d where action = 'Click' and hotel = '' group by d.user_id having count(d.user_id) < 2)
 ;
+
+
 
 select c.user_id
 from csvlog c
-where c.hotel = '' and c.action = 'Click'
 group by c.user_id
-having count(*) >= 2;
+having sum(case when c.hotel = '' and c.action = 'Click' then 1 else 0 end) < 2;
 
 ==========================PLAY===================
 
