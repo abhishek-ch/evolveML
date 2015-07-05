@@ -131,6 +131,17 @@ where rank = 2
 ;
 
 
+
+
+select destination, 
+count(distinct user_id) 
+from clicklog
+where action ='Click' and destination <> ''
+group by destination
+;
+
+
+
 ===============
 http://stackoverflow.com/questions/7677333/how-to-write-subquery-and-use-in-clause-in-hive
 
