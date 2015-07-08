@@ -10,14 +10,14 @@ def mapy_plotter(var):
     from mpl_toolkits.basemap import Basemap
 
 
-    #Cargamos los datos en el DF
+    
     train_df = pd.read_csv("../input/train.csv")
 
-    #Creamos el objeto para pasar de str a int
+   
     labelenco = LabelEncoder()
 
 
-    #Creamos las nuevas columnas con los valores str como int
+   
 
     train_df['Catego_num'] = labelenco.fit_transform(train_df.Category)
     train_df['PdDis_num'] = labelenco.fit_transform(train_df.PdDistrict)
@@ -34,18 +34,18 @@ def mapy_plotter(var):
 
 
 
-    #Creamos un diccionario con cada, Cuantos se han cometido y el Numero que tiene ese delito(Catego_num).
+    
     dic = {}
     for elemnt in train_df[var].unique():
         dic[elemnt] = [len(train_df[var_bis][train_df[var] == elemnt]), train_df[var_bis][train_df[var] == elemnt].unique()[0]]
 
 
-    #Los ordenamos para elegir visualmente los que más nos interesan
+    
     sorted(dic.items(), key=lambda x:x[1])
 
     sorted_dic = sorted(dic.items(), key=operator.itemgetter(1), reverse=True)
 
-    #Creamos un vercot con los i crimenes mñas representativos.
+   
     cuentas = []
     nombres = []
     for i in range(0,10):
@@ -60,18 +60,18 @@ def mapy_plotter(var):
 
     df = pd.DataFrame(train_df[train_df[var_bis].isin(cuentas)])
 
-    #Interesante forma de cambiar el color de las lineas.
+   
     color=iter(plt.cm.rainbow(np.linspace(0,1,len(cuentas))))
 
 
     #    ll.lon     ll.lat   ur.lon     ur.lat
     #    -122.52469 37.69862 -122.33663 37.82986
 
-    #La grafica tiene que ser de gran tamaño para ver bien las calles. /
+   
     #The plot needs to be big enoght to see well the streets:
     plt.figure(figsize=(19,14))
 
-    #Creamos el mapa: /
+   
     #We create the map:
     map = Basemap(projection='cyl',
                   resolution = 'h',
@@ -82,7 +82,7 @@ def mapy_plotter(var):
                   lat_0=37.752303,
                   lon_0=-122.445576)
 
-    # Usamos una imagen satelite de SF como fondo.
+    
     # We use a satelite image of SF as background. Kaggle don't allow to download the image :-/
     #map.arcgisimage(service='ESRI_Imagery_World_2D', xpixels = 1500, verbose= True)
 
