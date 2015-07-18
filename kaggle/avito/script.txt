@@ -2,6 +2,7 @@
 ./bin/spark-shell --master local[2] --packages com.databricks:spark-csv_2.11:1.1.0
 
 
+
 val df_loc = sqlContext.read.format("com.databricks.spark.csv").option("delimiter","\t").option("header","true").load("/Volumes/work/data/kaggle/avitocontextadd/Location.tsv")
 df_loc.registerTempTable("loc")
 
