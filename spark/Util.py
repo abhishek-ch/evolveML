@@ -51,7 +51,8 @@ class Ready(object):
         # for index, row in dataframe.iterrows():
         # if row in stop_words:
         # dataframe.loc[index]
-
+        
+        
         # need to work on stop words if any only if using unigram
         return line.lower()
 
