@@ -25,7 +25,7 @@ hist = np.zeros((nrbins,nrbins))
 for data in df:
   # Get just the longitude and latitude coordinates for each trip
   latlong = np.array([ coord for coords in data['POLYLINE'] for coord in coords if len(coords) > 0])
-  print latlong
+  #print latlong
   # Compute the histogram with the longitude and latitude data as a source
   hist_new, _, _  = np.histogram2d(x = latlong[:,1], y = latlong[:,0], bins = nrbins,
                                    range = [[lat_mid - 0.1, lat_mid + 0.1], [lon_mid - 0.1, lon_mid + 0.1]])
