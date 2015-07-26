@@ -114,6 +114,8 @@ if __name__ == '__main__':
             #save the content to csv file
         chunk.to_csv(filename, sep=',', encoding='utf-8', columns=allcolumns, index=False)
         count += 1
+    print("--- %s seconds ---" % (time.time() - start_time))
+    start_time = time.time()
     #read the file type and log the same
     readFileType()
     print("--- %s seconds ---" % (time.time() - start_time))
