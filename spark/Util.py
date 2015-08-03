@@ -4,6 +4,7 @@ import pandas as pd
 
 
 class Ready(object):
+    
     def cleanDataFrame(self, dataframe):
         # remove retweets
         dataframe = dataframe.replace("(RT|via)((?:\\b\\W*@\\w+)+)", "", regex=True)
