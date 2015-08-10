@@ -17,6 +17,7 @@ event = "HandStart"
 EventColors = ["lightgrey", "green"]
 
 plot_columns = ["O1", "O2", "C3", "C4"]
+#more plots
 
 fig, axes = plt.subplots(nrows=len(plot_columns), ncols=1)
 fig.suptitle(event)
