@@ -50,4 +50,3 @@ if __name__ == '__main__':
                 filename="../input/shapefiles/pums/tl_2013_"+states[s_+i]+"_puma10"
                 j.append(p)
                 p.start()
-                

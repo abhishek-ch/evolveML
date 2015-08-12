@@ -4,6 +4,7 @@ import cssutils as cu
 import json
 
 ferr = open("errors_in_scraping.log","w")
+#use another techniques to clean
 
 def parse_page(in_file, urlid):
     """ parameters:
