@@ -1,19 +1,26 @@
-from bs4 import BeautifulSoup as bs
-import os, sys, logging, string, glob
-import cssutils as cu
-import json
+__author__ = 'abc'
 
-ferr = open("errors_in_scraping.log","w")
-#use another techniques to clean
+import zipfile
+import pandas as pd
+import json
+import math
+import multiprocessing as mp
+import os
+import glob
+import logging
+import time
+import sys
+import glob
+from bs4 import BeautifulSoup as bs
 
 def parse_page(in_file, urlid):
     """ parameters:
             - in_file: file to read raw_data from
             - url_id: id of each page from file_name """
-    page = open(in_file, 'r')
+    page = in_file
     soup = bs(page)
     doc = {
-            "id": urlid, 
+            "id": urlid,
             "text":parse_text(soup),
             "title":parse_title(soup ),
             "links":parse_links(soup),
@@ -36,7 +43,7 @@ def parse_text(soup):
             textdata.append(text.text.encode('ascii','ignore').strip())
         except Exception:
             continue
-
+    #print textdata
     return filter(None,textdata)
 
 def parse_title(soup):
@@ -48,10 +55,9 @@ def parse_title(soup):
     title = ['']
 
     try:
-        title.append(soup.title.string.encode('ascii','ignore').strip())
+        title.append(soup.title.string.encode('ascii','ignore').strip("\s"))
     except Exception:
         return title
-
     return filter(None,title)
 
 def parse_links(soup):
@@ -89,71 +95,60 @@ def parse_images(soup):
     return filter(None,imagesdata)
 
 
-def main(argv):
-    """ parameters:
-                - argv: sys args from the command line that consist of:
-                            <label_file> <input_raw_dir> <output_directory>
-                * input_raw_dir: directory to read raw input html files
-                * output_directory: directory to save processed html files
 
-        note:
-                - this will loop over all raw_files and create processed ouput for
-                  a give site_id IF input data for that id exists, otherwise it will
-                  skip it """
-    if len(argv) < 3:
+def  read(args):
+    inFolder = args[1]
+    outputDirectory = args[2]
 
-        print " Usage: python crawler.py <input_raw_dir> <output_directory>"
-        return
-
-    else:
-
-        inFolder = argv[1]
-        outputDirectory = argv[2]
-
-        if not os.path.exists(inFolder):
-            print inFolder," does not exist"
-            return
-
-        if not os.path.exists(outputDirectory):
+    if not os.path.exists(outputDirectory):
             os.makedirs(outputDirectory)
 
-        cu.log.setLevel(logging.CRITICAL)
-        json_array, last_bucket = [], str(0)
+    json_array, last_bucket = [], str(0)
 
-        fIn = glob.glob( inFolder + '/*/*raw*')
+    pool = mp.Pool(processes=4)
 
-        for idx, filename in enumerate(fIn):
+    for filename in glob.glob(os.path.join(inFolder, '*.zip')):
+        print(filename)
 
-            if idx % 10000 == 0:
-                print "Processed %d HTML files" % idx
+        zf = zipfile.ZipFile(filename)
+        filelist = zf.namelist()
+        idx = 0
+        for file in filelist:
 
             filenameDetails = filename.split("/")
-            urlId = filenameDetails[-1].split('_')[0]
-            bucket = filenameDetails[-2]
+            bucket = filenameDetails[-1].split('.zip')[0]
+            urls = file.split("/")
+            urlId = urls[-1].split('_')[0]
 
-            if bucket != last_bucket or filename==fIn[-1]:
+            if idx % 1000 == 0:
+                print "Processed %d HTML file name %s" % (idx,file)
+
+            idx += 1
+
+            if bucket != last_bucket:
                 print 'SAVING BUCKET %s' % last_bucket
                 out_file = os.path.join(outputDirectory, 'chunk' + last_bucket + '.json')
-
                 with open(out_file, mode='w') as feedsjson:
                     for entry in json_array:
                         json.dump(entry, feedsjson)
                         feedsjson.write('\n')
 
                 feedsjson.close()
-                json_array = []  
-                last_bucket = bucket 
-
+                json_array = []
+                last_bucket = bucket
             try:
-                doc = parse_page(filename, urlId)
+                #contents = zf.read(file)
+                #print contents
+                doc = pool.apply(parse_page, args=(zf.read(file),urlId))
+                json_array.append(doc)
             except Exception as e:
-                ferr.write("parse error with reason : "+str(e)+" on page "+urlId+"\n")
-                continue
+                print("parse error with reason : "+str(e)+" on page "+urlId+" filename "+file+"\n")
+            continue
 
-            json_array.append(doc)
-            
-           
-    print "Scraping completed .. There may be errors .. check log at errors_in_scraping.log"
 
-if __name__ == "__main__":
-   main(sys.argv)
+
+
+
+
+if __name__ == '__main__':
+    read(sys.argv)
