@@ -1,4 +1,26 @@
 __author__ = 'achoudhary'
+<<<<<<< HEAD
+import sqlite3
+import pandas as pd
+import matplotlib.pyplot as plt
+import pylab
+
+fig = plt.figure()
+
+db = '../input/database.sqlite'
+conn = sqlite3.connect(db)
+cur = conn.cursor()
+
+df = pd.read_sql(('SELECT * FROM May2015 \
+WHERE rowid % 6000 = 0 and score<1000 \
+ORDER BY created_utc'),conn)
+
+print(df.axes[1])
+
+plt.plot(df.created_utc, df.score)
+
+fig.savefig('graph.png')
+=======
 import re as jet
 import sqlite3 as fuel
 import matplotlib.pyplot as cant
@@ -30,3 +52,4 @@ cant.barh(indexes, values)
 cant.yticks(indexes, labels)
 cant.tight_layout()
 cant.savefig('dankmemes1.png')
+>>>>>>> 78d6e223043bf30c18643cebbdf4661f501aadd7
