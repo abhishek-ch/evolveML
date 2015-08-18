@@ -11,6 +11,7 @@ import logging
 import time
 import sys
 import glob
+from pyspark import SparkConf, SparkContext
 from bs4 import BeautifulSoup as bs
 
 
@@ -211,4 +212,10 @@ def read(args):
 
 
 if __name__ == '__main__':
-    readUpdate(sys.argv)
+    conf = (SparkConf().setMaster("local[2]").setAppName("Trial").set("spark.executor.memory", "4g"))
+    sc = SparkContext(conf=conf)
+
+    argv = ["","/Volumes/work/data/kaggle/dato" ,"/Volumes/work/data/kaggle/dato/output"]
+    readUpdate(argv)
+
+    sc.stop()
