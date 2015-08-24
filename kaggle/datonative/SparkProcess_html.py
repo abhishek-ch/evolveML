@@ -45,7 +45,7 @@ def parse_text(soup):
         except Exception:
             continue
 
-    return filter(None,textdata)
+    return ' '.join(textdata)
 
 def parse_title(soup):
     """ parameters:
@@ -60,7 +60,7 @@ def parse_title(soup):
     except Exception:
         return title
 
-    return filter(None,title)
+    return ' '.join(title)
 
 def parse_links(soup):
     """ parameters:
@@ -101,13 +101,15 @@ def readContents(content):
 
     fileName = content[0]
     text = content[1]
-    print 'Each File Name '.format(fileName)
+
+    file = fileName.split("/")
+    print 'Each File Name {} f {}'.format(fileName,file[-1])
     return parse_page(text,fileName)
 
 def main(args):
 
-    outputDir = '/home/cloudera/Documents/'
-    dir = 'file:///home/cloudera/Documents/files'
+    outputDir = '/Volumes/work/data/kaggle/dato/output'
+    dir = 'file:///Volumes/work/data/kaggle/dato/test/6'
 
     eachFile = dir.split("/")
     jsonFile = eachFile[-1]
@@ -115,8 +117,8 @@ def main(args):
     textFiles = sc.wholeTextFiles(dir).map(readContents)
 
 
-    print 'json file Name {}'.format(jsonFile)
-    out_file = os.path.join(outputDir, 'jsonFile_0.json')
+    print 'json file Name {}'.format(textFiles.take(1))
+    out_file = os.path.join(outputDir, 'jsonFile_1.json')
     with open(out_file, mode='w') as feedsjson:
         for val in textFiles.collect():
             json.dump(val, feedsjson)
