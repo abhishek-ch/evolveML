@@ -2,11 +2,11 @@ __author__ = 'achoudhary'
 
 from bs4 import BeautifulSoup as bs
 import os, sys, logging, string, glob
-import cssutils as cu
 import json
 from pyspark import SparkConf, SparkContext
 
 def parse_page(page, urlid):
+
     """ parameters:
             - in_file: file to read raw_data from
             - url_id: id of each page from file_name """
@@ -18,7 +18,7 @@ def parse_page(page, urlid):
             "links":parse_links(soup),
             "images":parse_images(soup),
            }
-    json_array.append(doc)
+    
     return doc
 
 def parse_text(soup):
@@ -96,6 +96,7 @@ def readContents(content):
     return parse_page(text,fileName)
 
 def main(args):
+
     outputDir = '/home/cloudera/Documents/'
     dir = 'file:///home/cloudera/Documents/files'
 
@@ -104,11 +105,12 @@ def main(args):
 
     textFiles = sc.wholeTextFiles(dir).map(readContents)
 
+
     print 'json file Name {}'.format(jsonFile)
     out_file = os.path.join(outputDir, 'jsonFile_0.json')
     with open(out_file, mode='w') as feedsjson:
-        for entry in json_array:
-            json.dump(entry, feedsjson)
+        for val in textFiles.collect():
+            json.dump(val, feedsjson)
             feedsjson.write('\n')
 
     feedsjson.close()
@@ -117,5 +119,4 @@ if __name__ == "__main__":
 
    conf = (SparkConf().setMaster("local[2]").setAppName("Process HTML").set("spark.executor.memory", "2g"))
    sc = SparkContext(conf=conf)
-   json_array = []
    main(sys.argv)
