@@ -10,6 +10,15 @@ def parse_page(page, urlid):
     """ parameters:
             - in_file: file to read raw_data from
             - url_id: id of each page from file_name """
+
+
+    """
+    Arrange a way to to build the following as
+    Spark Dataframe and then join the same with training csv dataframe
+
+    Convert RDD of doc to List or tuple to convert the same to toDF
+    RDD.toDF
+                """
     soup = bs(page)
     doc = {
             "id": urlid,
@@ -18,7 +27,7 @@ def parse_page(page, urlid):
             "links":parse_links(soup),
             "images":parse_images(soup),
            }
-    
+
     return doc
 
 def parse_text(soup):
@@ -69,7 +78,7 @@ def parse_links(soup):
         except Exception:
             continue
 
-    return filter(None,linkdata)
+    return len(linkdata)
 
 
 def parse_images(soup):
@@ -85,7 +94,7 @@ def parse_images(soup):
         except Exception:
             continue
 
-    return filter(None,imagesdata)
+    return len(imagesdata)
 
 
 def readContents(content):
