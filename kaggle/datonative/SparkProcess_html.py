@@ -19,14 +19,19 @@ def parse_page(page, urlid):
     Convert RDD of doc to List or tuple to convert the same to toDF
     RDD.toDF
                 """
-    soup = bs(page)
-    doc = {
-            "id": urlid,
-            "text":parse_text(soup),
-            "title":parse_title(soup ),
-            "links":parse_links(soup),
-            "images":parse_images(soup),
-           }
+    doc = {}
+    try:
+        soup = bs(page)
+
+        doc = {
+                "id": urlid,
+                "text":parse_text(soup),
+                "title":parse_title(soup ),
+                "links":parse_links(soup),
+                "images":parse_images(soup),
+               }
+    except Exception:
+        print('Error')
 
     return doc
 
