@@ -6,6 +6,9 @@ import json
 from pyspark import SparkConf, SparkContext
 from pyspark.sql import SQLContext, Row
 
+
+#http://www.slideshare.net/BenjaminBengfort/fast-data-analytics-with-spark-and-python
+#for brodcasting stop words - 54
 def parse_page(page, urlid):
 
     """ parameters:
