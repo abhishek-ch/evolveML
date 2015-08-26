@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup as bs
 import os, sys, logging, string, glob
 import json
 from pyspark import SparkConf, SparkContext
+from pyspark.sql import SQLContext, Row
 
 def parse_page(page, urlid):
 
@@ -26,7 +27,7 @@ def parse_page(page, urlid):
         doc = {
                 "id": urlid,
                 "text":parse_text(soup),
-                "title":parse_title(soup ),
+                "title":parse_title(soup),
                 "links":parse_links(soup),
                 "images":parse_images(soup),
                }
@@ -34,6 +35,20 @@ def parse_page(page, urlid):
         print('Error')
 
     return doc
+
+
+def parse_pageDataframe(page, urlid):
+    output = Row(id = 'NA',text = 'NA',title='NA',links =0,images=0)
+
+    try:
+        soup = bs(page)
+        output = Row(id = urlid,text = parse_text(soup),title=parse_title(soup),links =parse_links(soup),images=parse_images(soup))
+
+    except Exception:
+        print('Error')
+
+    return output
+
 
 def parse_text(soup):
     """ parameters:
@@ -108,20 +123,25 @@ def readContents(content):
     text = content[1]
 
     file = fileName.split("/")
-    print 'Each File Name {} f {}'.format(fileName,file[-1])
-    return parse_page(text,fileName)
+    #print 'Each File Name {} f {}'.format(fileName,file[-1])
+    return parse_pageDataframe(text,fileName)
 
 def main(args):
 
-    outputDir = '/Volumes/work/data/kaggle/dato/output'
-    dir = 'file:///Volumes/work/data/kaggle/dato/test/6'
+    outputDir = '/home/cloudera/Documents/output'
+    dir = 'file:///home/cloudera/Documents/0'
 
     eachFile = dir.split("/")
     jsonFile = eachFile[-1]
 
     textFiles = sc.wholeTextFiles(dir).map(readContents)
 
+    dataframeText = sqlContext.createDataFrame(textFiles)
+    #print dataframeText.show()
+    
+    dataframeText.write.parquet(os.path.join(outputDir,"main_0.parquet"))
 
+    '''
     print 'json file Name {}'.format(textFiles.take(1))
     out_file = os.path.join(outputDir, 'jsonFile_1.json')
     with open(out_file, mode='w') as feedsjson:
@@ -130,9 +150,11 @@ def main(args):
             feedsjson.write('\n')
 
     feedsjson.close()
+    '''
 
 if __name__ == "__main__":
 
-   conf = (SparkConf().setMaster("local[2]").setAppName("Process HTML").set("spark.executor.memory", "2g"))
+   conf = (SparkConf().setMaster("local[2]").setAppName("Process HTML").set("spark.executor.memory", "6g"))
    sc = SparkContext(conf=conf)
+   sqlContext = SQLContext(sc)
    main(sys.argv)
