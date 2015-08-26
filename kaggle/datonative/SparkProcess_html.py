@@ -127,7 +127,8 @@ def readContents(content):
 
     file = fileName.split("/")
     #print 'Each File Name {} f {}'.format(fileName,file[-1])
-    return parse_pageDataframe(text,fileName)
+    #returns only the file name as ID
+    return parse_pageDataframe(text,file[-1])
 
 def main(args):
 
@@ -142,7 +143,7 @@ def main(args):
     dataframeText = sqlContext.createDataFrame(textFiles)
     #print dataframeText.show()
     
-    dataframeText.write.parquet(os.path.join(outputDir,"main_0.parquet"))
+    dataframeText.write.parquet(os.path.join(outputDir,"main_0.parquet"),'append')
 
     '''
     print 'json file Name {}'.format(textFiles.take(1))
