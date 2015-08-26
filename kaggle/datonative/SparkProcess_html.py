@@ -1,11 +1,12 @@
-__author__ = 'achoudhary'
+﻿__author__ = 'achoudhary'
 
 from bs4 import BeautifulSoup as bs
 import os, sys, logging, string, glob
 import json
 from pyspark import SparkConf, SparkContext
 from pyspark.sql import SQLContext, Row
-
+import re
+import nltk
 
 #http://www.slideshare.net/BenjaminBengfort/fast-data-analytics-with-spark-and-python
 #for brodcasting stop words - 54
@@ -25,7 +26,7 @@ def parse_page(page, urlid):
                 """
     doc = {}
     try:
-        soup = bs(page)
+        soup = bs(page,'html.parser')
 
         doc = {
                 "id": urlid,
@@ -42,9 +43,9 @@ def parse_page(page, urlid):
 
 def parse_pageDataframe(page, urlid):
     output = Row(id = 'NA',text = 'NA',title='NA',links =0,images=0)
-
+    
     try:
-        soup = bs(page)
+        soup = bs(page,'html.parser')
         output = Row(id = urlid,text = parse_text(soup),title=parse_title(soup),links =parse_links(soup),images=parse_images(soup))
 
     except Exception:
@@ -68,7 +69,35 @@ def parse_text(soup):
         except Exception:
             continue
 
-    return ' '.join(textdata)
+    text =  ' '.join(textdata)
+
+    return cleanLine(text)
+
+
+
+def cleanLine(line):
+    
+    # remove retweets
+    line = re.sub("(RT|via)((?:\\b\\W*@\\w+)+)", "", line)
+    line = re.sub("@\\w+", "", line)
+    line = re.sub(r'[^\w\s]','',line)
+    line = re.sub("http\\w+", "", line)
+    line = re.sub("U+[a-zA-Z0-9]{0,10}", "", line)
+    line = re.sub("[^(a-zA-Z0-9!@#$%&*(_) ]+", "", line)
+    # string is more than 4 characters
+    # dataframe = dataframe[dataframe.x.str.len() > 4]
+    # replace all punctuation and ideally we will be expecting the hashtag is almost all the rows
+    line = re.sub('[^\w\s]', "", line)
+    
+    # this is the extra work to handle
+
+    #Replace occurance of all stop words to improvise and remove useless words
+    line = ' '.join(c for c in line.split(" ") if not c in stopwords.value and len(c) > 2)
+     
+ 
+
+    return line.lower().strip()
+
 
 def parse_title(soup):
     """ parameters:
@@ -128,12 +157,14 @@ def readContents(content):
     file = fileName.split("/")
     #print 'Each File Name {} f {}'.format(fileName,file[-1])
     #returns only the file name as ID
-    return parse_pageDataframe(text,file[-1])
+    if file[-1]+'\n' not in allValues.value:
+    	return parse_pageDataframe(text,file[-1])
+
 
 def main(args):
 
     outputDir = '/home/cloudera/Documents/output'
-    dir = 'file:///home/cloudera/Documents/0'
+    dir = 'file:///home/cloudera/Documents/5'
 
     eachFile = dir.split("/")
     jsonFile = eachFile[-1]
@@ -143,7 +174,7 @@ def main(args):
     dataframeText = sqlContext.createDataFrame(textFiles)
     #print dataframeText.show()
     
-    dataframeText.write.parquet(os.path.join(outputDir,"main_0.parquet"),'append')
+    dataframeText.write.parquet(os.path.join(outputDir,"main_14.parquet"),'append')
 
     '''
     print 'json file Name {}'.format(textFiles.take(1))
@@ -158,7 +189,14 @@ def main(args):
 
 if __name__ == "__main__":
 
-   conf = (SparkConf().setMaster("local[2]").setAppName("Process HTML").set("spark.executor.memory", "6g"))
+   conf = (SparkConf().setMaster("local[2]").setAppName("Process HTML").set("spark.executor.memory", "4g"))
    sc = SparkContext(conf=conf)
    sqlContext = SQLContext(sc)
+   stopwords = set(nltk.corpus.stopwords.words('english'))
+   stopwords = sc.broadcast(stopwords)
+   file = open('/home/cloudera/Documents/empty.txt','r')
+   allValues = file.readlines()
+   allValues = sc.broadcast(allValues)
+   
+   file.close()
    main(sys.argv)
