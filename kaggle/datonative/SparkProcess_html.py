@@ -7,9 +7,16 @@ from pyspark import SparkConf, SparkContext
 from pyspark.sql import SQLContext, Row
 import re
 import nltk
+from pyspark.sql.functions import *
+
+#https://spark.apache.org/docs/1.4.1/sql-programming-guide.html - Dataframe
+#https://spark.apache.org/docs/latest/api/python/pyspark.sql.html
 
 #http://www.slideshare.net/BenjaminBengfort/fast-data-analytics-with-spark-and-python
 #for brodcasting stop words - 54
+#﻿spark.driver.extraClassPath	/home/cloudera/spark-1.4.1-bin-cdh4/lib/spark-csv_2.11-1.1.0.jar:/home/cloudera/spark-1.4.1-bin-cdh4/lib/commons-csv-1.1.jar
+##above for adding spark-csv lib
+
 def parse_page(page, urlid):
 
     """ parameters:
@@ -171,21 +178,15 @@ def main(args):
 
     textFiles = sc.wholeTextFiles(dir).map(readContents)
 
-    dataframeText = sqlContext.createDataFrame(textFiles)
+    htmldf = sqlContext.createDataFrame(textFiles)
     #print dataframeText.show()
-    
-    dataframeText.write.parquet(os.path.join(outputDir,"main_14.parquet"),'append')
+    traindf = sqlContext.read.format('com.databricks.spark.csv').options(header='true').load('/home/cloudera/Documents/train.csv')
+    joindf = htmldf.join(traindf, htmldf.id == traindf.file,'inner')
 
-    '''
-    print 'json file Name {}'.format(textFiles.take(1))
-    out_file = os.path.join(outputDir, 'jsonFile_1.json')
-    with open(out_file, mode='w') as feedsjson:
-        for val in textFiles.collect():
-            json.dump(val, feedsjson)
-            feedsjson.write('\n')
+    print joindf.show()
 
-    feedsjson.close()
-    '''
+    #joindf.write.parquet(os.path.join(outputDir,"main_15.parquet"),'append')
+
 
 if __name__ == "__main__":
 
