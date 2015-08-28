@@ -9,7 +9,10 @@ import re
 import nltk
 from pyspark.sql.functions import *
 from pyspark.sql.functions import UserDefinedFunction
-from pyspark.sql.types import IntegerType
+from pyspark.sql.types import IntegerType, DoubleType
+from pyspark.ml.feature import HashingTF, Tokenizer
+from pyspark.ml import Pipeline
+from pyspark.ml.classification import LogisticRegression
 
 #https://spark.apache.org/docs/1.4.1/sql-programming-guide.html - Dataframe
 #https://spark.apache.org/docs/latest/api/python/pyspark.sql.html
@@ -175,11 +178,14 @@ def readContents(content):
     if file[-1]+'\n' not in allValues.value:
     	return parse_pageDataframe(text,file[-1])
 
+'''
+    create RDD based and join queries
+'''
 def getCleanedRDD(fileName,columns,htmldf):
     traindf = sqlContext.read.format('com.databricks.spark.csv').options(header='true').load(fileName)
     joindf = htmldf.join(traindf, htmldf.id == traindf.file,'inner')
 
-    tointfunc = UserDefinedFunction(lambda x: x,IntegerType())
+    tointfunc = UserDefinedFunction(lambda x: x,DoubleType())
     finaldf = joindf.withColumn("label",tointfunc(joindf['sponsored'])).select(columns)
     return finaldf
 
@@ -197,24 +203,33 @@ def main(args):
     htmldf = sqlContext.createDataFrame(textFiles)
     htmldf.cache()
     #print dataframeText.show()
-    '''
-    traindf = sqlContext.read.format('com.databricks.spark.csv').options(header='true').load('/home/cloudera/Documents/train.csv')
-    joindf = htmldf.join(traindf, htmldf.id == traindf.file,'inner')
 
-    '''
-    '''
-    convert a Column to Integer type using UDF
-    '''
-    '''
-    tointfunc = UserDefinedFunction(lambda x: x,IntegerType())
-    finaldf = joindf.withColumn("label",tointfunc(joindf['sponsored'])).select("id","images","links","text","label")
-    '''
     traindf = getCleanedRDD('/home/cloudera/Documents/train.csv',["id","images","links","text","label"],htmldf)
     print traindf.show()
 
-    print '--------------------------------'
+    # Configure an ML pipeline, which consists of tree stages: tokenizer, hashingTF, and lr.
+    tokenizer = Tokenizer(inputCol="text", outputCol="words")
+    hashingTF = HashingTF(inputCol=tokenizer.getOutputCol(), outputCol="features")
+    lr = LogisticRegression(maxIter=10, regParam=0.01)
+    pipeline = Pipeline(stages=[tokenizer, hashingTF, lr])
+
+    # Fit the pipeline to training documents.
+    model = pipeline.fit(traindf)
+
+
+    print '-----------------------------------------------------------------------------'
     testdf = getCleanedRDD('/home/cloudera/Documents/sampleSubmission.csv',["id","images","links","text","label"],htmldf)
     print testdf.show()
+
+
+
+    # Make predictions on test documents and print columns of interest.
+    prediction = model.transform(testdf)
+    selected = prediction.select("id", "text", "prediction")
+    for row in selected.collect():
+        print row
+
+    sc.stop()
 
     #check bug
     #https://github.com/databricks/spark-csv/issues/64
