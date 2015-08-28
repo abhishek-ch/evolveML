@@ -22,10 +22,9 @@ from pyspark.sql.types import IntegerType
 
 #adding pipeline ML
 #https://github.com/apache/spark/blob/master/examples/src/main/python/ml/cross_validator.py
+#http://spark.apache.org/docs/latest/ml-guide.html
 
 
-#check bug
-#https://github.com/databricks/spark-csv/issues/64
 def parse_page(page, urlid):
 
     """ parameters:
@@ -176,6 +175,14 @@ def readContents(content):
     if file[-1]+'\n' not in allValues.value:
     	return parse_pageDataframe(text,file[-1])
 
+def getCleanedRDD(fileName,columns,htmldf):
+    traindf = sqlContext.read.format('com.databricks.spark.csv').options(header='true').load(fileName)
+    joindf = htmldf.join(traindf, htmldf.id == traindf.file,'inner')
+
+    tointfunc = UserDefinedFunction(lambda x: x,IntegerType())
+    finaldf = joindf.withColumn("label",tointfunc(joindf['sponsored'])).select(columns)
+    return finaldf
+
 
 def main(args):
 
@@ -188,20 +195,30 @@ def main(args):
     textFiles = sc.wholeTextFiles(dir).map(readContents)
 
     htmldf = sqlContext.createDataFrame(textFiles)
+    htmldf.cache()
     #print dataframeText.show()
+    '''
     traindf = sqlContext.read.format('com.databricks.spark.csv').options(header='true').load('/home/cloudera/Documents/train.csv')
     joindf = htmldf.join(traindf, htmldf.id == traindf.file,'inner')
 
-
+    '''
     '''
     convert a Column to Integer type using UDF
     '''
+    '''
     tointfunc = UserDefinedFunction(lambda x: x,IntegerType())
     finaldf = joindf.withColumn("label",tointfunc(joindf['sponsored'])).select("id","images","links","text","label")
+    '''
+    traindf = getCleanedRDD('/home/cloudera/Documents/train.csv',["id","images","links","text","label"],htmldf)
+    print traindf.show()
 
-    print finaldf.show()
+    print '--------------------------------'
+    testdf = getCleanedRDD('/home/cloudera/Documents/sampleSubmission.csv',["id","images","links","text","label"],htmldf)
+    print testdf.show()
 
-    finaldf.write.parquet(os.path.join(outputDir,"main_16.parquet"),'append')
+    #check bug
+    #https://github.com/databricks/spark-csv/issues/64
+    #finaldf.write.parquet(os.path.join(outputDir,"main_16.parquet"),'append')
 
 
 if __name__ == "__main__":
