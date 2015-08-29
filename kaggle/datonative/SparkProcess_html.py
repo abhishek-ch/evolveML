@@ -185,8 +185,8 @@ def getCleanedRDD(fileName,columns,htmldf):
     traindf = sqlContext.read.format('com.databricks.spark.csv').options(header='true').load(fileName)
     joindf = htmldf.join(traindf, htmldf.id == traindf.file,'inner')
 
-    tointfunc = UserDefinedFunction(lambda x: x,DoubleType())
-    finaldf = joindf.withColumn("label",tointfunc(joindf['sponsored'])).select(columns)
+    todoublefunc = UserDefinedFunction(lambda x: float(x),DoubleType())
+    finaldf = joindf.withColumn("label",todoublefunc(joindf['sponsored'])).select(columns)
     return finaldf
 
 
