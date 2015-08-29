@@ -13,6 +13,7 @@ from pyspark.sql.types import IntegerType, DoubleType
 from pyspark.ml.feature import HashingTF, Tokenizer
 from pyspark.ml import Pipeline
 from pyspark.ml.classification import LogisticRegression
+from pyspark.mllib.classification import SVMWithSGD, SVMModel
 
 #https://spark.apache.org/docs/1.4.1/sql-programming-guide.html - Dataframe
 #https://spark.apache.org/docs/latest/api/python/pyspark.sql.html
@@ -185,18 +186,24 @@ def getCleanedRDD(fileName,columns,htmldf):
     traindf = sqlContext.read.format('com.databricks.spark.csv').options(header='true').load(fileName)
     joindf = htmldf.join(traindf, htmldf.id == traindf.file,'inner')
 
-    todoublefunc = UserDefinedFunction(lambda x: float(x),DoubleType())
-    finaldf = joindf.withColumn("label",todoublefunc(joindf['sponsored'])).select(columns)
+    #todoublefunc = UserDefinedFunction(lambda x: float(x),DoubleType())
+    #finaldf = joindf.withColumn("label",todoublefunc(joindf['sponsored'])).select(columns)
+
+    finaldf = joindf.withColumn("label",joindf["sponsored"].cast(DoubleType())).select(columns)
     return finaldf
 
 
 def main(args):
 
-    outputDir = '/home/cloudera/Documents/output'
-    dir = 'file:///home/cloudera/Documents/5'
+    #outputDir = '/home/cloudera/Documents/output'
+    outputDir = 'file:///Volumes/work/data/kaggle/dato/output/'
+    #dir = 'file:///home/cloudera/Documents/5'
+    dir = 'file:///Volumes/work/data/kaggle/dato/test/5'
+    traindataset='/Volumes/work/data/kaggle/dato/train.csv'
+    testdataset='/Volumes/work/data/kaggle/dato/test.csv'
 
     eachFile = dir.split("/")
-    jsonFile = eachFile[-1]
+
 
     textFiles = sc.wholeTextFiles(dir).map(readContents)
 
@@ -204,7 +211,7 @@ def main(args):
     htmldf.cache()
     #print dataframeText.show()
 
-    traindf = getCleanedRDD('/home/cloudera/Documents/train.csv',["id","images","links","text","label"],htmldf)
+    traindf = getCleanedRDD(traindataset,["id","images","links","text","label"],htmldf)
     print traindf.show()
 
     # Configure an ML pipeline, which consists of tree stages: tokenizer, hashingTF, and lr.
@@ -218,17 +225,22 @@ def main(args):
 
 
     print '-----------------------------------------------------------------------------'
-    testdf = getCleanedRDD('/home/cloudera/Documents/sampleSubmission.csv',["id","images","links","text","label"],htmldf)
-    print testdf.show()
+    testdf = getCleanedRDD(testdataset,["id","images","links","text","label"],htmldf)
+    #print testdf.show()
 
 
 
     # Make predictions on test documents and print columns of interest.
     prediction = model.transform(testdf)
-    selected = prediction.select("id", "text", "prediction")
+    print('prediction',prediction)
+    prediction.write.format('com.databricks.spark.csv').save(outputDir+'result2.csv')
+    #﻿('prediction', DataFrame[id: string, images: bigint, links: bigint, text: string, label: double, words: array<string>, features: vector, rawPrediction: vector, probability: vector, prediction: double])
+
+    '''
+    selected = prediction.select("id", "probability", "prediction")
     for row in selected.collect():
         print row
-
+    '''
     sc.stop()
 
     #check bug
@@ -243,7 +255,7 @@ if __name__ == "__main__":
    sqlContext = SQLContext(sc)
    stopwords = set(nltk.corpus.stopwords.words('english'))
    stopwords = sc.broadcast(stopwords)
-   file = open('/home/cloudera/Documents/empty.txt','r')
+   file = open('/Volumes/work/data/kaggle/dato/empty.txt','r')
    allValues = file.readlines()
    allValues = sc.broadcast(allValues)
    
