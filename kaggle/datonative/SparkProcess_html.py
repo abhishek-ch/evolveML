@@ -14,6 +14,7 @@ from pyspark.ml.feature import HashingTF, Tokenizer
 from pyspark.ml import Pipeline
 from pyspark.ml.classification import LogisticRegression
 from pyspark.mllib.classification import SVMWithSGD, SVMModel
+import pandas
 
 #https://spark.apache.org/docs/1.4.1/sql-programming-guide.html - Dataframe
 #https://spark.apache.org/docs/latest/api/python/pyspark.sql.html
@@ -194,26 +195,26 @@ def getCleanedRDD(fileName,columns,htmldf):
 
 
 def main(args):
-
+    '''
     #outputDir = '/home/cloudera/Documents/output'
     outputDir = 'file:///Volumes/work/data/kaggle/dato/output/'
     #dir = 'file:///home/cloudera/Documents/5'
     dir = 'file:///Volumes/work/data/kaggle/dato/test/5'
     traindataset='/Volumes/work/data/kaggle/dato/train.csv'
     testdataset='/Volumes/work/data/kaggle/dato/test.csv'
+    '''
 
-    eachFile = dir.split("/")
 
 
-    textFiles = sc.wholeTextFiles('file:///Volumes/work/data/kaggle/dato/test/5')
+    #textFiles = sc.wholeTextFiles('file:///Volumes/work/data/kaggle/dato/test/5')
 
-    textFiles = sc.wholeTextFiles(dir).map(readContents)
+    textFiles = sc.wholeTextFiles(maindir+'5').map(readContents)
 
     htmldf = sqlContext.createDataFrame(textFiles)
     htmldf.cache()
     #print dataframeText.show()
 
-    traindf = getCleanedRDD(traindataset,["id","images","links","text","label"],htmldf)
+    traindf = getCleanedRDD(maindir+'train.csv',["id","images","links","text","label"],htmldf)
     print traindf.show()
 
     # Configure an ML pipeline, which consists of tree stages: tokenizer, hashingTF, and lr.
@@ -227,7 +228,7 @@ def main(args):
 
 
     print '-----------------------------------------------------------------------------'
-    testdf = getCleanedRDD(testdataset,["id","images","links","text","label"],htmldf)
+    testdf = getCleanedRDD(maindir+'test.csv',["id","images","links","text","label"],htmldf)
     #print testdf.show()
 
 
@@ -235,14 +236,19 @@ def main(args):
     # Make predictions on test documents and print columns of interest.
     prediction = model.transform(testdf)
     print('prediction',prediction)
-    prediction.write.format('com.databricks.spark.csv').save(outputDir+'result2.csv')
+    '''	
+    pand = prediction.toPandas()
+    pand.to_csv('testpanda.csv', sep='\t', encoding='utf-8')	
+    print "Done!!! CSV"
+    '''
+    prediction.write.format('com.databricks.spark.csv').option("header", "true").save(maindir+'output/result8.csv')
     #﻿('prediction', DataFrame[id: string, images: bigint, links: bigint, text: string, label: double, words: array<string>, features: vector, rawPrediction: vector, probability: vector, prediction: double])
 
-    '''
+    
     selected = prediction.select("id", "probability", "prediction")
     for row in selected.collect():
         print row
-    '''
+    
     sc.stop()
 
     #check bug
@@ -252,12 +258,16 @@ def main(args):
 
 if __name__ == "__main__":
 
-   conf = (SparkConf().setMaster("local[2]").setAppName("Process HTML").set("spark.executor.memory", "4g"))
+   conf = (SparkConf().setMaster("local[*]").setAppName("Process HTML1").set("spark.executor.memory", "2g"))
    sc = SparkContext(conf=conf)
    sqlContext = SQLContext(sc)
    stopwords = set(nltk.corpus.stopwords.words('english'))
    stopwords = sc.broadcast(stopwords)
-   file = open('/Volumes/work/data/kaggle/dato/empty.txt','r')
+
+   maindir = 'file:///Volumes/work/data/kaggle/dato/'
+   maindir = '/home/cloudera/Documents/'
+
+   file = open(maindir+'empty.txt','r')
    allValues = file.readlines()
    allValues = sc.broadcast(allValues)
    
