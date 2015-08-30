@@ -195,18 +195,6 @@ def getCleanedRDD(fileName,columns,htmldf):
 
 
 def main(args):
-    '''
-    #outputDir = '/home/cloudera/Documents/output'
-    outputDir = 'file:///Volumes/work/data/kaggle/dato/output/'
-    #dir = 'file:///home/cloudera/Documents/5'
-    dir = 'file:///Volumes/work/data/kaggle/dato/test/5'
-    traindataset='/Volumes/work/data/kaggle/dato/train.csv'
-    testdataset='/Volumes/work/data/kaggle/dato/test.csv'
-    '''
-
-
-
-    #textFiles = sc.wholeTextFiles('file:///Volumes/work/data/kaggle/dato/test/5')
 
     textFiles = sc.wholeTextFiles(maindir+'5').map(readContents)
 
