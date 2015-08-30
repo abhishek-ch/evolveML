@@ -205,6 +205,8 @@ def main(args):
     eachFile = dir.split("/")
 
 
+    textFiles = sc.wholeTextFiles('file:///Volumes/work/data/kaggle/dato/test/5')
+
     textFiles = sc.wholeTextFiles(dir).map(readContents)
 
     htmldf = sqlContext.createDataFrame(textFiles)
