@@ -178,7 +178,7 @@ def readContents(content):
     #print 'Each File Name {} f {}'.format(fileName,file[-1])
     #returns only the file name as ID
     if file[-1]+'\n' not in allValues.value:
-    	return parse_pageDataframe(text,file[-1])
+        return parse_pageDataframe(text,file[-1])
 
 '''
     create RDD based and join queries
@@ -239,9 +239,6 @@ def main(args):
     
     sc.stop()
 
-    #check bug
-    #https://github.com/databricks/spark-csv/issues/64
-    #finaldf.write.parquet(os.path.join(outputDir,"main_16.parquet"),'append')
 
 
 if __name__ == "__main__":
