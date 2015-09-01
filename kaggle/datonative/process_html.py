@@ -3,6 +3,7 @@ import os, sys, logging, string, glob
 import cssutils as cu
 import json
 
+
 ferr = open("errors_in_scraping.log","w")
 #use another techniques to clean
 

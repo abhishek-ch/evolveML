@@ -217,7 +217,7 @@ def main(args):
 
     print '-----------------------------------------------------------------------------'
     testdf = getCleanedRDD(maindir+'test.csv',["id","images","links","text","label"],htmldf)
-    #print testdf.show()
+    print testdf.count()
 
 
 
