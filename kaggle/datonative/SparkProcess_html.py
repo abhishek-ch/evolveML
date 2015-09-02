@@ -232,7 +232,7 @@ def main(args):
     prediction.write.format('com.databricks.spark.csv').option("header", "true").save(maindir+'output/result8.csv')
     #﻿('prediction', DataFrame[id: string, images: bigint, links: bigint, text: string, label: double, words: array<string>, features: vector, rawPrediction: vector, probability: vector, prediction: double])
 
-    
+    #write in scala
     selected = prediction.select("id", "probability", "prediction")
     for row in selected.collect():
         print row
