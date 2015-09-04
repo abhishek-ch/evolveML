@@ -104,8 +104,25 @@
 
  (def test_list
   ["Pongo" "Perdita" "Puppy 1" "Puppy 2"])
+
  (println (take 2 test_list))
  (println (let [variables (take 3 test_list)]
            variables))
 
  (println "Rest param " (let [[first & others] test_list] [first others]))
+
+(def test_list2
+ ["Abh" "buntha" "ABC" "Abhishek" "Bapun"])
+
+;; let is an amazing way to name values
+ (println "Associate" (let [[first & others] test_list
+                test_list2 (conj test_list2 first)] [test_list2]) )
+
+
+;;loop and recursion
+(loop [iteration 0]
+ (println (str "Iteration is " iteration))
+ (if (> iteration 3)
+  (println "Awesome its Done!")
+  (recur (inc iteration)))
+ )
