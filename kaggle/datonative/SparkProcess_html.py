@@ -197,6 +197,12 @@ def getCleanedRDD(fileName, columns, htmldf):
 def main(args):
     textFiles = sc.wholeTextFiles(maindir + '0').map(readContents)
 
+    '''
+        filter the rows based on all the index available in
+        training file else drop
+        http://stackoverflow.com/questions/24718697/pyspark-drop-rows
+    '''
+
     htmldf = sqlContext.createDataFrame(textFiles)
     # htmldf.cache()
     print('\n' * 10)
