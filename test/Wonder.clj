@@ -123,6 +123,44 @@
 (loop [iteration 0]
  (println (str "Iteration is " iteration))
  (if (> iteration 3)
-  (println "Awesome its Done!!")
+  (println "Awesome its Done!")
   (recur (inc iteration)))
  )
+
+ (println "Reducing with initial value" (reduce + 10 [1 2 3 4 5]))
+(println (conj '(3 4) 2 1))
+ (println (set '(:a :a :b :c :c :c :c :d :d)))
+
+ (println "Set" (conj #{1 4 3} 2))
+
+;;partial - another way to create function
+ (println "Partial function " ( (partial + 5) 3))
+
+ (println (#(str "Hello, " % "!") "Dave"))
+ (println (#(second (reverse %) ) '(1 2 3 4)))
+
+
+(defn testnth
+ [values n]
+ (loop [test n tmp-list values]
+  (if (== test 0)
+   (first tmp-list)
+   (recur (dec test) (rest tmp-list))
+   )
+  ) )
+
+;problem 21
+ (println (
+           (fn
+            [values n]
+            (loop [test n tmp-list values]
+             (if (== test 0)
+              (first tmp-list)
+              (recur (dec test) (rest tmp-list))
+              )
+             ) )
+           [0 1 2 3 4] 2) )
+
+;; #22 Count a Sequence
+(println "REDUCE " (reduce ( fn [x _] (inc x) ) 0  [0 1 2 3 4]
+                           ) )
