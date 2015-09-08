@@ -1,4 +1,6 @@
- (ns Wonder)
+;; CLOJURE CHEAT SHEET http://clojure.org/cheatsheet
+
+(ns Wonder)
 
   (conj '(1 2 3) 4)
 
@@ -164,3 +166,30 @@
 ;; #22 Count a Sequence
 (println "REDUCE " (reduce ( fn [x _] (inc x) ) 0  [0 1 2 3 4]
                            ) )
+;;reverse a sequence #23
+(println (reduce conj () [1 2 3 4]))
+
+(defn reverse-sequence [params]
+  (if (empty? params)
+   []
+   (conj (reverse-sequence (rest params)) (first params))
+   )
+ )
+
+ (println "reverse a list with loop " (reverse-sequence '(1 2 3 4 5)))
+
+;;sum it all up #24
+(println "Sum of all number" (reduce + [1 2 3 4]))
+
+;;find odd numbers #25
+(println "find number" (filter odd? [1 2 3 4]))
+(println "Find odd other " (filter #(== (mod % 2) 1) [1 2 3 4 5 6]))
+
+(println " UR GET " (
+                     (fn [n]
+                      (take n (map second (iterate (fn [[a b]] [b (+ a b)]) [0 1] )))
+                       )
+                     8 ) )
+
+;; fibonannic #26
+(println "fibonannic #26n "  (fn [n] (take n (map second (iterate (fn [[a b]] [b (+ a b)]) [0 1] ))) ) 8 )
