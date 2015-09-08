@@ -195,7 +195,7 @@ def getCleanedRDD(fileName, columns, htmldf):
 
 
 def main(args):
-    textFiles = sc.wholeTextFiles(maindir + '0').map(readContents)
+    textFiles = sc.wholeTextFiles(maindir + 'input').map(readContents)
     print "READ second {} check ".format(textFiles.take(10))
     '''
         filter the rows based on all the index available in
@@ -204,24 +204,11 @@ def main(args):
     '''
 
     htmldf = sqlContext.createDataFrame(textFiles)
-    # htmldf.cache()
-    '''
-    print('\n' * 10)
-    print("COUNT_HTML", htmldf.count())
-    print('\n' * 10)
-    print ("HTML_DF DF", htmldf.show())
-    '''
+    htmldf.cache()
+
 
     traindf = getCleanedRDD(maindir + 'train.csv', ["id", "images", "links", "text", "label"], htmldf)
-    '''
-    print("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&", traindf.count())
-    print('\n' * 10)
-    print traindf.count()
 
-    print('\n' * 10)
-    print("TESTING_______________________ ", traindf.show())
-    print('\n' * 10)
-    '''
     # Configure an ML pipeline, which consists of tree stages: tokenizer, hashingTF, and lr.
     tokenizer = Tokenizer(inputCol="text", outputCol="words")
     hashingTF = HashingTF(inputCol=tokenizer.getOutputCol(), outputCol="features")
@@ -245,7 +232,7 @@ def main(args):
     pand.to_csv('testpanda.csv', sep='\t', encoding='utf-8')	
     print "Done!!! CSV"
     '''
-    prediction.write.format('com.databricks.spark.csv').option("header", "true").save(maindir + 'output/result_6_val.csv')
+    prediction.write.format('com.databricks.spark.csv').option("header", "true").save(maindir + 'output/result_LR_out.csv')
     # ﻿('prediction', DataFrame[id: string, images: bigint, links: bigint, text: string, label: double,
     # words: array<string>, features: vector, rawPrediction: vector, probability: vector, prediction: double])
 
