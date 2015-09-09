@@ -205,3 +205,24 @@
                                  (let [b (seq n)]
                                   (= b (reverse b)))) "racecar")
 
+(println "map-cat "(mapcat reverse [[3 2 1 0] [6 5 4] [9 8 7]]))
+
+
+(defn flatten1 [coll]
+ (lazy-seq
+  (when-let [s  (seq coll)]
+   (if (coll? (first s))
+    (concat (flatten1 (first s)) (flatten1 (rest s)))
+    (cons (first s) (flatten1 (rest s)))
+    ))
+  ))
+(println "Convert#28 Flatten Sequence " (flatten1 '((1 2) 3 [4 [5 6]]) ) )
+
+(println "Flatten Other way" ((fn flatten* [x]
+            (if (coll? x)
+             (mapcat flatten* x)
+             [x])) '((1 2) 3 [4 [5 6]])
+           )  )
+
+
+
