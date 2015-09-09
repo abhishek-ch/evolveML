@@ -193,3 +193,15 @@
 
 ;; fibonannic #26
 (println "fibonannic #26n "  (fn [n] (take n (map second (iterate (fn [[a b]] [b (+ a b)]) [0 1] ))) ) 8 )
+
+;; Palindrome Detector #27
+(println "read-string " (seq (char-array "Abhishek") ))     ;very unfavourable method
+(println "Convert to Sequence " (reverse (seq  [:foo :bar :foo :loo])) )
+(println (apply str [1 2 3 45]))
+
+
+
+(println "Palindrome Detector " (fn [n]
+                                 (let [b (seq n)]
+                                  (= b (reverse b)))) "racecar")
+
