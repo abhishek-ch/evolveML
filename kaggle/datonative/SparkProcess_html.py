@@ -195,7 +195,7 @@ def getCleanedRDD(fileName, columns, htmldf):
 
 
 def main(args):
-    textFiles = sc.wholeTextFiles(maindir + 'input').map(readContents)
+    textFiles = sc.wholeTextFiles(maindir + '4').map(readContents)
     print "READ second {} check ".format(textFiles.take(10))
     '''
         filter the rows based on all the index available in
@@ -226,13 +226,13 @@ def main(args):
 
     # Make predictions on test documents and print columns of interest.
     prediction = model.transform(testdf)
-    print('prediction', prediction)
+    #print('prediction', prediction)
     '''	
     pand = prediction.toPandas()
     pand.to_csv('testpanda.csv', sep='\t', encoding='utf-8')	
     print "Done!!! CSV"
     '''
-    prediction.write.format('com.databricks.spark.csv').option("header", "true").save(maindir + 'output/result_LR_out.csv')
+    prediction.select('id','probability','prediction').write.format('com.databricks.spark.csv').option("header", "true").save(maindir + 'output/result_LR_4.csv')
     # ﻿('prediction', DataFrame[id: string, images: bigint, links: bigint, text: string, label: double,
     # words: array<string>, features: vector, rawPrediction: vector, probability: vector, prediction: double])
 
