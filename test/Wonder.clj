@@ -1,5 +1,4 @@
 ;; CLOJURE CHEAT SHEET http://clojure.org/cheatsheet
-
 (ns Wonder)
 
   (conj '(1 2 3) 4)
@@ -225,4 +224,29 @@
            )  )
 
 
+;;Get the Caps #29
 
+(println "TEST " (filter #(Character/isUpperCase %) `(\$ \# \A \( \* \& \9 \8 \7 \Z \f)))
+
+(println "Find UpperCase character " (fn [s] (reduce str (filter #(Character/isUpperCase %) s)))
+                                       "abhISe, WorDliOp")
+
+
+
+
+;;Compress the sequence #30
+(println "JOIN=>" (str "Abhi" (subs "Chou" 1)))
+
+(println "LOOPING "
+   (fn callme [n]
+     (if(empty? n)
+      n
+      (if (= (first n) (second n))
+       (callme (rest n))
+       (cons (first n) (callme (rest n)))
+       )
+      )
+     ) "AbhiIIIIShekKKeiPpOPP"
+   )
+
+(println "map partiotion-by identity "  #(map first (partition-by identity a)) "AbhiIIIIShekKKeiPpOPP")
