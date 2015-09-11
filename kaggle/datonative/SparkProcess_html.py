@@ -14,6 +14,8 @@ from pyspark.ml.feature import HashingTF, Tokenizer
 from pyspark.ml import Pipeline
 from pyspark.ml.classification import LogisticRegression
 from pyspark.mllib.classification import SVMWithSGD, SVMModel
+from pyspark.ml.classification import GBTClassifier
+from pyspark.ml.classification import RandomForestClassifier
 import pandas
 
 # https://spark.apache.org/docs/1.4.1/sql-programming-guide.html - Dataframe
@@ -175,7 +177,7 @@ def readContents(content):
     if file[-1] + '\n' not in allValues.value:
         return parse_pageDataframe(text, file[-1])
     else:
-        return Row(id='NA', text='NA', title='NA', links=0, images=0)
+        return Row(id=file[-1], text='NA', title='NA', links=0, images=0)
 
 
 '''
@@ -195,8 +197,8 @@ def getCleanedRDD(fileName, columns, htmldf):
 
 
 def main(args):
-    textFiles = sc.wholeTextFiles(maindir + '4').map(readContents)
-    print "READ second {} check ".format(textFiles.take(10))
+    textFiles = sc.wholeTextFiles(maindir + '5').map(readContents)
+    #print "READ second {} check ".format(textFiles.take(10))
     '''
         filter the rows based on all the index available in
         training file else drop
@@ -213,7 +215,11 @@ def main(args):
     tokenizer = Tokenizer(inputCol="text", outputCol="words")
     hashingTF = HashingTF(inputCol=tokenizer.getOutputCol(), outputCol="features")
     lr = LogisticRegression(maxIter=10, regParam=0.01)
-    pipeline = Pipeline(stages=[tokenizer, hashingTF, lr])
+    rf = GBTClassifier(maxIter=30, maxDepth=4, labelCol="label")
+    rfc = RandomForestClassifier(labelCol="label", numTrees=3, maxDepth=4)
+    pipeline = Pipeline(stages=[tokenizer, hashingTF, rfc])
+
+
 
     # Fit the pipeline to training documents.
     model = pipeline.fit(traindf)
@@ -232,7 +238,7 @@ def main(args):
     pand.to_csv('testpanda.csv', sep='\t', encoding='utf-8')	
     print "Done!!! CSV"
     '''
-    prediction.select('id','probability','prediction').write.format('com.databricks.spark.csv').option("header", "true").save(maindir + 'output/result_LR_4.csv')
+    prediction.select('id','probability','prediction').write.format('com.databricks.spark.csv').option("header", "true").save(maindir + 'output/result_GT1.csv')
     # ﻿('prediction', DataFrame[id: string, images: bigint, links: bigint, text: string, label: double,
     # words: array<string>, features: vector, rawPrediction: vector, probability: vector, prediction: double])
 
