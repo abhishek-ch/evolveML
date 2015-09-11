@@ -249,4 +249,26 @@
      ) "AbhiIIIIShekKKeiPpOPP"
    )
 
-(println "map partiotion-by identity "  #(map first (partition-by identity a)) "AbhiIIIIShekKKeiPpOPP")
+(println "map partiotion-by identity "  #(map first (partition-by identity %)) "AbhiIIIIShekKKeiPpOPP")
+
+
+
+;;Pack a Sequence #31
+
+(defn pack
+       [n values]
+       (if (empty? n)
+        n
+        (if (= n (first value))
+         (pack  (rest n) (conj values n) )
+         (cons n (pack (rest n) [])  )
+         )
+        )
+ )
+
+(println "Pack a Sequence " (flatten [[1 2] [1 2] [3 4]] ))
+(println "Pack1 a Sequence " #(partition-by identity %)  [[1 2] [1 2] [3 4]])
+
+
+
+https://www.4clojure.com/problem/solutions/31
