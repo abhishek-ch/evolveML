@@ -272,3 +272,12 @@
 
 
 ;;https://www.4clojure.com/problem/solutions/31
+
+;;Duplicate a Sequence
+#(interleave % %)
+(defn duplicate
+  [n]
+  (cons (repeat 1 (first n)) (rest duplicate))
+  )
+
+(println "repeat sequence " duplicate '(2 3))
