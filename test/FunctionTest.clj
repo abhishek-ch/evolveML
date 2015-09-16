@@ -1,5 +1,7 @@
  (ns FunctionTest)
-
+(require '[clojure.data.csv :as csv]
+         '[clojure.java.io :as io])
+(require '[clojure.string :as str])
  ;;reference http://www.braveclojure.com/core-functions-in-depth/
 
 (println "Test Function")
@@ -65,3 +67,20 @@
 
 (take-while #(< (:month %) 4)
             (drop-while #(< (:month %) 2) food-journal))
+
+(println "filter "(filter #(> (:human %) 4.3) food-journal) )
+
+(println "fetch the matching value " (some #(and (> (:critter %) 2.3) %)  food-journal) )
+
+(def read-csv
+   (with-open [in-file (io/reader "C:\\Users\\achoudhary\\Downloads\\test.csv")]
+    (doall
+      (csv/read-csv in-file))
+    )
+  )
+
+;;http://stackoverflow.com/questions/32605408/convert-a-sequence-to-hashmap-in-clojure
+(println "FINAL "(map (fn [line] (zipmap [:key :value] line)) read-csv))
+
+(println "Test split-at "(split-at 1 ["119_raw_html.txt 0"]))
+(println "Test str/split "(str/split (first ["119_raw_html.txt 0"]) #" "))
