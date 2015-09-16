@@ -1,7 +1,8 @@
  (ns FunctionTest)
 (require '[clojure.data.csv :as csv]
-         '[clojure.java.io :as io])
-(require '[clojure.string :as str])
+         '[clojure.java.io :as io]
+         '[clojure.string :as str])
+
  ;;reference http://www.braveclojure.com/core-functions-in-depth/
 
 (println "Test Function")
@@ -80,7 +81,22 @@
   )
 
 ;;http://stackoverflow.com/questions/32605408/convert-a-sequence-to-hashmap-in-clojure
-(println "FINAL "(map (fn [line] (zipmap [:key :value] line)) read-csv))
+(println "FINAL "(into [] (map (fn [line]
+                                 (zipmap [:key :value] line)
+                                 ) read-csv) ))
 
 (println "Test split-at "(split-at 1 ["119_raw_html.txt 0"]))
 (println "Test str/split "(str/split (first ["119_raw_html.txt 0"]) #" "))
+
+(defn generate-even
+  ([] (generate-even 0))
+  ([n] ( cons n (lazy-seq (generate-even (+ n 2)))))
+  )
+
+(println "generate Even Numbers " (take 5 (generate-even)))
+
+(defn into_conj
+  [target & additions]
+  (into target additions))
+
+(println "Similiarity between into & conj "(into_conj (take 3 read-csv) ["Dummy" 1]))

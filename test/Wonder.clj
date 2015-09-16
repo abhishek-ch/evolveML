@@ -282,6 +282,8 @@
 
 (println "repeat sequence " duplicate '(2 3))
 
+
 ;;Clojure 33 Replicate a Sequence
 (println "repeat a seq " (#(repeat %2 %1) [2 3] 2) )
 (println "mapcat "(#(mapcat (partial repeat %2) %) [[1 2] [3 4]] 2))
+
