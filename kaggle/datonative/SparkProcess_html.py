@@ -195,9 +195,19 @@ def getCleanedRDD(fileName, columns, htmldf):
     finaldf = joindf.withColumn("label", joindf["sponsored"].cast(DoubleType())).select(columns)
     return finaldf
 
+'''
+build test dataframe
+'''
+def buildTest():
+    textFiles = sc.wholeTextFiles(maindir + '5').map(readContents)
+    testdf = sqlContext.createDataFrame(textFiles)
+    testdf.write.save(maindir+"output/test.parquet", format="parquet")
+
+
+
 
 def main(args):
-    textFiles = sc.wholeTextFiles(maindir + '5').map(readContents)
+    textFiles = sc.wholeTextFiles(maindir + '4').map(readContents)
     #print "READ second {} check ".format(textFiles.take(10))
     '''
         filter the rows based on all the index available in
@@ -209,20 +219,23 @@ def main(args):
     htmldf.cache()
 
 
-    traindf = getCleanedRDD(maindir + 'train.csv', ["id", "images", "links", "text", "label"], htmldf)
+    traindf = getCleanedRDD(maindir + 'train_v2.csv', ["id", "images", "links", "text", "label"], htmldf)
+    traindf.write.save(maindir+"output/train_4.parquet", format="parquet")
+
+
 
     # Configure an ML pipeline, which consists of tree stages: tokenizer, hashingTF, and lr.
     tokenizer = Tokenizer(inputCol="text", outputCol="words")
     hashingTF = HashingTF(inputCol=tokenizer.getOutputCol(), outputCol="features")
-    lr = LogisticRegression(maxIter=10, regParam=0.01)
+    lr = LogisticRegression(maxIter=20, regParam=0.01)
     rf = GBTClassifier(maxIter=30, maxDepth=4, labelCol="label")
     #https://databricks.com/blog/2015/07/29/new-features-in-machine-learning-pipelines-in-spark-1-4.html
     #http://spark.apache.org/docs/latest/api/python/pyspark.ml.html
-    
-    w2v = Word2Vec(inputCol="text", outputCol="w2v")
+
+    #w2v = Word2Vec(inputCol="text", outputCol="w2v")
 
     rfc = RandomForestClassifier(labelCol="label", numTrees=3, maxDepth=4)
-    pipeline = Pipeline(stages=[tokenizer, hashingTF, rfc])
+    pipeline = Pipeline(stages=[tokenizer, hashingTF, lr])
 
 
 
@@ -238,12 +251,14 @@ def main(args):
     # Make predictions on test documents and print columns of interest.
     prediction = model.transform(testdf)
     #print('prediction', prediction)
-    '''	
+
+    '''
     pand = prediction.toPandas()
     pand.to_csv('testpanda.csv', sep='\t', encoding='utf-8')	
     print "Done!!! CSV"
+
     '''
-    prediction.select('id','probability','prediction').write.format('com.databricks.spark.csv').option("header", "true").save(maindir + 'output/result_GT1.csv')
+    #prediction.select('id','probability','prediction').write.format('com.databricks.spark.csv').option("header", "true").save(maindir + 'output/result_lr0.csv')
     # ﻿('prediction', DataFrame[id: string, images: bigint, links: bigint, text: string, label: double,
     # words: array<string>, features: vector, rawPrediction: vector, probability: vector, prediction: double])
 
@@ -271,4 +286,5 @@ if __name__ == "__main__":
     allValues = sc.broadcast(allValues)
 
     file.close()
-    main(sys.argv)
+    #main(sys.argv)
+    buildTest()
