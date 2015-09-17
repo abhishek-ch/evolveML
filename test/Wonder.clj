@@ -287,3 +287,6 @@
 (println "repeat a seq " (#(repeat %2 %1) [2 3] 2) )
 (println "mapcat "(#(mapcat (partial repeat %2) %) [[1 2] [3 4]] 2))
 
+;Implement range #34
+
+(println "Implement Range "(#(take (- %2 %1) (iterate inc %1) ) 5 8))
