@@ -100,3 +100,17 @@
   (into target additions))
 
 (println "Similiarity between into & conj "(into_conj (take 3 read-csv) ["Dummy" 1]))
+
+
+
+(def part (partial + 10))
+(println "Implement" (part 13 10))
+
+(defn strict-method
+  [var1 var2]
+  (str var1 var2)
+  )
+
+(def pass-the-partial (partial strict-method "Abhishek"))
+
+(println "Test partial "(pass-the-partial " Choudhary"))
