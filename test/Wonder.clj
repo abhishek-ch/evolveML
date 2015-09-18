@@ -298,3 +298,19 @@
                        [& args]
                        (reduce #(if (> %1 %2) %1 %2) args)
                        ) 6 2 5 8 1 ))
+
+(println "Interleave seq 1"
+         ((fn intleave [a b]
+            (if (or (empty? a) (empty? b))
+              []
+              (concat [(first a) (first b)]
+                       (intleave (rest a) (rest b)))
+                )
+              )
+            [1 2 3] [:a :b :c])
+           )
+
+
+(println "Interleave seq 2"
+         (#(flatten(map list %1 %2))[1 2] [3 4 5 6])
+         )
