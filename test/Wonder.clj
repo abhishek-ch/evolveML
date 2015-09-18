@@ -290,3 +290,11 @@
 ;Implement range #34
 
 (println "Implement Range "(#(take (- %2 %1) (iterate inc %1) ) 5 8))
+
+(println "Regex "(apply str (re-seq #"[A-Z]+" "bA1B3Ce")))
+
+(println "find max "(
+                      ( fn
+                       [& args]
+                       (reduce #(if (> %1 %2) %1 %2) args)
+                       ) 6 2 5 8 1 ))
