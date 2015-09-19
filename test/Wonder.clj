@@ -314,3 +314,7 @@
 (println "Interleave seq 2"
          (#(flatten(map list %1 %2))[1 2] [3 4 5 6])
          )
+
+(println "interpoase "(fn [sep coll]
+                        (drop-last
+                          (mapcat #(conj [] % sep) coll))) [1 2 3])
