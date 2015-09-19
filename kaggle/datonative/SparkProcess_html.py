@@ -229,6 +229,7 @@ def main(args):
     hashingTF = HashingTF(inputCol=tokenizer.getOutputCol(), outputCol="features")
     lr = LogisticRegression(maxIter=20, regParam=0.01)
     rf = GBTClassifier(maxIter=30, maxDepth=4, labelCol="label")
+    rf = RandomForestClassifier(labelCol="features", numTrees=3, maxDepth=4)
     #https://databricks.com/blog/2015/07/29/new-features-in-machine-learning-pipelines-in-spark-1-4.html
     #http://spark.apache.org/docs/latest/api/python/pyspark.ml.html
 
