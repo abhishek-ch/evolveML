@@ -15,7 +15,7 @@ from pyspark import SparkConf, SparkContext
 from bs4 import BeautifulSoup as bs
 
 
-def parse_page(in_file, urlid):
+def parse_page(in_file, urlid="11"):
     """ parameters:
             - in_file: file to read raw_data from
             - url_id: id of each page from file_name """
@@ -123,6 +123,8 @@ def yield_data_from_zip(archive_path):
         urls = file_path.split("/")
         urlId = urls[-1].split('_')[0]
 
+        rdd1 = sc.textFile(file_path).map(parse_page)
+        print rdd1.first()
         data = archive.read(file_path)
         yield data, urlId
 
