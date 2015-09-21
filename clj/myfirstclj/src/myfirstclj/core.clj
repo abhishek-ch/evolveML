@@ -3,6 +3,7 @@
         ring.middleware.json
         ring.util.response)
   (:require [compojure.route :as route]
+            [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
             [myfirstclj.view :as view]
             [compojure.core :refer [defroutes GET ANY]]
             [compojure.handler :as handler]
@@ -33,7 +34,7 @@
   (ANY "*" [] (route/not-found (layout/application "Page Not Found" (contents/not-found))))
   )
 
-(def application (handler/site searchroutes))
+(def application (wrap-defaults searchroutes site-defaults))
 
 (defn -main []
   (let [port (Integer/parseInt (or (System/getenv "PORT") "3000"))]

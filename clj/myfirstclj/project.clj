@@ -13,6 +13,7 @@
                  [compojure "1.4.0"]
                  [hiccup "1.0.5"]
                  [ring/ring-json "0.4.0"]
+                 [ring/ring-defaults "0.1.2"]
                  ]
   :main myfirstclj.core
   )
