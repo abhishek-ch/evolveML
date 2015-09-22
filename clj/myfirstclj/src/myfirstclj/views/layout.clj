@@ -47,9 +47,31 @@
                  [:h1
                   [:a {:title "Abhishek Testing"} "Abhishek Search..."
                    [:p {:class "lead"} "{An Amazing Company...}"]
-                   ]
-                  ]
-                 ]]
-         ]]
+                   ]]]
+
+              [:div {:class "col-sm-6"}
+               [:div {:class "pull-right  hidden-xs"}
+                [:a {:href "#" :class "dropdown-toggle" :data-toggle "dropdown"}
+                 [:h3
+                  [:i {:class "glyphicon glyphicon-cog"}]]]
+                [:ul {:class="dropdown-menu"}
+                  [:li
+                   [:a {:href "http://www.google.com"}
+                    [:i {:class "glyphicon glyphicon-chevron-right"}]
+                    "Link1"]]
+                 [:li
+                  [:a {:href "http://www.google.com"}
+                   [:i {:class "glyphicon glyphicon-user"}]
+                   "Link2"]]
+                 [:li
+                  [:a {:href "http://www.google.com"}
+                   [:i {:class "glyphicon glyphicon-lock"}]
+                   "Link3"]]
+                 [:li
+                  [:a {:href "http://www.google.com"}
+                   [:i {:class "glyphicon glyphicon-cog"}]
+                   "Link4"]]
+                 ]]]
+          ]]]
 
        [:div {:id "content" :class "container"} content]]))

@@ -10,6 +10,38 @@
 
 
 
+(defn fixed-navigation-bar []
+  [:div {:class "navbar navbar-custom navbar-inverse navbar-static-top" :id "nav"}
+   [:div {:class "container"}
+    [:div {:class "navbar-header"}
+     [:input {:type "button" :class "navbar-toggle" :data-toggle "collapse" :data-target ".navbar-collapse"}
+       [:span {:class "icon-bar"}]
+       [:span {:class "icon-bar"}]
+       [:span {:class "icon-bar"}]
+       ]
+     ]
+     [:div {:class "collapse navbar-collapse"}
+      [:ul {:class "nav navbar-nav nav-justified"}
+       [:li
+        [:a {:href "#"} "Home"]]
+       [:li
+        [:a {:href "#section2"} "Product"]]
+       [:li
+        [:a {:href "#section3"} "News"]]
+        [:li {:class "active"}
+         [:a {:href "#section1"} "Big Brand"]]
+       [:li
+        [:a {:href "#section4"} "About"]]
+       [:li
+        [:a {:href "#section5"} "Contact"]]
+       ]
+      ]
+
+    ]
+   ]
+  )
+
+
 ;http://getbootstrap.com/css/
 ;http://www.bootply.com/96188
 (defn betterUIuserform []
@@ -22,7 +54,7 @@
      [:div {:class "form-group"}
       (text-field {:class "form-control" :ng-model "yourName" :placeholder "Enter Any Search here"} "your-name")]
      [:div {:class "form-group"}
-      (link-to {:type "submit" :class "btn btn-primary btn-lg"} "/" "Sign in")]
+      (submit-button {:type "submit" :class "btn btn-primary btn-lg"} "Press me")]
 
      ]]]])
 
@@ -38,7 +70,7 @@
 ;https://devcenter.heroku.com/articles/clojure-web-application
 (defn index []
   (layout/application "Search..."
-                      (betterUIuserform)
+                      (fixed-navigation-bar)
                       [:div {:class "clear"}]
                       ))
 
