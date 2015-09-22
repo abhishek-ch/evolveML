@@ -34,14 +34,7 @@
        [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
        [:meta {:name "viewport" :content "width=device-width, initial-scale=1, maximum-scale=1"}]
        [:title title]
-       (h/include-css "//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css"
-         "http://static.kgyt.hu/download/base.css/2.0/base-min.css"
-         "/css/search.css"
-         "/css/skeleton.css"
-         "/css/screen.css"
-         "/css/base.css"
-         "/css/normalize.css"
-         )
+       (h/include-css "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css")
        (h/include-js "http://code.angularjs.org/1.2.3/angular.min.js"
          "/js/ui-bootstrap-tpls.min.js"
          "/js/script.js")

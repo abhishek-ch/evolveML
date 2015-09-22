@@ -10,6 +10,15 @@
 
 
 
+(defn betterUIuserform []
+  [:div {:id "user-form" :class "sixteen columns alpha omega"}
+   [:div {:class "row"}
+    [:div {:class "col-lg-2"}
+     (label "name" "What do you want to ABHISHEK?")]
+    [:div {:class "col-lg-4"}
+     (text-field {:class "form-control" :ng-model "yourName" :placeholder "Enter a name here"} "your-name")]]
+   ]
+  )
 
 (defn user-form []
   [:div {:id "user-form" :class "sixteen columns alpha omega"}
@@ -23,7 +32,7 @@
 ;https://devcenter.heroku.com/articles/clojure-web-application
 (defn index []
   (layout/application "Search..."
-                      (user-form)
+                      (betterUIuserform)
                       [:div {:class "clear"}]
                       ))
 
