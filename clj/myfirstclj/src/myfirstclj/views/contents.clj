@@ -2,18 +2,38 @@
   ^{:author abc}
   myfirstclj.views.contents
   (:use [hiccup.form]
-        [hiccup.element :only (link-to)]))
+        [hiccup.element :only (link-to)])
+  (:require [myfirstclj.views.layout :as layout]
+            [hiccup.form :as form]
+            [hiccup.core :refer [h]]
+            [ring.util.anti-forgery :as anti-forgery]))
+
+
+
+
+(defn user-form []
+  [:div {:id "user-form" :class "sixteen columns alpha omega"}
+   (form/form-to [:post "/"]
+                 (anti-forgery/anti-forgery-field)
+                 (form/label "Test" "What do you want to ABHISHEK?")
+                 (form/text-area "enter")
+                 (form/submit-button "Press!"))])
 
 ;https://github.com/yokolet/hiccup-samples
+;https://devcenter.heroku.com/articles/clojure-web-application
 (defn index []
-  [:div {:id "content"}
-   [:h1 {:class "text-success"} "Abhishek with better "]])
+  (layout/application "Search..."
+                      (user-form)
+                      [:div {:class "clear"}]
+                      ))
 
 (defn not-found []
   [:div
    [:h1 {:class "info-worning"} "Page Not Found"]
    [:p "There's no requested page. "]
    (link-to {:class "btn btn-primary"} "/" "Take me to Home")])
+
+
 
 (def names
   ["John" "Mary" "Watson" "James"])

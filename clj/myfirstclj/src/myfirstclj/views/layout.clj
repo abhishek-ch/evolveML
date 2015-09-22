@@ -20,7 +20,7 @@
        (h/include-css "http://fonts.googleapis.com/css?family=Sigmar+One&v1"
          "//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css")]
       [:body [:div {:id "header"}
-              [:h1 {:class "container"} "ABHISHEK SEARCH"]]
+              [:h1 {:class "container"} ""]]
        [:div {:id "content" :class "container"} body]]))
   )
 
@@ -38,12 +38,16 @@
          "http://static.kgyt.hu/download/base.css/2.0/base-min.css"
          "/css/search.css"
          "/css/skeleton.css"
+         "/css/screen.css"
+         "/css/base.css"
+         "/css/normalize.css"
          )
        (h/include-js "http://code.angularjs.org/1.2.3/angular.min.js"
          "/js/ui-bootstrap-tpls.min.js"
          "/js/script.js")
        ]
 
-      [:body [:div {:id "header"}
-              [:h1 {:class "container"} "ABHISHEK SEARCH"]]
+      [:body
+       [:div {:id "header"}
+              [:h1 {:class "container"} "Abhishek Search..."]]
        [:div {:id "content" :class "container"} content]]))

@@ -10,6 +10,7 @@
             [ring.adapter.jetty :as jetty]
             [myfirstclj.views.layout :as layout]
             [myfirstclj.views.contents :as contents]
+            [myfirstclj.controller.contentctlr :as controller]
             )
   )
 
@@ -25,13 +26,15 @@
   (route/resources "/")
   )
 
+(comment(GET "/" [] (layout/application "Home" (contents/index))))
 ;search web page
 (defroutes searchroutes
-  (GET "/" [] (layout/application "Home" (contents/index)))
+   controller/routes
+   (route/resources "/")
+   (ANY "*" [] (route/not-found (layout/application "Page Not Found" (contents/not-found))))
   (GET "/search" [] (layout/application "Search..." (contents/search-item)))
   (GET "/hello" [] (layout/application "Hello Boy" (contents/hello)))
-  (route/resources "/")
-  (ANY "*" [] (route/not-found (layout/application "Page Not Found" (contents/not-found))))
+
   )
 
 (def application (wrap-defaults searchroutes site-defaults))
