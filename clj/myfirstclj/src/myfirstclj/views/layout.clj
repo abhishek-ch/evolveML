@@ -26,8 +26,7 @@
 
 
 ;https://github.com/yokolet/hiccup-samples
-
-
+;http://www.bootply.com/96188
   (defn application [title & content]
     (h/html5
       [:head [:meta {:charset "utf-8"}]
@@ -41,6 +40,16 @@
        ]
 
       [:body
-       [:div {:id "header"}
-              [:h1 {:class "container"} "Abhishek Search..."]]
+       [:header {:class "masthead"}
+        [:div {:class "container"}
+         [:div {:class "row"}
+                [:div {:class "col-sm-6"}
+                 [:h1
+                  [:a {:title "Abhishek Testing"} "Abhishek Search..."
+                   [:p {:class "lead"} "{An Amazing Company...}"]
+                   ]
+                  ]
+                 ]]
+         ]]
+
        [:div {:id "content" :class "container"} content]]))

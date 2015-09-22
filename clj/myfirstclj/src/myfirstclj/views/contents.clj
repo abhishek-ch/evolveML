@@ -2,7 +2,7 @@
   ^{:author abc}
   myfirstclj.views.contents
   (:use [hiccup.form]
-        [hiccup.element :only (link-to)])
+        [hiccup.element])
   (:require [myfirstclj.views.layout :as layout]
             [hiccup.form :as form]
             [hiccup.core :refer [h]]
@@ -10,15 +10,21 @@
 
 
 
+;http://getbootstrap.com/css/
+;http://www.bootply.com/96188
 (defn betterUIuserform []
   [:div {:id "user-form" :class "sixteen columns alpha omega"}
    [:div {:class "row"}
-    [:div {:class "col-lg-2"}
-     (label "name" "What do you want to ABHISHEK?")]
     [:div {:class "col-lg-4"}
-     (text-field {:class "form-control" :ng-model "yourName" :placeholder "Enter a name here"} "your-name")]]
-   ]
-  )
+    [:form {:class "form-horizontal"}
+     [:div {:class "form-group"}
+      (label "name" "Search Something...")]
+     [:div {:class "form-group"}
+      (text-field {:class "form-control" :ng-model "yourName" :placeholder "Enter Any Search here"} "your-name")]
+     [:div {:class "form-group"}
+      (link-to {:type "submit" :class "btn btn-primary btn-lg"} "/" "Sign in")]
+
+     ]]]])
 
 (defn user-form []
   [:div {:id "user-form" :class "sixteen columns alpha omega"}
@@ -62,13 +68,8 @@
      [:ul {:class "suggestions"}
       (for [name names]
         [:li name])
-      ]
-     ]
-     ]
-     ]
-     ]
-
-   ]
+      ]]
+     ]]]]
   )
 
 (defn hello []
