@@ -6,6 +6,7 @@
             [hiccup.page :refer [include-js include-css]]
             [prone.middleware :refer [wrap-exceptions]]
             [ring.middleware.reload :refer [wrap-reload]]
+            [testdev.view.contents :as contents]
             [environ.core :refer [env]]))
 
 (def home-page
@@ -76,7 +77,7 @@
            ]]]
         ]]]
 
-
+     [:div {:id "content" :class "container"} content]
      ]))
 
 (defn not-founds []
@@ -87,9 +88,10 @@
 
 (defroutes routes
   (GET "/" [] home-page)
-  (GET "/hello" [] (application "Hello" not-founds ))
+  (GET "/hello" [] (application "Hello" (contents/fixed-navigation-bar ) [:div {:class "clear"}] ))
   (resources "/")
   (not-found "Not Found"))
+
 
 (def app
   (let [handler (wrap-defaults #'routes site-defaults)]
