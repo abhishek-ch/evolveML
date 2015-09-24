@@ -15,16 +15,22 @@
    [:html
     [:head
      [:meta {:charset "utf-8"}]
-     [:meta {:name "viewport"
-             :content "width=device-width, initial-scale=1"}]
-     (include-css (if (env :dev) "css/site.css" "css/site.min.css"))]
+     [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
+     [:meta {:name "viewport" :content "width=device-width, initial-scale=1, maximum-scale=1"}]
+     ]
     [:body
      [:div#app
       [:h3 "ClojureScript has not been compiled!"]
       [:p "please run "
        [:b "lein figwheel"]
        " in order to start the compiler"]]
-     (include-js "js/app.js")]]))
+     (include-js "js/app.js")
+     (include-css "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css")
+     (include-js "https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"
+                 "http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"
+                 )
+
+     ]]))
 
 ;https://github.com/yokolet/hiccup-samples
 ;http://www.bootply.com/96188
