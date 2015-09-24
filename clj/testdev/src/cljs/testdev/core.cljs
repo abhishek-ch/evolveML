@@ -53,7 +53,7 @@
 
 (defn page [body]
   [:div.page
-   [:div {:id "wrap"}
+   [:div {:id "wrap" }
    body
    [:div {:class "divider" :id "section0"}]
    [:div {:class "navbar navbar-custom navbar-inverse navbar-static-top" :id "nav"} (contents/fixed-navigation-bar)]
