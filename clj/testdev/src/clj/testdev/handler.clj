@@ -7,7 +7,8 @@
             [prone.middleware :refer [wrap-exceptions]]
             [ring.middleware.reload :refer [wrap-reload]]
             [testdev.view.contents :as contents]
-            [environ.core :refer [env]]))
+            [environ.core :refer [env]]
+            ))
 
 (def home-page
   (html
@@ -30,6 +31,25 @@
 ;https://github.com/reagent-project/reagent-forms
 ;https://github.com/reagent-project/reagent-template - run application
 
+(def headerLinks
+  [{:name "Link1" :href "http://www.google.com" :class "glyphicon glyphicon-chevron-right"}
+  {:name "Link2" :href "http://www.google.com" :class "glyphicon glyphicon-user"}
+  {:name "Link3" :href "http://www.google.com" :class "glyphicon glyphicon-lock"}
+  {:name "Link4" :href "http://www.google.com" :class "glyphicon glyphicon-cog"}]
+  )
+
+(comment (defn headerLinksDef
+
+               (println "ok" (doseq [record headerLinks
+                                     [k v] record]
+                                    (println k v)) )
+               ))
+
+
+
+
+
+
 (defn application [title & content]
   (html
     [:head [:meta {:charset "utf-8"}]
@@ -37,8 +57,8 @@
      [:meta {:name "viewport" :content "width=device-width, initial-scale=1, maximum-scale=1"}]
      [:title title]
      (include-css "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css")
-     (include-js "http://code.angularjs.org/1.2.3/angular.min.js"
-       "/js/ui-bootstrap-tpls.min.js"
+     (include-js "https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"
+       "http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"
        "/js/script.js")
      ]
 
@@ -48,16 +68,16 @@
        [:div {:class "row"}
         [:div {:class "col-sm-6"}
          [:h1
-          [:a {:title "Abhishek Testing"} "Abhishek Search..."
+          [:a {:title "Abhishek Testing"} "Abhishek Search..."]
            [:p {:class "lead"} "{An Amazing Company...}"]
-           ]]]
+           ]]
 
         [:div {:class "col-sm-6"}
          [:div {:class "pull-right  hidden-xs"}
           [:a {:href "#" :class "dropdown-toggle" :data-toggle "dropdown"}
            [:h3
             [:i {:class "glyphicon glyphicon-cog"}]]]
-          [:ul {:class="dropdown-menu"}
+          [:ul {:class "dropdown-menu"}
            [:li
             [:a {:href "http://www.google.com"}
              [:i {:class "glyphicon glyphicon-chevron-right"}]
@@ -75,10 +95,15 @@
              [:i {:class "glyphicon glyphicon-cog"}]
              "Link4"]]
            ]]]
+
         ]]]
-      ;test
-     [:div {:id "content" :class "container"} content]
+
+
+     [:div {:class "divider" :id "section_0"}]
+     [:div {:class "navbar navbar-custom navbar-inverse navbar-static-top" :id "nav"} content]
+
      ]))
+
 
 (defn not-founds []
   [:div

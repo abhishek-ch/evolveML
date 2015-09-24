@@ -3,7 +3,8 @@
               [reagent.session :as session]
               [secretary.core :as secretary :include-macros true]
               [goog.events :as events]
-              [goog.history.EventType :as EventType])
+              [goog.history.EventType :as EventType]
+              )
     (:import goog.History))
 
 ;; -------------------------
@@ -17,8 +18,26 @@
   [:div [:h2 "About testdev"]
    [:div [:a {:href "#/"} "go to the home page"]]])
 
+
 (defn current-page []
   [:div [(session/get :current-page)]])
+
+
+(defonce selected-department (atom "department!"))
+
+(defn simple-component []
+      [:div#sidebar-wrapper
+       [:ul.sidebar-nav
+        [:li.sidebar-brand [:a {:href "#"} "Departments"]]
+        [:li [:a {:on-click #(reset! selected-department "Dairy") :href "#"} "Dairy"]]
+        [:li [:a {:on-click #(reset! selected-department "Deli") :href "#"} "Deli"]]
+        [:li [:a {:on-click #(reset! selected-department "Grocery") :href "#"} "Grocery"]]]
+       [:label @selected-department]])
+
+
+(defn render-simple []
+      (reagent/render-component [simple-component]
+                          (.-body js/document)))
 
 ;; -------------------------
 ;; Routes
@@ -29,6 +48,9 @@
 
 (secretary/defroute "/about" []
   (session/put! :current-page #'about-page))
+
+(secretary/defroute "/render" []
+                    (session/put! :current-page #'render-simple))
 
 ;; -------------------------
 ;; History

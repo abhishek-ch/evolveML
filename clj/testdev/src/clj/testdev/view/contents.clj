@@ -7,7 +7,6 @@
 ;http://www.bootply.com/EY5Gi2T0eD
 
 (defn fixed-navigation-bar []
-  [:div {:class "navbar navbar-custom navbar-inverse navbar-static-top" :id "nav"}
    [:div {:class "container"}
     [:div {:class "navbar-header"}
      [:button {:type "button" :class "navbar-toggle collapsed" :data-toggle "collapse" :data-target ".navbar-collapse"}
@@ -48,5 +47,5 @@
         [:li
          [:a {:href "#"} "Get me some link"]]
         ]]
-      ]]]])
+      ]]])
 
