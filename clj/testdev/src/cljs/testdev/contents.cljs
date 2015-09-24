@@ -49,3 +49,24 @@
         ]]
       ]]])
 
+
+
+(defn pagecontents []
+
+  [:div {:class "col-sm-10 col-sm-offset-1"}
+   [:div {:class "page-header text-center"}
+    [:h1 "Debdoot Agency is Known for there Medical Identity Since 30 years"]
+    ]
+   [:p {:class "lead text-center"}
+    "We are Wholesellers Dealers and One Stop shop for anything with medicines."
+    ]
+   [:p {:class "text-center"}
+    "Most of the EMA's scientific evaluation work is carried out by its scientific committees,
+    which are made up of members from EEA countries, as well as representatives of patient, consumer
+    and healthcare-professional organisations. These committees have various tasks related to the development,
+    assessment and supervision of medicines in the EU"
+    ]
+   ]
+
+
+ )

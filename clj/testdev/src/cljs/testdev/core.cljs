@@ -9,6 +9,7 @@
     (:import goog.History))
 
 ;http://www.mattgreer.org/articles/reagent-rocks/
+;http://stackoverflow.com/questions/31009978/on-click-handler-for-a-list-item-reagent-clojurescript
 
 (defn loadHome []
 
@@ -47,21 +48,22 @@
 
      ]]]
 
-
-  ;[:div {:class "divider" :id "section_0"}]
-  ;[:div {:class "navbar navbar-custom navbar-inverse navbar-static-top" :id "nav"} content]
   )
 
 
 (defn page [body]
   [:div.page
+   [:div {:id "wrap"}
    body
-   [:div {:class "divider" :id "section_0"}]
+   [:div {:class "divider" :id "section0"}]
    [:div {:class "navbar navbar-custom navbar-inverse navbar-static-top" :id "nav"} (contents/fixed-navigation-bar)]
+   [:div {:class "divider" :id "section1"}]
+   [:div {:class "container"} (contents/pagecontents)]
+    ]
    ]
   )
 
-
+;;Home Page
 (defn home-page []
   (reagent/render-component [page[loadHome]]
                             (.-body js/document))
