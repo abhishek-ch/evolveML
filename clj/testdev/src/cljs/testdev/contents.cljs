@@ -71,5 +71,65 @@
 (defn pageWithImageOne []
    [:div {:class "col-sm-6 col-sm-offset-3 text-center"}
     [:h2 "Debdoot Agency , Distributor .. Wholeseller"]
+    ])
+
+
+(defn page2 []
+  [:div {:class "col-sm-8 col-sm-offset-2 text-center"}
+   [:h1 "We Do things Differently"]
+   [:blockquote
+    [:span
+     "We are a creative company build to "
+     ]
+    [:span {:class "hover-active"}
+     "purposeful ventures"
+     ]
     ]
+   ]
   )
+
+;http://whiteboard.is/
+(defn pageOwn []
+  [:div {:class "container"}
+  [:div {:class "row"}
+   [:div {:class "twelve columns"}
+    [:blockquote
+     [:span
+      "We are a creative company build to "]
+     [:span {:class "hover-active"}
+      "purposeful ventures"]
+     ". We are led by our desire to produce "
+     [:span {:class "hover-active"}
+      " Love for life "]
+     ","
+     [:span {:class "hover-active"} "people "]
+     ", and "
+     [:span {:class "hover-active"} " possibilities "]
+     "."]]]
+
+   [:div {:class "row"}
+    [:div {:class "columns six"}
+     [:p {:class "sans-serif"}
+      "We work with individuals that create solutions, celebrate entrepreneurship, stand for justice, and believe in the progress of common good."
+      ]
+     [:br]
+     [:br]
+     [:button {:type "button" :class "btn btn-success btn-lg" :href "#"} "About our company"]]
+
+    [:div {:class "column six"}
+     [:section {:class "bg-3"}]
+     [:a {:href "http://player.vimeo.com/video/70217963?autoplay=1"
+          :data-image-small "http://whiteboard.is/wp-content/themes/wb4/images/team-home-landing-small.jpg"
+          :data-image-large "http://whiteboard.is/wp-content/themes/wb4/images/team-home-landing-full.jpg"
+          }
+      [:div {:class "bg-3"}
+       [:div {:class "ico"}]
+       ]]
+
+     ]]
+
+
+
+   ]
+  )
+

@@ -1,15 +1,16 @@
 (ns testdev.core
-    (:require [reagent.core :as reagent :refer [atom]]
-              [reagent.session :as session]
-              [secretary.core :as secretary :include-macros true]
-              [goog.events :as events]
-              [goog.history.EventType :as EventType]
-              [testdev.contents :as contents]
-              )
-    (:import goog.History))
+  (:require [reagent.core :as reagent :refer [atom]]
+            [reagent.session :as session]
+            [secretary.core :as secretary :include-macros true]
+            [goog.events :as events]
+            [goog.history.EventType :as EventType]
+            [testdev.contents :as contents]
+            )
+  (:import goog.History))
 
 ;http://www.mattgreer.org/articles/reagent-rocks/
 ;http://stackoverflow.com/questions/31009978/on-click-handler-for-a-list-item-reagent-clojurescript
+;http://getbootstrap.com/components/
 
 (defn loadHome []
 
@@ -53,23 +54,25 @@
 
 (defn page [body]
   [:div.page
-   [:div {:id "wrap" }
-   body
-   [:div {:class "divider" :id "section0"}]
-   [:nav {:class "navbar navbar-custom navbar-inverse navbar-static-top" :id "nav" :data-spy "affix" :data-offset-top "100"} (contents/fixed-navigation-bar)]
-   [:div {:class "divider" :id "section1"}]
-   [:div {:class "container"} (contents/pagecontents)]
-   [:div {:class "divider" :id "section2"}]
-   [:section {:class "bg-1"}(contents/pageWithImageOne)]
-   [:div {:class "divider" :id "section3"}]
+   [:div {:id "wrap"}
+    body
+    [:div {:class "divider" :id "section0"}]
+    [:nav {:class "navbar navbar-custom navbar-inverse navbar-static-top" :id "nav" :data-spy "affix" :data-offset-top "100"} (contents/fixed-navigation-bar)]
+    [:div {:class "divider" :id "section1"}]
+    [:div {:class "container"} (contents/pagecontents)]
+    [:div {:class "divider" :id "section2"}]
+    [:section {:class "bg-1"} (contents/pageWithImageOne)]
+    [:div {:class "divider" :id "section3"}]
+    [:section {:class "container" :id "weare"} (contents/pageOwn)]
+    [:div {:class "divider" :id "section4"}]
     ]]
   )
 
+
 ;;Home Page
 (defn home-page []
-  (reagent/render [page[loadHome]]
-                            (.-body js/document))
-     )
+  (reagent/render [page [loadHome]]
+                  (.-body js/document)))
 
 
 
@@ -94,28 +97,28 @@
 (defonce selected-department (atom "department!"))
 
 (defn simple-component []
-      [:div#sidebar-wrapper
-       [:ul.sidebar-nav
-        [:li.sidebar-brand [:a {:href "#"} "Departments"]]
-        [:li [:a {:on-click #(reset! selected-department "Dairy") :href "#"} "Dairy"]]
-        [:li [:a {:on-click #(reset! selected-department "Deli") :href "#"} "Deli"]]
-        [:li [:a {:on-click #(reset! selected-department "Grocery") :href "#"} "Grocery"]]]
-       [:label @selected-department]])
+  [:div#sidebar-wrapper
+   [:ul.sidebar-nav
+    [:li.sidebar-brand [:a {:href "#"} "Departments"]]
+    [:li [:a {:on-click #(reset! selected-department "Dairy") :href "#"} "Dairy"]]
+    [:li [:a {:on-click #(reset! selected-department "Deli") :href "#"} "Deli"]]
+    [:li [:a {:on-click #(reset! selected-department "Grocery") :href "#"} "Grocery"]]]
+   [:label @selected-department]])
 
 
 (defn render-simple []
-      (reagent/render-component [simple-component]
-                          (.-body js/document)))
+  (reagent/render-component [simple-component]
+                            (.-body js/document)))
 
 ;; -------------------------
 ;; Routes
 (secretary/set-config! :prefix "#")
 
 (secretary/defroute "/" []
-  (session/put! :current-page #'home-page))
+                    (session/put! :current-page #'home-page))
 
 (secretary/defroute "/about" []
-  (session/put! :current-page #'about-page))
+                    (session/put! :current-page #'about-page))
 
 (secretary/defroute "/render" []
                     (session/put! :current-page #'render-simple))
@@ -126,9 +129,9 @@
 (defn hook-browser-navigation! []
   (doto (History.)
     (events/listen
-     EventType/NAVIGATE
-     (fn [event]
-       (secretary/dispatch! (.-token event))))
+      EventType/NAVIGATE
+      (fn [event]
+        (secretary/dispatch! (.-token event))))
     (.setEnabled true)))
 
 ;; -------------------------
