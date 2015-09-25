@@ -18,7 +18,7 @@
     [:div {:class "row"}
      [:div {:class "col-sm-6"}
       [:h1
-       [:a {:title "Abhishek Testing"} "Abhishek Search..."]
+       [:a {:title "Abhishek Testing"} "Abhishek Search##..."]
        [:p {:class "lead"} "{An Amazing Company...}"]
        ]]
 
@@ -56,16 +56,18 @@
    [:div {:id "wrap" }
    body
    [:div {:class "divider" :id "section0"}]
-   [:div {:class "navbar navbar-custom navbar-inverse navbar-static-top" :id "nav"} (contents/fixed-navigation-bar)]
+   [:nav {:class "navbar navbar-custom navbar-inverse navbar-static-top" :id "nav" :data-spy "affix" :data-offset-top "100"} (contents/fixed-navigation-bar)]
    [:div {:class "divider" :id "section1"}]
    [:div {:class "container"} (contents/pagecontents)]
-    ]
-   ]
+   [:div {:class "divider" :id "section2"}]
+   [:section {:class "bg-1"}(contents/pageWithImageOne)]
+   [:div {:class "divider"}]
+    ]]
   )
 
 ;;Home Page
 (defn home-page []
-  (reagent/render-component [page[loadHome]]
+  (reagent/render [page[loadHome]]
                             (.-body js/document))
      )
 

@@ -9,15 +9,14 @@
 (defn fixed-navigation-bar []
    [:div {:class "container"}
     [:div {:class "navbar-header"}
-     [:button {:type "button" :class "navbar-toggle collapsed" :data-toggle "collapse" :data-target ".navbar-collapse"}
+     [:button {:type "button" :class "navbar-toggle" :data-toggle "collapse" :data-target ".navbar-collapse"}
       [:span {:class "icon-bar"}]
       [:span {:class "icon-bar"}]
       [:span {:class "icon-bar"}]
       ]
-     [:a {:class "navbar-brand" :href "#"} "Brand"]
      ]
     [:div {:class "collapse navbar-collapse" :id "bs-example-navbar-collapse-1"}
-     [:ul {:class "nav navbar-nav"}
+     [:ul {:class "nav navbar-nav nav-justified"}
       [:li
        [:a {:href "#"} "Home"]]
       [:li
@@ -52,13 +51,12 @@
 
 
 (defn pagecontents []
-
   [:div {:class "col-sm-10 col-sm-offset-1"}
    [:div {:class "page-header text-center"}
     [:h1 "Debdoot Agency is Known for there Medical Identity Since 30 years"]
     ]
    [:p {:class "lead text-center"}
-    "We are Wholesellers Dealers and One Stop shop for anything with medicines."
+    "Wes.. are Wholesellers Dealers and One Stop shop for anything with medicines."
     ]
    [:p {:class "text-center"}
     "Most of the EMA's scientific evaluation work is carried out by its scientific committees,
@@ -67,6 +65,11 @@
     assessment and supervision of medicines in the EU"
     ]
    ]
-
-
  )
+
+
+(defn pageWithImageOne []
+   [:div {:class "col-sm-6 col-sm-offset-3 text-center"}
+    [:h2 "Debdoot Agency , Distributor .. Wholeseller"]
+    ]
+  )
