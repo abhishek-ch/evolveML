@@ -61,7 +61,7 @@
    [:div {:class "container"} (contents/pagecontents)]
    [:div {:class "divider" :id "section2"}]
    [:section {:class "bg-1"}(contents/pageWithImageOne)]
-   [:div {:class "divider"}]
+   [:div {:class "divider" :id "section3"}]
     ]]
   )
 
