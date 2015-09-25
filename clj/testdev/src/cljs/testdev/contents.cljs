@@ -56,7 +56,7 @@
     [:h1 "Debdoot Agency is Known for there Medical Identity Since 30 years"]
     ]
    [:p {:class "lead text-center"}
-    "Wes.. are Wholesellers Dealers and One Stop shop for anything with medicines."
+    "We.. are Wholesellers Dealers and One Stop shop for anything with medicines."
     ]
    [:p {:class "text-center"}
     "Most of the EMA's scientific evaluation work is carried out by its scientific committees,
@@ -89,6 +89,7 @@
   )
 
 ;http://whiteboard.is/
+;http://getbootstrap.com/2.3.2/scaffolding.html
 (defn pageOwn []
   [:div {:class "container"}
   [:div {:class "row"}
@@ -108,7 +109,7 @@
      "."]]]
 
    [:div {:class "row"}
-    [:div {:class "columns six"}
+    [:div {:class "span3"}
      [:p {:class "sans-serif"}
       "We work with individuals that create solutions, celebrate entrepreneurship, stand for justice, and believe in the progress of common good."
       ]
@@ -116,17 +117,10 @@
      [:br]
      [:button {:type "button" :class "btn btn-success btn-lg" :href "#"} "About our company"]]
 
-    [:div {:class "column six"}
-     [:section {:class "bg-3"}]
-     [:a {:href "http://player.vimeo.com/video/70217963?autoplay=1"
-          :data-image-small "http://whiteboard.is/wp-content/themes/wb4/images/team-home-landing-small.jpg"
-          :data-image-large "http://whiteboard.is/wp-content/themes/wb4/images/team-home-landing-full.jpg"
-          }
-      [:div {:class "bg-3"}
-       [:div {:class "ico"}]
-       ]]
-
-     ]]
+    [:div {:class "span6"}
+     [:img {:src "http://whiteboard.is/wp-content/themes/wb4/images/team-home-landing-full.jpg"}]
+     ]
+    ]
 
 
 
