@@ -1,0 +1,13 @@
+training = sc.parallelize([(0L, "a b c d e spark","okokokokok", 1.0),
+                           (1L, "b d","ss ss  s s", 0.0),
+                           (2L, "spark f g h","uuiiiii", 1.0),
+                           (3L, "hadoop mapreduce","poppll", 0.0)]).map(lambda x: LabeledDocument(*x)).toDF()
+
+
+training1 = sc.parallelize([("1", "a b c d e spark","", 1.0),
+                           ("dsdfdsf-.txt", "","ss ss  s s", 0.0),
+                           ("sdfdsf--=3", "spark f g h","uuiiiii", 1.0),
+                           ("4", "hadoop mapreduce","poppll", 0.0)]).map(lambda x: LabeledDocument(*x)).toDF()
+
+
+    LabeledDocument = Row("id", "text", "show","label")
