@@ -106,7 +106,10 @@
      [:span {:class "hover-active"} "people "]
      ", and "
      [:span {:class "hover-active"} " possibilities "]
-     "."]]]
+     ". That's why we are well known as "
+     [:span {:class "hover-active"} " Debdoot Agency "]
+     ]]
+     ]
 
    [:div {:class "row"}
     [:div {:class "span3"}
@@ -121,9 +124,6 @@
      [:img {:src "http://whiteboard.is/wp-content/themes/wb4/images/team-home-landing-full.jpg"}]
      ]
     ]
-
-
-
    ]
   )
 

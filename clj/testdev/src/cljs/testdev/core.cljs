@@ -19,8 +19,8 @@
     [:div {:class "row"}
      [:div {:class "col-sm-6"}
       [:h1
-       [:a {:title "Abhishek Testing"} "Abhishek Search##..."]
-       [:p {:class "lead"} "{An Amazing Company...}"]
+       [:a {:title "Abhishek Testing"} "Debdoot Agency##..."]
+       [:p {:class "lead"} "{A-z of pharmaceutical need}"]
        ]]
 
      [:div {:class "col-sm-6"}
