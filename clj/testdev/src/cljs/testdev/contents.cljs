@@ -117,13 +117,21 @@
       "We work with individuals that create solutions, celebrate entrepreneurship, stand for justice, and believe in the progress of common good."
       ]
      [:br]
-     [:br]
      [:button {:type "button" :class "btn btn-success btn-lg" :href "#"} "About our company"]]
+    [:br]
+    [:br]
 
-    [:div {:class "span6"}
-     [:img {:src "http://whiteboard.is/wp-content/themes/wb4/images/team-home-landing-full.jpg"}]
-     ]
-    ]
-   ]
+   ]]
   )
+
+
+(defn explainDelivery []
+ [:div {:class "col-sm-6 col-sm-offset-3 text-center"}
+  [:h2 {:style {:padding "50px" :background-color "rgba(5,5,5,.8)"}}
+   "Distributor -> [BadaBazar & Aamtala]"
+   [:br]
+   "Wholeseller -> [Badabazar aka. Shankarnarayan]"
+   ]
+  ]
+ )
 

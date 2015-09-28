@@ -64,7 +64,8 @@
     [:section {:class "bg-1"} (contents/pageWithImageOne)]
     [:div {:class "divider" :id "section3"}]
     [:section {:class "container" :id "weare"} (contents/pageOwn)]
-    [:div {:class "divider" :id "section4"}]
+    [:div {:class "divider"}]
+    [:section {:class "bg-5" :id "section4"} (contents/explainDelivery)]
     ]]
   )
 
