@@ -315,6 +315,25 @@
          (#(flatten(map list %1 %2))[1 2] [3 4 5 6])
          )
 
+
 (println "interpoase "(fn [sep coll]
                         (drop-last
                           (mapcat #(conj [] % sep) coll))) [1 2 3])
+
+;;
+(println "keep-indexed " (fn [col n] (keep-indexed (fn [i item] (when (not= (mod (inc i) n) 0) item)) col) [1 2 3 4 5 6 7 8] 3)
+         )
+
+
+(println "factorial "
+         (fn [n]
+           (loop [val n start 1]
+             (if (zero? val)
+               start
+               (recur (dec val) (* start val))
+               )
+             )
+           ) 5
+         )
+
+(println "factorial using reduce " #(reduce * (range 1 (inc %))) 5 )
