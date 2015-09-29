@@ -131,7 +131,50 @@
    "Distributor -> [BadaBazar & Aamtala]"
    [:br]
    "Wholeseller -> [Badabazar aka. Shankarnarayan]"
+   ]]
+ )
+
+
+(defn pictureBlock
+ [src leadVal content]
+ [:div {:class "col-sm-4 col-xs-6"}
+ [:div {:class "panel panel-default"}
+  [:div
+   [:img {:src src :class "img-responsive"}]]
+  [:div {:class "panel-body"}
+   [:p {:class "lead"} leadVal]
+   [:p content]
    ]
+  ]]
+ )
+
+
+(def contactsMap
+ [{:src "//placehold.it/450X250/ffcc33/444" :lead "Anup Saha" :lead_content "Owner/Founder"}
+  {:src "//placehold.it/450X250/f16251/444" :lead "Radha Saha" :lead_content "Co-Founder & Wife"}
+  {:src "//placehold.it/450X250/ffcc33/444" :lead "Thinking..." :lead_content "Advisory Board"}
   ]
  )
+
+
+(defn delegatePictureBlock []
+ (map #(pictureBlock (:src %1)(:lead %1)(:lead_content %1)) contactsMap)
+ )
+
+
+(defn get-places []
+ (let [map-canvas (.getElementById js/document "map-canvas")
+       map-options (clj->js {"center" (google.maps.LatLng. 22.381742, 88.270003)
+                             "zoom" 8})]
+  (js/google.maps.Map. map-canvas map-options))
+ )
+
+(defn direction []
+ ;AIzaSyBVe4qpNwgKVUU_g62OSqpXi6H6FDp5UyU
+ ;22.381742, 88.270003
+ [:h1 {:class "text-center"} "Our Location"]
+ [:div {:id "map-canvas"}]
+ (get-places)
+ )
+
 

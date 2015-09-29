@@ -28,8 +28,10 @@
      (include-js "js/app.js")
      (include-js "https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"
                  "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"
+                 "https://maps.googleapis.com/maps/api/js?key=AIzaSyBVe4qpNwgKVUU_g62OSqpXi6H6FDp5UyU"
                  )
-
+     ;[:script {:src "https://maps.googleapis.com/maps/api/js?key=AIzaSyBVe4qpNwgKVUU_g62OSqpXi6H6FDp5UyU"}]
+     [:script "google_maps.core.main();"]
      ]]))
 
 ;https://github.com/yokolet/hiccup-samples
@@ -71,6 +73,7 @@
      ]
 
     [:body
+
      [:header {:class "masthead"}
       [:div {:class "container"}
        [:div {:class "row"}

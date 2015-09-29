@@ -66,6 +66,10 @@
     [:section {:class "container" :id "weare"} (contents/pageOwn)]
     [:div {:class "divider"}]
     [:section {:class "bg-5" :id "section4"} (contents/explainDelivery)]
+    [:div {:class "container bg-4"} [:div {:class "row"}(contents/delegatePictureBlock)]]
+    [:section {:class "divider" :id "section5"}]
+    [:div {:class "row"} (contents/direction)]
+
     ]]
   )
 
