@@ -69,7 +69,9 @@
     [:div {:class "container bg-4"} [:div {:class "row"}(contents/delegatePictureBlock)]]
     [:section {:class "divider" :id "section5"}]
     [:div {:class "row"} (contents/direction)]
-
+    [:div {:class "container"} (contents/beforefooter)]
+    [:div {:id "footer"} (contents/footer)]
+    [:ul {:class "nav pull-right scroll-top"} (contents/pull-up)]
     ]]
   )
 

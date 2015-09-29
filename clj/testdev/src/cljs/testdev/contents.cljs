@@ -149,10 +149,12 @@
  )
 
 
+
+
 (def contactsMap
- [{:src "//placehold.it/450X250/ffcc33/444" :lead "Anup Saha" :lead_content "Owner/Founder"}
-  {:src "//placehold.it/450X250/f16251/444" :lead "Radha Saha" :lead_content "Co-Founder & Wife"}
-  {:src "//placehold.it/450X250/ffcc33/444" :lead "Thinking..." :lead_content "Advisory Board"}
+ [{:src "/img/1.jpg" :lead "Anup Saha" :lead_content "Owner/Founder"}
+  {:src "/img/2.jpg" :lead "Radha Saha" :lead_content "Co-Founder & Wife"}
+  {:src "/img/2.jpg" :lead "Thinking..." :lead_content "Advisory Board"}
   ]
  )
 
@@ -169,12 +171,92 @@
   (js/google.maps.Map. map-canvas map-options))
  )
 
+
+(defn formDiv []
+
+[:div {:style {:padding "50px"}}
+ [:div {:class "col-sm-8"}
+  [:div {:class "row form-group"}
+   [:div {:class "col-xs-3"}
+    [:input {:type "text" :class "form-control" :id "firstName" :name "firstName" :placeholder "First Name" :required ""}]]
+   [:div {:class "col-xs-3"}
+    [:input {:type "text" :class "form-control" :id "middleName" :name "middleName" :placeholder "Middle Name" :required ""}]]
+   [:div {:class "col-xs-4"}
+    [:input {:type "text" :class "form-control" :id "lastName" :name "lastName" :placeholder "Last Name" :required ""}]]
+   ]
+
+  [:div {:class "row form-group"}
+   [:div {:class "col-xs-5"}
+    [:input {:type "email" :class "form-control" :name "email" :placeholder "Email" :required ""}]]
+   [:div {:class "col-xs-5"}
+    [:input {:type "phone" :class "form-control" :name "phone" :placeholder "Phone" :required ""}]]
+   ]
+
+  [:div {:class "row form-group"}
+   [:div {:class "col-xs-10"}
+    [:input {:type "homepage" :class "form-control" :placeholder "Website URL" :required ""}]]
+   ]
+
+
+  [:div {:class "row form-group"}
+   [:div {:class "col-xs-10"}
+    [:button {:class "btn btn-default pull-right"} "Contact Us"]]]
+  ]
+
+ [:div {:class "col-sm-3 pull-right"}
+  [:address
+   [:strong "Debdoot Agency"] [:br]
+   " 44 Ezra Street, Gandhi Building"[:br]
+   "3rd Floor Room No - 14 & 15 Bada Bazar"[:br]
+   "Kolkata - 700001"[:br]
+   "West Bengal, India"[:br]
+   "P(h) - (+91)8017 26 7718"
+   ]
+  [:address
+   [:strong "Email Us "]
+   [:a {:href "mailto:#"} "debdoot.agency.amtala@gmail.com"]
+   ]]]
+
+  )
+
 (defn direction []
  ;AIzaSyBVe4qpNwgKVUU_g62OSqpXi6H6FDp5UyU
  ;22.381742, 88.270003
+[:div {:style {:padding "50px"}}
  [:h1 {:class "text-center"} "Our Location"]
  [:div {:id "map-canvas"}]
- (get-places)
+ [:hr]
+  (formDiv)
+])
+
+
+(defn beforefooter []
+ [:div {:class "col-sm-8 col-sm-offset-2 text-center"}
+  [:h2 "Debdoot Agency Group"]
+  [:hr]
+  [:h4 "Distributor & Wholeseller"]
+  [:p
+   "Connect or Contact us for knowing about our clients and Nature of Business"
+   ]
+  ])
+
+
+(defn footer []
+ [:div {:class "container"}
+  [:p {:class "text-muted"} "Developer by ABC aka Abhishek Choudhary "[:a {:href "https://abhishek-choudhary.blogspot.in"} "[Blog] "
+                                                [:a {:href "https://github.com/abhishek-ch"} " [github]"]] ]
+  ]
  )
+
+(defn pull-up []
+ [:li
+  [:a {:href "#" :title "Scroll to top"}
+   [:i {:class "glyphicon glyphicon-chevron-up"}]
+   ]
+  ]
+ )
+
+
+
 
 
