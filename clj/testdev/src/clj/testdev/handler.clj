@@ -59,62 +59,14 @@
 
 
 
-(defn application [title & content]
+(defn application [title]
   (html
     [:head [:meta {:charset "utf-8"}]
      [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
      [:meta {:name "viewport" :content "width=device-width, initial-scale=1, maximum-scale=1"}]
      [:title title]
-     (include-css "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
-                  "/css/style.css"
-                  )
-     (include-js "https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"
-       "http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"
-       "/js/script.js")
      ]
-
-    [:body
-
-     [:header {:class "masthead"}
-      [:div {:class "container"}
-       [:div {:class "row"}
-        [:div {:class "col-sm-6"}
-         [:h1
-          [:a {:title "Abhishek Testing"} "Abhishek Search..."]
-           [:p {:class "lead"} "{An Amazing Company...}"]
-           ]]
-
-        [:div {:class "col-sm-6"}
-         [:div {:class "pull-right  hidden-xs"}
-          [:a {:href "#" :class "dropdown-toggle" :data-toggle "dropdown"}
-           [:h3
-            [:i {:class "glyphicon glyphicon-cog"}]]]
-          [:ul {:class "dropdown-menu"}
-           [:li
-            [:a {:href "http://www.google.com"}
-             [:i {:class "glyphicon glyphicon-chevron-right"}]
-             "Link1"]]
-           [:li
-            [:a {:href "http://www.google.com"}
-             [:i {:class "glyphicon glyphicon-user"}]
-             "Link2"]]
-           [:li
-            [:a {:href "http://www.google.com"}
-             [:i {:class "glyphicon glyphicon-lock"}]
-             "Link3"]]
-           [:li
-            [:a {:href "http://www.google.com"}
-             [:i {:class "glyphicon glyphicon-cog"}]
-             "Link4"]]
-           ]]]
-
-        ]]]
-
-
-     [:div {:class "divider" :id "section_0"}]
-     [:div {:class "navbar navbar-custom navbar-inverse navbar-static-top" :id "nav"} content]
-
-     ]))
+  ))
 
 
 (defn not-founds []
@@ -125,7 +77,7 @@
 
 (defroutes routes
   (GET "/" [] home-page)
-  (GET "/hello" [] (application "Hello" (contents/fixed-navigation-bar ) [:div {:class "clear"}] ))
+  (GET "/about" [] (application "Testing" ))
   (resources "/")
   (not-found "Not Found"))
 

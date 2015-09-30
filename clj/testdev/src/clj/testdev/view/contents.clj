@@ -1,6 +1,7 @@
 (ns
   ^{:author abc}
-   testdev.view.contents)
+   testdev.view.contents
+  )
 
 
 ;http://getbootstrap.com/components/#navbar
@@ -48,4 +49,6 @@
          [:a {:href "#"} "Get me some link"]]
         ]]
       ]]])
+
+
 

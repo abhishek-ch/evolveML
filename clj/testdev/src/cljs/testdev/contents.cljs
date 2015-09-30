@@ -1,6 +1,8 @@
 (ns
   ^{:author abc}
-   testdev.contents)
+   testdev.contents
+
+ )
 
 
 ;http://getbootstrap.com/components/#navbar
@@ -88,6 +90,7 @@
    ]
   )
 
+
 ;http://whiteboard.is/
 ;http://getbootstrap.com/2.3.2/scaffolding.html
 (defn pageOwn []
@@ -147,9 +150,6 @@
    ]
   ]]
  )
-
-
-
 
 (def contactsMap
  [{:src "/img/1.jpg" :lead "Anup Saha" :lead_content "Owner/Founder"}
