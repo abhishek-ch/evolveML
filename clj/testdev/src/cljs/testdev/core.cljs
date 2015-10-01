@@ -190,7 +190,7 @@
        element])
 
 
-(defn home-page []
+(defn about-page []
       (let [email-address (atom nil)
             name (atom nil)
             password (atom nil)]
@@ -202,6 +202,12 @@
                  (wrap-as-element-in-form [name-form name])
                  (wrap-as-element-in-form [password-form password])]])))
 
+
+;;Home Page
+(defn home-page []
+      (reagent/render [page [loadHome]]
+                      (.-body js/document)))
+
 ;;Home Page
 (defn home-page-abt []
   (reagent/render [page [loadHome]]
@@ -211,11 +217,7 @@
 ;; -------------------------
 ;; Views
 
-(defn about-page []
 
-      (aboutpage/timer-component)
-
-      )
 
 
 (defn current-page []
