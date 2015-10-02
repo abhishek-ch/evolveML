@@ -339,3 +339,7 @@
 (println "factorial using reduce " #(reduce * (range 1 (inc %))) 5 )
 
 (println "Reverse Interleave problem 43"  (#(apply map vector (partition %2 %1)) [1 2 3 4 5 6] 3) )
+
+(println "Rotate Sequence problem 44 " (#(let [
+                     [l r] (split-at (mod % (count %2)) %2)]
+                (concat r l)) 2 [1 2 3 4 5] ))
