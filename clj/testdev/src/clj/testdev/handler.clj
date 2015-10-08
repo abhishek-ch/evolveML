@@ -77,7 +77,7 @@
 
 (defroutes routes
   (GET "/" [] home-page)
-  (GET "/about" [] (application "Testing" ))
+  (GET "/about" [] (application "signup" ))
   (resources "/")
   (not-found "Not Found"))
 

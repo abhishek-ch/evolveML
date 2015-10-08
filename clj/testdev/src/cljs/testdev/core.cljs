@@ -52,7 +52,7 @@
 
   )
 
-
+;Main page scrollable
 (defn page [body]
   [:div.page
    [:div {:id "wrap"}
@@ -190,6 +190,19 @@
        element])
 
 
+;;refered from https://github.com/jkk/formative
+(defn about-page1 []
+
+      [:div
+       [:div [:h2 "About testdev"]
+        [:div [:a {:href "#/"} "go to the home page"]]
+        [:div {:class "container"} (aboutpage/pickabout)]
+        ]
+       [:div {:class "container"} (aboutpage/home-page-abt)]
+       ]
+      )
+
+;;call with # as prefix /#/about
 (defn about-page []
       (let [email-address (atom nil)
             name (atom nil)
