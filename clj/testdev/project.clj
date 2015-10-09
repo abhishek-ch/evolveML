@@ -19,6 +19,7 @@
                  [secretary "1.2.3"]
                  [formative "0.8.8"]
                  [spyscope "0.1.5"]
+                 [clj-time "0.6.0"]
                  ]
 
   :plugins [[lein-environ "1.0.1"]

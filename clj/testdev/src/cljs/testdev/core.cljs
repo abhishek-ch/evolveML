@@ -198,7 +198,6 @@
         [:div [:a {:href "#/"} "go to the home page"]]
         [:div {:class "container"} (aboutpage/pickabout)]
         ]
-       [:div {:class "container"} (aboutpage/home-page-abt)]
        ]
       )
 
@@ -261,7 +260,7 @@
                     (session/put! :current-page #'home-page))
 
 (secretary/defroute "/about" []
-                    (session/put! :current-page #'about-page))
+                    (session/put! :current-page #'about-page1))
 
 (secretary/defroute "/render" []
                     (session/put! :current-page #'render-simple))
