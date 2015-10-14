@@ -31,21 +31,26 @@
 
 
 (defn dollme [n]
-  (println "DOLL "n)
+  [:div {:class n}
+    [:h1 "Don"]
+    ]
   )
 
-(defn callme [n x]
-  (println n)
-  (dollme x)
+(defn callme [n x name]
+  [:div {:class n :id name}
+   [:h1 x]
+   ]
   )
 
 
 
-(print (map #(callme (:class %1)(:href %1) ) headerLinks))
+(println (map #(callme (:class %1)(:href %1)(:name %1)) headerLinks))
 
-;(print (map #(println (:class %1)) headerLinks))
+(println "Partition " (partition 2 (range 9)))
 
-  (def config [{:host "test", :port 1}, {:host "testtest", :port 2}])
-  (map #(print (:host %1)) config)
+(println "Count "  (#(apply map vector (partition %2 %1)) [1 2 3 4 5 6] 3) )
 
-
+(println "Split a sequence 49. " (#(vector (vec (take %1 %2))
+                            (vec (drop %1 %2))
+                            )
+                    3 [1 2 3 4 5 6]) )
