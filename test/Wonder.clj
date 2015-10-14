@@ -343,3 +343,16 @@
 (println "Rotate Sequence problem 44 " (#(let [
                      [l r] (split-at (mod % (count %2)) %2)]
                 (concat r l)) 2 [1 2 3 4 5] ))
+
+
+(println "Iterate " (take 5 (iterate #(+ 3 %) 1))  )
+
+(println "Flipping " ( #(fn [a b] (% b a)) 4))
+
+(println "contains " (contains? [1 1 1 1 1] 4)) ;its about key not key
+
+(println "some " (some #{2 7 6} [5 6 7 8]))
+
+(println "Split a sequence 49. " (#(vector (vec (take %1 %2))
+                                           (vec (drop %1 %2)))
+                                   3 [1 2 3 4 5 6]))
