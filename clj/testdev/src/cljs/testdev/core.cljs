@@ -1,11 +1,13 @@
 (ns testdev.core
   (:require [reagent.core :as reagent :refer [atom]]
+            [reagent-forms.core :refer [bind-fields init-field value-of]]
             [reagent.session :as session]
             [secretary.core :as secretary :include-macros true]
             [goog.events :as events]
             [goog.history.EventType :as EventType]
             [testdev.contents :as contents]
             [testdev.about :as aboutpage]
+            [testdev.register :as register]
             )
   (:import goog.History))
 
@@ -189,6 +191,10 @@
       [:div {:class="row form-group"}
        element])
 
+(defn friend-source [text]
+      (filter
+        #(-> % (.toLowerCase %) (.indexOf text) (> -1))
+        ["Alice" "Alan" "Bob" "Beth" "Jim" "Jane" "Kim" "Rob" "Zoe"]))
 
 ;;refered from https://github.com/jkk/formative
 (defn about-page1 []
@@ -196,7 +202,17 @@
       [:div
        [:div [:h2 "About testdev"]
         [:div [:a {:href "#/"} "go to the home page"]]
-        [:div {:class "container"} (aboutpage/pickabout)]
+        [:div {:class "container"}
+
+         [:div {:field :typeahead
+                :id :ta
+                :input-placeholder "pick a friend"
+                :data-source friend-source
+                :input-class "form-control"
+                :list-class "typeahead-list"
+                :item-class "typeahead-item"
+                :highlight-class "highlighted"}]
+         ]
         ]
        ]
       )
