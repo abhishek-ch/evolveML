@@ -52,7 +52,7 @@
      ]
       )
 
-(defn list []
+(defn list-val []
       [:div
        [:select.form-control {:field :list :id :many-options}
         [:option {:key :foo} "foo"]
