@@ -202,22 +202,12 @@
       [:div
        [:div [:h2 "About testdev"]
         [:div [:a {:href "#/"} "go to the home page"]]
-        [:div {:class "container"}
-
-         [:div {:field :typeahead
-                :id :ta
-                :input-placeholder "pick a friend"
-                :data-source friend-source
-                :input-class "form-control"
-                :list-class "typeahead-list"
-                :item-class "typeahead-item"
-                :highlight-class "highlighted"}]
-         ]
+        [:div {:class "container"} (register/updatedlist)
         ]
-       ]
-      )
+        ]])
 
 ;;call with # as prefix /#/about
+;
 (defn about-page []
       (let [email-address (atom nil)
             name (atom nil)

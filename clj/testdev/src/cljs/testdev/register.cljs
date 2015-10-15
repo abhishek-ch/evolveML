@@ -17,6 +17,50 @@
         ]
        ])
 
+
+(defn checkbox []
+      [:div.row
+       [:div.col-md-2 "does data binding make you happy?"]
+       [:div.col-md-5
+        [:input.form-control {:field :checkbox :id :happy-bindings :checked true}]]]
+      )
+
+(def months
+  ["January" "February" "March" "April" "May" "June"
+   "July" "August" "September" "October" "November" "December"])
+
+;https://github.com/reagent-project/reagent-forms
+(defn updatedlist []
+    [:div
+      [:select {:field :list :id :dob.day}
+       (for [i (range 1 32)]
+            [:option
+             {:key (keyword (str i))
+              :visible? #(let [month (get-in % [:dob :month])]
+                              (cond
+                                (< i 29) true
+                                (< i 31) (not= month :February)
+                                (= i 31) (some #{month} [:January :March :May :July :July :October :December])
+                                :else false))}
+             i])]
+      [:select {:field :list :id :dob.month}
+       (for [month months]
+            [:option {:key (keyword month)} month])]
+      [:select {:field :list :id :dob.year}
+       (for [i (range 1950 (inc (.getFullYear (js/Date.))))]
+            [:option {:key (keyword (str i))} i])]
+     ]
+      )
+
+(defn list []
+      [:div
+       [:select.form-control {:field :list :id :many-options}
+        [:option {:key :foo} "foo"]
+        [:option {:key :bar} "bar"]
+        [:option {:key :baz} "baz"]]
+       ]
+      )
+
 (defn test_register []
 [:div {:field :typeahead
        :id :ta
