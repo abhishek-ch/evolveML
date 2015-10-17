@@ -1,4 +1,8 @@
- (ns testdev.register)
+(ns testdev.register
+
+  (:require [reagent.core :as reagent :refer [atom]]
+            [reagent-forms.core :refer [bind-fields init-field value-of]])
+  )
 
 ;http://yogthos.github.io/reagent-forms-example.html
 
@@ -7,7 +11,7 @@
   #(-> % (.toLowerCase %) (.indexOf text) (> -1))
   ["Alice" "Alan" "Bob" "Beth" "Jim" "Jane" "Kim" "Rob" "Zoe"]))
 
-(defn test []
+(defn test_1 []
       [:div {:class "col-sm-8 col-sm-offset-2 text-center"}
        [:h2 "Debdoot Agency Group"]
        [:hr]
@@ -49,8 +53,58 @@
       [:select {:field :list :id :dob.year}
        (for [i (range 1950 (inc (.getFullYear (js/Date.))))]
             [:option {:key (keyword (str i))} i])]
+     [:div {:field :datepicker :id :birthday :date-format "yyyy/mm/dd" :inline true}]
      ]
+
       )
+
+
+ (defn container-list-value []
+   [:div.form-group
+    {:field :container
+     :visible? #(:show-name? %)}
+    [:input {:field :text :id :first-name}]
+    [:input {:field :text :id :last-name}]]
+   )
+
+
+ (defn row [label input]
+   [:div.row
+    [:div.col-md-2 [:label label]]
+    [:div.col-md-5 input]])
+
+ (defn form-template []
+   [:div
+    (row "first name" [:input {:field :text :id :first-name}])
+    (row "last name" [:input {:field :text :id :last-name}])
+    (row "age" [:input {:field :numeric :id :age}])
+    (row "email" [:input {:field :email :id :email}])
+    (row "comments" [:textarea {:field :textarea :id :comments}])])
+
+
+
+
+ (def form-template-again
+   [:div
+    (row "first name"
+      [:input.form-control {:field :text :id :first-name}])
+    (row "last name"
+      [:input.form-control {:field :text :id :last-name}])
+    (row "age"
+      [:input.form-control {:field :numeric :id :age}])
+    (row "email"
+      [:input.form-control {:field :email :id :email}])
+    (row "comments"
+      [:textarea.form-control {:field :textarea :id :comments}])])
+
+ (defn forms-example []
+   (let [doc (atom {:first-name "John" :last-name "Doe" :age 35})]
+     (fn []
+       [:div
+        [:div.page-header [:h1 "Reagent Form"]]
+        [bind-fields form-template-again doc]
+        [:label (str @doc)]])))
+
 
 (defn list-val []
       [:div

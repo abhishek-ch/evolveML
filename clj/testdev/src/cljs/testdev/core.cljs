@@ -92,7 +92,7 @@
       [:div
        [:div [:h2 "About testdev"]
         [:div [:a {:href "#/"} "go to the home page"]]
-        [:div {:class "container"} (register/updatedlist)]
+        [:div {:class "container"} (register/forms-example)]
         ]])
 
 

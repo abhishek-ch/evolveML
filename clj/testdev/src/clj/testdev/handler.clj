@@ -8,6 +8,7 @@
             [ring.middleware.reload :refer [wrap-reload]]
             [testdev.view.contents :as contents]
             [environ.core :refer [env]]
+            [selmer.parser :as parser]
             ))
 
 (def home-page
@@ -56,7 +57,11 @@
 
 
 
-
+(defn resource [r]
+  (-> (Thread/currentThread)
+    (.getContextClassLoader)
+    (.getResource r)
+    slurp))
 
 
 (defn application [title]
@@ -77,7 +82,9 @@
 
 (defroutes routes
   (GET "/" [] home-page)
-  (GET "/about" [] (application "signup" ))
+  (GET "/about" [] (application "signup"
+                     {:forms-css (resource "reagent-forms.css")
+                      :json-css (resource "json.human.css")}))
   (resources "/")
   (not-found "Not Found"))
 
