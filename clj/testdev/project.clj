@@ -20,6 +20,7 @@
                  [formative "0.8.8"]
                  [spyscope "0.1.5"]
                  [clj-time "0.6.0"]
+                 [selmer "0.9.2"]
                  ]
 
   :plugins [[lein-environ "1.0.1"]
