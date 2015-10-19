@@ -356,3 +356,6 @@
 (println "Split a sequence 49. " (#(vector (vec (take %1 %2))
                                            (vec (drop %1 %2)))
                                    3 [1 2 3 4 5 6]))
+
+(println "Split by Type # 50" (#(group-by type % )  [[1 2] :a [3 4] 5 6 :b]) )
+(println "Split by Type # 50" (#(map second (group-by type % ))  [[1 2] :a [3 4] 5 6 :b]) ) ;map made the conj to a single sequence
