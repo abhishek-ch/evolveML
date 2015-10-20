@@ -359,3 +359,5 @@
 
 (println "Split by Type # 50" (#(group-by type % )  [[1 2] :a [3 4] 5 6 :b]) )
 (println "Split by Type # 50" (#(map second (group-by type % ))  [[1 2] :a [3 4] 5 6 :b]) ) ;map made the conj to a single sequence
+
+(println " use of Let " (let [[a b & c  :as val] [1 2 3 4 5]] [a b c val]))
