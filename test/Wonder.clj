@@ -361,3 +361,25 @@
 (println "Split by Type # 50" (#(map second (group-by type % ))  [[1 2] :a [3 4] 5 6 :b]) ) ;map made the conj to a single sequence
 
 (println " use of Let " (let [[a b & c  :as val] [1 2 3 4 5]] [a b c val]))
+
+(println "partion" (partition 3 (range 10)))
+
+(println "self partition " ( (fn mypartion [a ranges]
+                               (if (> (count ranges) a)
+                                 (cons (take a ranges)
+                                   (mypartion a (drop a ranges))
+                                   )
+                                 )
+                               ) 3 (range 10)))
+
+
+
+(println "recursion loop Self partion " (#(loop[result [] , remains %2]
+                                            (if (>= (count remains) %1)
+                                              (recur (conj result (take %1 remains)) (drop %1 remains))
+                                              result)) 3 (range 10)))
+
+;since map is passed so double bracket
+(println "Frequency self-implemented " (#(into {} (map (fn [[k v]]
+                                                         [k (count v)]
+                                                         ) (group-by identity %)) )[1 1 2 3 4 1 1 4 5 5] ) )
