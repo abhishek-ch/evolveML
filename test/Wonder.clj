@@ -383,3 +383,9 @@
 (println "Frequency self-implemented " (#(into {} (map (fn [[k v]]
                                                          [k (count v)]
                                                          ) (group-by identity %)) )[1 1 2 3 4 1 1 4 5 5] ) )
+                                                       
+                                                       
+( println "custom distinct" (fn [s]
+     ( reduce (fn [v n] (if (nil? (some #{n} v)) (conj v n) v )   ) [] s)
+     )
+  [1 2 1 3 1 2 4] )
