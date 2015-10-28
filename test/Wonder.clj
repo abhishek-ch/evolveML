@@ -362,30 +362,20 @@
 
 (println " use of Let " (let [[a b & c  :as val] [1 2 3 4 5]] [a b c val]))
 
-(println "partion" (partition 3 (range 10)))
 
-(println "self partition " ( (fn mypartion [a ranges]
-                               (if (> (count ranges) a)
-                                 (cons (take a ranges)
-                                   (mypartion a (drop a ranges))
-                                   )
-                                 )
-                               ) 3 (range 10)))
-
-
-
-(println "recursion loop Self partion " (#(loop[result [] , remains %2]
-                                            (if (>= (count remains) %1)
-                                              (recur (conj result (take %1 remains)) (drop %1 remains))
-                                              result)) 3 (range 10)))
-
-;since map is passed so double bracket
-(println "Frequency self-implemented " (#(into {} (map (fn [[k v]]
-                                                         [k (count v)]
-                                                         ) (group-by identity %)) )[1 1 2 3 4 1 1 4 5 5] ) )
-                                                       
-                                                       
 ( println "custom distinct" (fn [s]
-     ( reduce (fn [v n] (if (nil? (some #{n} v)) (conj v n) v )   ) [] s)
+     ( reduce (fn [v n] (if (nil? (some #{n} v))
+                          (conj v n)
+                          v )) [] s)
      )
   [1 2 1 3 1 2 4] )
+
+
+(println "Simple Recursion "
+         (
+           (fn foo [x]
+               (when (> x 0)
+                     (conj (foo (dec x)) x))) 5))
+
+
+(println "Mod " (mod 2 8))
