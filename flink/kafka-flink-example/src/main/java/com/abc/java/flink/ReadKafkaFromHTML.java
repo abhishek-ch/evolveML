@@ -1,13 +1,14 @@
 package com.abc.java.flink;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Properties;
 
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.DataStreamSource;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer082;
 import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
@@ -36,7 +37,6 @@ public class ReadKafkaFromHTML {
 
 			@Override
 			public String map(String value) throws Exception {
-
 				value = Jsoup.parse(value).text();
 //				DataStreamSource<String> text = env.fromElements(Jsoup.parse(value).text());
 //				// text.flatMap(new Tokenizer()).keyBy(0).sum(1)
@@ -47,20 +47,11 @@ public class ReadKafkaFromHTML {
 //						// "1"
 //						.keyBy(0).sum(1);
 
-				return value+" : "+value.length();
+				return ZonedDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME)+" : "+value.length();
 
 			}
 		}).print();
 		
-		
-		messageStream.rebalance().map(new MapFunction<String, String>() {
-			private static final long serialVersionUID = -6867736771747690202L;
-
-			@Override
-			public String map(String value) throws Exception {
-				return "Kafka and Flink says: " + value;
-			}
-		}).print();
 		
 		env.execute();
 	}

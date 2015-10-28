@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 import java.util.stream.Stream;
 
@@ -32,14 +34,16 @@ public class KafkaTextReaderProducer {
 			String substring = filePath.toString().substring(lastIndexOf+1);
 			//System.err.println("substringsubstring "+substring);
 			if (Files.isRegularFile(filePath) && !substring.startsWith(".")) {
-				System.out.println(filePath);
+				//System.out.println(filePath);
+				
 				
 				//read each line of the file
 				try (Stream<String> stream = Files.lines(filePath, Charset.defaultCharset())) {
 					//stream.forEach(System.out::println);
 					stream.forEach(val -> {
 						KeyedMessage<String, String> data = new KeyedMessage<String, String>("test", val);
-						System.err.println("datadata "+data);
+						System.err.println(ZonedDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME));
+						//new Date().getTime()
 						producer.send(data);
 					});
 					
@@ -49,6 +53,7 @@ public class KafkaTextReaderProducer {
 
 			}
 		});
+		producer.close();
 	}
 
 }
