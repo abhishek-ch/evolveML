@@ -4,8 +4,6 @@ import java.util.Properties;
 
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.java.DataSet;
-import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
@@ -34,22 +32,33 @@ public class ReadKafkaFromHTML {
 				.addSource(new FlinkKafkaConsumer082<>("test", new SimpleStringSchema(), props));
 
 		messageStream.rebalance().map(new MapFunction<String, String>() {
-			private static final long serialVersionUID = -6867736771747690233L;
+			private static final long serialVersionUID = -4263083077217874531L;
 
 			@Override
 			public String map(String value) throws Exception {
 
-				DataStreamSource<String> text = env.fromElements(Jsoup.parse(value).text());
-				// text.flatMap(new Tokenizer()).keyBy(0).sum(1)
-				SingleOutputStreamOperator<Tuple2<String, Integer>, ?> counts =
-				// split up the lines in pairs (2-tuples) containing: (word,1)
-				text.flatMap(new Tokenizer())
-						// group by the tuple field "0" and sum up tuple field
-						// "1"
-						.keyBy(0).sum(1);
+				value = Jsoup.parse(value).text();
+//				DataStreamSource<String> text = env.fromElements(Jsoup.parse(value).text());
+//				// text.flatMap(new Tokenizer()).keyBy(0).sum(1)
+//				SingleOutputStreamOperator<Tuple2<String, Integer>, ?> counts =
+//				// split up the lines in pairs (2-tuples) containing: (word,1)
+//				text.flatMap(new Tokenizer())
+//						// group by the tuple field "0" and sum up tuple field
+//						// "1"
+//						.keyBy(0).sum(1);
 
-				return counts.getName() + " - " + counts.getId();
+				return value+" : "+value.length();
 
+			}
+		}).print();
+		
+		
+		messageStream.rebalance().map(new MapFunction<String, String>() {
+			private static final long serialVersionUID = -6867736771747690202L;
+
+			@Override
+			public String map(String value) throws Exception {
+				return "Kafka and Flink says: " + value;
 			}
 		}).print();
 		
@@ -63,6 +72,11 @@ public class ReadKafkaFromHTML {
 	// }
 
 	private static final class Tokenizer implements FlatMapFunction<String, Tuple2<String, Integer>> {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 7187013284840271463L;
 
 		@Override
 		public void flatMap(String value, Collector<Tuple2<String, Integer>> out) {
