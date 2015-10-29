@@ -29,7 +29,7 @@ public class KafkaTextReaderProducer {
 		ProducerConfig config = new ProducerConfig(props);
 		Producer<String, String> producer = new Producer<String, String>(config);
 		
-		Files.walk(Paths.get("/Volumes/work/data/kaggle/dato/0/")).forEach(filePath -> {
+		Files.walk(Paths.get("/Volumes/work/data/kaggle/dato/1/")).forEach(filePath -> {
 			int lastIndexOf = filePath.toString().lastIndexOf(File.separator);
 			String substring = filePath.toString().substring(lastIndexOf+1);
 			//System.err.println("substringsubstring "+substring);
