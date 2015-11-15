@@ -379,3 +379,6 @@
 
 
 (println "Mod " (mod 2 8))
+
+;;problem 61
+#(into {} (map vector %1 %2 ))
