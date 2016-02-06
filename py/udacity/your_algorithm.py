@@ -59,9 +59,9 @@ print("Accuracy" ,accuracy_score(labels_test, predict))
 #     pass
 
 from sklearn.ensemble import BaggingClassifier
-bagging = BaggingClassifier(KNeighborsClassifier(),n_estimators=300, max_samples=0.5, max_features=2)
+bagging = BaggingClassifier(KNeighborsClassifier(),n_estimators=300, max_samples=0.4, max_features=2)
 bagging.fit(features_train, labels_train)
-print("Accuracy_BaggingClassifier %0.2f" % (accuracy_score(labels_test, bagging.predict(features_test))))
+print("Accuracy_BaggingClassifier %0.4f" % (accuracy_score(labels_test, bagging.predict(features_test))))
 # bagging = BaggingClassifier(RandomForestClassifier(),n_estimators=300, max_samples=0.5, max_features=2)
 
 # try:
@@ -69,16 +69,33 @@ print("Accuracy_BaggingClassifier %0.2f" % (accuracy_score(labels_test, bagging.
 # except NameError:
 #     pass
 
+
+
+
 from sklearn import cross_validation
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.cross_validation import cross_val_score
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
 
-clf_random = RandomForestClassifier(n_estimators=100, max_depth=None,min_samples_split=1, random_state=0)
-scores = cross_val_score(clf_random, features_train, labels_train)
-print("mean ",scores.mean()," len ",len(features_train))
+clf_adaboost = AdaBoostClassifier(RandomForestClassifier(max_depth=None,n_estimators=500),
+                         algorithm="SAMME",n_estimators=200,random_state=2)
+# scores = cross_val_score(clf_adaboost, features_train, labels_train)
+# print("Adaboost Score Mean",scores.mean())
+clf_adaboost = clf_adaboost.fit(features_train, labels_train)
+print("Adaboost Decision Tree Predict %0.4f" % (accuracy_score(labels_test, clf_adaboost.predict(features_test))))
+# try:
+#     prettyPicture(clf_adaboost, features_test, labels_test,"clf_adaboost2.png")
+# except NameError:
+#     pass
 
-clf2 = RandomForestClassifier(n_estimators=200, max_depth=None,min_samples_split=1, random_state=1)
+# clf_random = RandomForestClassifier(n_estimators=100, max_depth=None,min_samples_split=1, random_state=0)
+# scores = cross_val_score(clf_random, features_train, labels_train)
+# print("mean ",scores.mean())
+
+
+clf2 = RandomForestClassifier(n_estimators=200, max_depth=2,min_samples_split=1, random_state=1)
 clf3 = GaussianNB()
 
 print('5-fold cross validation:\n')
@@ -88,7 +105,7 @@ for clf_main, label in zip([clf, clf2, clf3], ['KNearestForest', 'Random Forest'
     scores = cross_validation.cross_val_score(clf_main, features_train, labels_train, cv=5, scoring='accuracy')    
     clf_main = clf_main.fit(features_train,labels_train)
     predict_main = clf_main.predict(features_test)
-    print("Accuracy: %0.2f (+/- %0.2f) [%s] Prediction: %0.2f" % (scores.mean(), scores.std(), label,accuracy_score(labels_test, predict_main)))
+    print("Accuracy: %0.2f (+/- %0.2f) [%s] Prediction: %0.4f" % (scores.mean(), scores.std(), label,accuracy_score(labels_test, predict_main)))
 
 
 
