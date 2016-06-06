@@ -88,12 +88,12 @@
 
 ;;refered from https://github.com/jkk/formative
 (defn about-page1 []
-
-      [:div
+  [:div.page
+      [:div {:id "wrap"}
        [:div [:h2 "About testdev"]
         [:div [:a {:href "#/"} "go to the home page"]]
-        [:div {:class "container"} (register/forms-example)]
-        ]])
+        [:div {:class "container  bg-4"} (register/form-view-show)]
+        ]]])
 
 
 
@@ -166,4 +166,4 @@
 
 (defn init! []
   (hook-browser-navigation!)
-  (mount-root))
+  (reagent/render-component [current-page] (.getElementById js/document "app")))

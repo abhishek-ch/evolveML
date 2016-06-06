@@ -1,7 +1,11 @@
 (ns testdev.register
 
   (:require [reagent.core :as reagent :refer [atom]]
-            [reagent-forms.core :refer [bind-fields init-field value-of]])
+            [reagent-forms.core :refer [bind-fields init-field value-of]]
+            [cljsjs.react :as react]
+            [secretary.core :as secretary :include-macros true]
+            [reagent.session :as session]
+            )
   )
 
 ;http://yogthos.github.io/reagent-forms-example.html
@@ -124,3 +128,78 @@
        :list-class "typeahead-list"
        :item-class "typeahead-item"
        :highlight-class "highlighted"}])
+
+
+(defn prompt-message
+  "A prompt that will animate to help the user with a given input"
+  [message]
+  [:div {:class "my-messages"}
+   [:div {:class "prompt message-animation"} [:p message]]])
+
+(defn input-element
+  "An input element which updates its value and on focus parameters on change, blur, and focus"
+  [id name type value in-focus]
+  [:input {:id id
+           :name name
+           :class "form-control"
+           :type type
+           :required ""
+           :value @value
+           :on-change #(reset! value (-> % .-target .-value))
+           :on-focus #(swap! in-focus not)
+           :on-blur (fn [arg] (if (nil? @value) (reset! value ""))(swap! in-focus not))}])
+
+
+(defn input-and-prompt
+  "Creates an input box and a prompt box that appears above the input when the input comes into focus. Also throws in a little required message"
+  [label-value input-name input-type input-element-arg prompt-element required?]
+  (let [input-focus (atom false)]
+    (fn []
+      [:div
+       [:label label-value]
+       (if @input-focus prompt-element [:div])
+       [input-element input-name input-name input-type input-element-arg input-focus]
+       (if (and required? (= "" @input-element-arg))
+         [:div "Field is required!"]
+         [:div])])))
+
+
+(defn wrap-as-element-in-form
+  [element]
+  [:div {:class="row form-group"}
+   element])
+
+(defn email-form [email-address-atom]
+  (input-and-prompt "email"
+    "email"
+    "email"
+    email-address-atom
+    (prompt-message "What's your email address?")
+    true))
+
+
+(defn form-view-show []
+  (let [email-address (atom nil)]
+    (fn []
+      [:div {:class "signup-wrapper"}
+       [:h2 "Registration Form"]
+       [:form
+        (wrap-as-element-in-form [email-form email-address])
+        ]
+       ]
+      )))
+
+
+
+
+;(defn home-page []
+;  (let [email-address (atom nil)
+;        name (atom nil)
+;        password (atom nil)]
+;    (fn []
+;      [:div {:class "signup-wrapper"}
+;       [:h2 "Welcome to DhruvChimp"]
+;       [:form
+;        (wrap-as-element-in-form [email-form email-address])
+;        (wrap-as-element-in-form [name-form name])
+;        (wrap-as-element-in-form [password-form password])]])))

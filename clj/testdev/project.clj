@@ -35,60 +35,55 @@
 
   :main testdev.server
 
-  :clean-targets ^{:protect false} [:target-path
-                                    [:cljsbuild :builds :app :compiler :output-dir]
+  :clean-targets ^{:protect false} [:target-path [:cljsbuild :builds :app :compiler :output-dir]
                                     [:cljsbuild :builds :app :compiler :output-to]]
 
   :source-paths ["src/clj" "src/cljc"]
 
-  :minify-assets
-  {:assets
-    {"resources/public/css/site.min.css" "resources/public/css/site.css"}}
+  :minify-assets {:assets {"resources/public/css/site.min.css" "resources/public/css/bootstrap.min.css"}}
 
-  :cljsbuild {:builds {:app {:source-paths ["src/cljs" "src/cljc"]
-                             :compiler {:output-to     "resources/public/js/app.js"
-                                        :output-dir    "resources/public/js/out"
-                                        :asset-path   "js/out"
-                                        :optimizations :none
-                                        :pretty-print  true}}}}
+                  :cljsbuild {:builds {:app {:source-paths ["src/cljs" "src/cljc"]
+                                             :compiler {:output-to "resources/public/js/app.js"
+                                                        :output-dir "resources/public/js/out"
+                                                        :asset-path "js/out"
+                                                        :optimizations :none
+                                                        :pretty-print true}}}}
 
-  :profiles {:dev {:repl-options {:init-ns testdev.repl}
+                  :profiles {:dev {:repl-options {:init-ns testdev.repl}
 
-                   :dependencies [[ring/ring-mock "0.3.0"]
-                                  [ring/ring-devel "1.4.0"]
-                                  [lein-figwheel "0.4.0"]
-                                  [org.clojure/tools.nrepl "0.2.11"]
-                                  [pjstadig/humane-test-output "0.7.0"]
-                                  ]
+                                   :dependencies [[ring/ring-mock "0.3.0"]
+                                                  [ring/ring-devel "1.4.0"]
+                                                  [lein-figwheel "0.4.0"]
+                                                  [org.clojure/tools.nrepl "0.2.11"]
+                                                  [pjstadig/humane-test-output "0.7.0"]
+                                                  ]
 
-                   :source-paths ["env/dev/clj"]
-                   :plugins [[lein-figwheel "0.4.0"]
-                             [lein-cljsbuild "1.0.6"]]
+                                   :source-paths ["env/dev/clj"]
+                                   :plugins [[lein-figwheel "0.4.0"]
+                                             [lein-cljsbuild "1.0.6"]]
 
-                   :injections [(require 'pjstadig.humane-test-output)
-                                (pjstadig.humane-test-output/activate!)]
+                                   :injections [(require 'pjstadig.humane-test-output)
+                                                (pjstadig.humane-test-output/activate!)]
 
-                   :figwheel {:http-server-root "public"
-                              :server-port 3449
-                              :nrepl-port 7002
-                              :css-dirs ["resources/public/css"]
-                              :ring-handler testdev.handler/app}
+                                   :figwheel {:http-server-root "public"
+                                              :server-port 3449
+                                              :nrepl-port 7002
+                                              :css-dirs ["resources/public/css"]
+                                              :ring-handler testdev.handler/app}
 
-                   :env {:dev true}
+                                   :env {:dev true}
 
-                   :cljsbuild {:builds {:app {:source-paths ["env/dev/cljs"]
-                                              :compiler {:main "testdev.dev"
-                                                         :source-map true}}
-}
-}}
+                                   :cljsbuild {:builds {:app {:source-paths ["env/dev/cljs"]
+                                                              :compiler {:main "testdev.dev"
+                                                                         :source-map true}}
+                                                        }
+                                               }}
 
-             :uberjar {:hooks [leiningen.cljsbuild minify-assets.plugin/hooks]
-                       :env {:production true}
-                       :aot :all
-                       :omit-source true
-                       :cljsbuild {:jar true
-                                   :builds {:app
-                                             {:source-paths ["env/prod/cljs"]
-                                              :compiler
-                                              {:optimizations :advanced
-                                               :pretty-print false}}}}}})
+                             :uberjar {:hooks [leiningen.cljsbuild minify-assets.plugin/hooks]
+                                       :env {:production true}
+                                       :aot :all
+                                       :omit-source true
+                                       :cljsbuild {:jar true
+                                                   :builds {:app {:source-paths ["env/prod/cljs"]
+                                                                  :compiler {:optimizations :advanced
+                                                                             :pretty-print false}}}}}} )
